@@ -1,12 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
-import './App.css';
+import Devices from './pages/Devices';
 
 function App() {
+  const [activePage, setActivePage] = useState('Dashboard');
+
   return (
-    <Layout>
-      <Dashboard />
+    <Layout activePage={activePage} setActivePage={setActivePage}>
+      {activePage === 'Dashboard' ? (
+        <Dashboard />
+      ) : (
+        <Devices />
+      )}
     </Layout>
   );
 }
