@@ -14,10 +14,9 @@
     "@emotion/styled": "^11.14.1",
     "@mui/icons-material": "^9.0.0",
     "@mui/material": "^9.0.0",
-    "chart.js": "^4.5.1",
     "react": "^19.2.4",
-    "react-chartjs-2": "^5.3.1",
-    "react-dom": "^19.2.4"
+    "react-dom": "^19.2.4",
+    "recharts": "^3.8.1"
   },
   "devDependencies": {
     "@eslint/js": "^9.39.4",

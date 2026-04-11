@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Box, AppBar, Toolbar, Typography, CssBaseline, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton, Badge } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DnsIcon from '@mui/icons-material/Dns';
+import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import NotificationsIcon from '@mui/icons-material/Notifications';
 import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuIcon from '@mui/icons-material/Menu';
@@ -40,6 +41,15 @@ const Layout = ({ children, activePage, setActivePage }) => {
           >
             <ListItemIcon><DnsIcon /></ListItemIcon>
             <ListItemText primary="Devices" />
+          </ListItemButton>
+        </ListItem>
+        <ListItem disablePadding>
+          <ListItemButton
+            selected={activePage === 'Observability'}
+            onClick={() => handleNavClick('Observability')}
+          >
+            <ListItemIcon><QueryStatsIcon /></ListItemIcon>
+            <ListItemText primary="Metrics & Logs" />
           </ListItemButton>
         </ListItem>
       </List>

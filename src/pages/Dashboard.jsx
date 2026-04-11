@@ -21,17 +21,17 @@ const Dashboard = () => {
       </Typography>
 
       <Grid container spacing={3} alignItems="stretch">
-        <Grid item xs={12} md={8}>
+        <Grid size={{ xs: 12, md: 9 }} sx={{ minWidth: 0 }}>
           {loading ? (
             <Skeleton variant="rectangular" height={350} animation="wave" />
           ) : (
-            <Box sx={{ height: '100%' }}>
+            <Box sx={{ height: '100%', width: '100%', minWidth: 0 }}>
               <ChartWidget />
             </Box>
           )}
         </Grid>
 
-        <Grid item xs={12} md={4}>
+        <Grid size={{ xs: 12, md: 3 }}>
           {loading ? (
             <Skeleton variant="rectangular" height={350} animation="wave" />
           ) : (
