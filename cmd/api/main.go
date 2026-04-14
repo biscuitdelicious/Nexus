@@ -6,6 +6,8 @@ import (
 	"net/http"
 
 	"github.com/biscuitdelicious/Nexus/config"
+	"github.com/biscuitdelicious/Nexus/internal/handler"
+	"github.com/biscuitdelicious/Nexus/internal/repository"
 	"github.com/go-chi/chi/v5"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -25,7 +27,19 @@ func main() {
 	}
 
 	log.Println("connected to database")
-	_ = db
+
+	locationRepo := repository.NewLocationRepository(db)
+	sensorRepo := repository.NewSensorRepository(db)
+	userRepo := repository.NewUserRepository(db)
+	eventRepo := repository.NewEventRepository(db)
+	ackRepo := repository.NewAcknowledgementRepository(db)
+
+	locationHandler := handler.NewLocationHandler(locationRepo)
+	sensorHandler := handler.NewSensorHandler(sensorRepo)
+	userHandler := handler.NewUserHandler(userRepo)
+	eventHandler := handler.NewEventHandler(eventRepo)
+	ackHandler := handler.NewAcknowledgementHandler(ackRepo)
+	webhookHandler := handler.NewWebhookHandler(eventRepo, sensorRepo)
 
 	r := chi.NewRouter()
 
@@ -33,6 +47,29 @@ func main() {
 		w.WriteHeader(http.StatusOK)
 		w.Write([]byte(`{"status": "ok"}`))
 	})
+
+	r.Get("/locations", locationHandler.GetAll)
+	r.Get("/locations/{id}", locationHandler.GetByID)
+	r.Post("/locations", locationHandler.Create)
+
+	r.Get("/sensors", sensorHandler.GetAll)
+	r.Get("/sensors/{id}", sensorHandler.GetByID)
+	r.Post("/sensors", sensorHandler.Create)
+
+	r.Get("/users", userHandler.GetAll)
+	r.Get("/users/{id}", userHandler.GetByID)
+	r.Post("/users", userHandler.Create)
+
+	r.Get("/events", eventHandler.GetAll)
+	r.Get("/events/open", eventHandler.GetOpen)
+	r.Get("/events/{id}", eventHandler.GetByID)
+	r.Post("/events", eventHandler.Create)
+	r.Patch("/events/{id}", eventHandler.UpdateStatus)
+
+	r.Get("/events/{eventId}/acknowledgements", ackHandler.GetByEventID)
+	r.Post("/acknowledgements", ackHandler.Create)
+
+	r.Post("/webhook/grafana", webhookHandler.HandleGrafana)
 
 	log.Printf("server starting on port %s", cfg.ServerPort)
 	if err := http.ListenAndServe(":"+cfg.ServerPort, r); err != nil {

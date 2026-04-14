@@ -39,3 +39,25 @@ func (r *EventRepository) Create(event *model.Event) error {
 func (r *EventRepository) Update(event *model.Event) error {
 	return r.db.Save(event).Error
 }
+
+// UpdateStatus changes only the status-related fields of an event.
+// Using db.Model().Updates() instead of Save() avoids overwriting unrelated fields.
+func (r *EventRepository) UpdateStatus(event *model.Event) error {
+	return r.db.Model(event).Updates(map[string]interface{}{
+		"status":      event.Status,
+		"updated_at":  event.UpdatedAt,
+		"resolved_at": event.ResolvedAt,
+	}).Error
+}
+
+// Avoids duplicate events
+func (r *EventRepository) FindOpenBySensor(sensorID uint, severity string) (*model.Event, error) {
+	var event model.Event
+	result := r.db.
+		Where("sensor_id = ? AND severity = ? AND status != ?", sensorID, severity, "resolved").
+		First(&event)
+	if result.Error != nil {
+		return nil, result.Error
+	}
+	return &event, nil
+}
