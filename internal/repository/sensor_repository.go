@@ -15,7 +15,7 @@ func NewSensorRepository(db *gorm.DB) *SensorRepository {
 
 func (r *SensorRepository) GetAll() ([]model.Sensor, error) {
 	var sensors []model.Sensor
-	result := r.db.Find(&sensors)
+	result := r.db.Preload("Location").Find(&sensors)
 	return sensors, result.Error
 }
 

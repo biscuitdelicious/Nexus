@@ -9,6 +9,7 @@ import (
 	"github.com/biscuitdelicious/Nexus/internal/handler"
 	"github.com/biscuitdelicious/Nexus/internal/repository"
 	"github.com/go-chi/chi/v5"
+	"github.com/rs/cors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -71,8 +72,16 @@ func main() {
 
 	r.Post("/webhook/grafana", webhookHandler.HandleGrafana)
 
+	// CORS allows the React frontend (localhost:5173) to call this API.
+	// AllowedOrigins can be tightened to specific domains in production.
+	c := cors.New(cors.Options{
+		AllowedOrigins: []string{"http://localhost:5173", "http://localhost:3000"},
+		AllowedMethods: []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"},
+		AllowedHeaders: []string{"Content-Type", "Authorization"},
+	})
+
 	log.Printf("server starting on port %s", cfg.ServerPort)
-	if err := http.ListenAndServe(":"+cfg.ServerPort, r); err != nil {
+	if err := http.ListenAndServe(":"+cfg.ServerPort, c.Handler(r)); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
 }
