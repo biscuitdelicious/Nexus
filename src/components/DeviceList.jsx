@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, Paper, Chip } from '@mui/material';
+import { List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, Paper, Chip, Box } from '@mui/material';
 import StorageIcon from '@mui/icons-material/Storage';
 import RouterIcon from '@mui/icons-material/Router';
 import SecurityIcon from '@mui/icons-material/Security';
@@ -39,39 +39,101 @@ const getColor = (status) => {
   }
 };
 
+const getAvatarConfig = (type) => {
+  switch (type) {
+    case 'Server': return { bg: 'rgba(10, 132, 255, 0.15)', color: '#0A84FF', border: 'rgba(10, 132, 255, 0.3)' };
+    case 'Network': return { bg: 'rgba(94, 92, 230, 0.15)', color: '#5E5CE6', border: 'rgba(94, 92, 230, 0.3)' };
+    case 'Security': return { bg: 'rgba(255, 149, 0, 0.15)', color: '#FF9500', border: 'rgba(255, 149, 0, 0.3)' };
+    default: return { bg: 'rgba(255, 255, 255, 0.1)', color: '#FFF', border: 'rgba(255, 255, 255, 0.2)' };
+  }
+};
+
 const DeviceList = ({ showOnlyIssues = false }) => {
   const displayedDevices = showOnlyIssues
     ? devices.filter((device) => device.status !== 'Healthy')
     : devices;
 
   return (
-    <Paper variant="outlined" sx={{ height: '100%', overflow: 'auto' }}>
-      <List sx={{ width: '100%', bgcolor: 'background.paper' }}>
-        {displayedDevices.map((device) => (
-          <ListItem key={device.id} divider>
-            <ListItemAvatar>
-              <Avatar sx={{ bgcolor: device.type === 'Server' ? 'primary.main' : device.type === 'Network' ? 'secondary.main' : 'info.main' }}>
-                {getIcon(device.type)}
-              </Avatar>
-            </ListItemAvatar>
-            <ListItemText
-              primary={device.name}
-              secondary={
-                <React.Fragment>
-                  <Typography sx={{ display: 'inline' }} component="span" variant="body2" color="text.primary">
-                    {device.ip}
+    <Paper
+      variant="outlined"
+      sx={{
+        height: '100%',
+        overflow: 'auto',
+        background: 'transparent',
+        border: 'none',
+      }}
+    >
+      <List sx={{ width: '100%', bgcolor: 'transparent', p: 0 }}>
+        {displayedDevices.map((device) => {
+          const avatarCfg = getAvatarConfig(device.type);
+
+          return (
+            <ListItem
+              key={device.id}
+              sx={{
+                mb: 1.5,
+                borderRadius: '14px',
+                border: '1px solid rgba(255, 255, 255, 0.05)',
+                background: 'rgba(25, 25, 32, 0.4)',
+                backdropFilter: 'blur(12px)',
+                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.08)',
+                  transform: 'translateY(-3px)',
+                  boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                  borderColor: 'rgba(255, 255, 255, 0.15)',
+                }
+              }}
+            >
+              <ListItemAvatar>
+                <Avatar
+                  sx={{
+                    bgcolor: avatarCfg.bg,
+                    color: avatarCfg.color,
+                    border: `1px solid ${avatarCfg.border}`,
+                    borderRadius: '12px',
+                    boxShadow: `0 4px 15px ${avatarCfg.bg}`
+                  }}
+                >
+                  {getIcon(device.type)}
+                </Avatar>
+              </ListItemAvatar>
+              <ListItemText
+                primary={
+                  <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>
+                    {device.name}
                   </Typography>
-                  {" - " + device.type}
-                </React.Fragment>
-              }
-            />
-            <Chip
-              label={device.status}
-              color={getColor(device.status)}
-              size="small"
-            />
-          </ListItem>
-        ))}
+                }
+                secondary={
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
+                    <Typography component="span" variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>
+                      {device.ip}
+                    </Typography>
+                    <Typography component="span" variant="caption" sx={{ color: 'rgba(255,255,255,0.3)' }}>
+                      •
+                    </Typography>
+                    <Typography component="span" variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.5px' }}>
+                      {device.type}
+                    </Typography>
+                  </Box>
+                }
+              />
+              <Chip
+                label={device.status}
+                color={getColor(device.status)}
+                size="small"
+                sx={{
+                  fontWeight: 800,
+                  borderRadius: '8px',
+                  textTransform: 'uppercase',
+                  fontSize: '0.65rem',
+                  letterSpacing: '0.5px',
+                  padding: '0 4px'
+                }}
+              />
+            </ListItem>
+          );
+        })}
       </List>
     </Paper>
   );
