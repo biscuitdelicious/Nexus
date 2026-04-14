@@ -1,13 +1,12 @@
 import React, { useState } from 'react';
-import { Box, AppBar, Toolbar, Typography, CssBaseline, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton, Badge } from '@mui/material';
+import { Box, AppBar, Toolbar, Typography, CssBaseline, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton, Badge, Avatar } from '@mui/material';
 import DashboardIcon from '@mui/icons-material/Dashboard';
 import DnsIcon from '@mui/icons-material/Dns';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import NotificationsIcon from '@mui/icons-material/Notifications';
-import AccountCircle from '@mui/icons-material/AccountCircle';
 import MenuIcon from '@mui/icons-material/Menu';
 
-const drawerWidth = 240;
+const drawerWidth = 260;
 
 const Layout = ({ children, activePage, setActivePage }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -23,7 +22,7 @@ const Layout = ({ children, activePage, setActivePage }) => {
 
   const drawerContent = (
     <Box>
-      <Toolbar />
+      <Toolbar sx={{ mb: 2 }} />
       <List>
         <ListItem disablePadding>
           <ListItemButton
@@ -64,7 +63,7 @@ const Layout = ({ children, activePage, setActivePage }) => {
         position="fixed"
         sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}
       >
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', height: 70 }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <IconButton
               color="inherit"
@@ -74,18 +73,29 @@ const Layout = ({ children, activePage, setActivePage }) => {
             >
               <MenuIcon />
             </IconButton>
-            <Typography variant="h6" noWrap component="div">
+            <Typography
+              variant="h5"
+              noWrap
+              component="div"
+              sx={{
+                background: 'linear-gradient(90deg, #0A84FF, #5E5CE6)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                fontWeight: 900,
+                letterSpacing: '1px'
+              }}
+            >
               Nexus Monitor
             </Typography>
           </Box>
-          <Box>
-            <IconButton color="inherit">
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <IconButton color="inherit" sx={{ '&:hover': { backgroundColor: 'rgba(255,255,255,0.1)' } }}>
               <Badge badgeContent={3} color="error">
                 <NotificationsIcon />
               </Badge>
             </IconButton>
-            <IconButton color="inherit">
-              <AccountCircle />
+            <IconButton sx={{ p: 0, ml: 1 }}>
+              <Avatar alt="Admin User" src="" sx={{ width: 36, height: 36, bgcolor: 'primary.main' }} />
             </IconButton>
           </Box>
         </Toolbar>
@@ -124,9 +134,13 @@ const Layout = ({ children, activePage, setActivePage }) => {
 
       <Box
         component="main"
-        sx={{ flexGrow: 1, p: 3, width: { sm: `calc(100% - ${drawerWidth}px)` } }}
+        sx={{
+          flexGrow: 1,
+          p: 4,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          pt: 12
+        }}
       >
-        <Toolbar />
         {children}
       </Box>
     </Box>

@@ -17,15 +17,13 @@ import {
 } from '@mui/material';
 
 const levelColor = (level) => {
-  switch (level) {
-    case 'error':
+  switch (level.toLowerCase()) {
+    case 'alarm':
       return 'error';
-    case 'warn':
+    case 'incident':
       return 'warning';
-    case 'info':
+    case 'event':
       return 'info';
-    case 'debug':
-      return 'default';
     default:
       return 'default';
   }
@@ -42,15 +40,19 @@ const formatTs = (iso) => {
 const LogsTable = ({ entries }) => {
   const [levelFilter, setLevelFilter] = useState('all');
 
-  const levels = useMemo(() => {
-    const set = new Set(entries.map((e) => e.level));
-    return ['all', ...Array.from(set).sort()];
+  const allowedEntries = useMemo(() => {
+    return entries.filter((e) => ['alarm', 'incident', 'event'].includes(e.level.toLowerCase()));
   }, [entries]);
 
+  const levels = useMemo(() => {
+    const set = new Set(allowedEntries.map((e) => e.level.toLowerCase()));
+    return ['all', ...Array.from(set).sort()];
+  }, [allowedEntries]);
+
   const filtered = useMemo(() => {
-    if (levelFilter === 'all') return entries;
-    return entries.filter((e) => e.level === levelFilter);
-  }, [entries, levelFilter]);
+    if (levelFilter === 'all') return allowedEntries;
+    return allowedEntries.filter((e) => e.level.toLowerCase() === levelFilter);
+  }, [allowedEntries, levelFilter]);
 
   return (
     <Paper variant="outlined" sx={{ width: '100%', minWidth: 0 }}>
@@ -68,7 +70,7 @@ const LogsTable = ({ entries }) => {
           >
             {levels.map((lvl) => (
               <MenuItem key={lvl} value={lvl}>
-                {lvl === 'all' ? 'All levels' : lvl}
+                {lvl === 'all' ? 'All levels' : lvl.charAt(0).toUpperCase() + lvl.slice(1)}
               </MenuItem>
             ))}
           </Select>
@@ -89,7 +91,12 @@ const LogsTable = ({ entries }) => {
               <TableRow key={row.id} hover>
                 <TableCell sx={{ whiteSpace: 'nowrap', typography: 'body2' }}>{formatTs(row.ts)}</TableCell>
                 <TableCell>
-                  <Chip size="small" label={row.level} color={levelColor(row.level)} variant="outlined" />
+                  <Chip
+                    size="small"
+                    label={row.level.toUpperCase()}
+                    color={levelColor(row.level)}
+                    variant="outlined"
+                  />
                 </TableCell>
                 <TableCell sx={{ fontFamily: 'ui-monospace, monospace', typography: 'body2' }}>{row.source}</TableCell>
                 <TableCell sx={{ fontFamily: 'ui-monospace, monospace', typography: 'body2', wordBreak: 'break-word' }}>

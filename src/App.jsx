@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import { ThemeProvider } from '@mui/material/styles';
+import glassTheme from './theme';
 import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Devices from './pages/Devices';
@@ -21,9 +23,11 @@ function App() {
   })();
 
   return (
-    <Layout activePage={activePage} setActivePage={setActivePage}>
-      {page}
-    </Layout>
+    <ThemeProvider theme={glassTheme}>
+      <Layout activePage={activePage} setActivePage={setActivePage}>
+        {page}
+      </Layout>
+    </ThemeProvider>
   );
 }
 
