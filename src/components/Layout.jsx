@@ -118,6 +118,33 @@ const Layout = ({ children, activePage, setActivePage }) => {
             />
           </ListItemButton>
         </ListItem>
+
+          <ListItem disablePadding>
+          <ListItemButton
+            selected={activePage === 'Tickets'}
+            onClick={() => handleNavClick('Tickets')}
+            sx={{
+              borderRadius: 0,
+              py: 1.5,
+              px: 4,
+              borderLeft: '2px solid transparent',
+              transition: 'none',
+              '&.Mui-selected': {
+                backgroundColor: 'transparent',
+                borderLeft: '2px solid #D4FF00',
+                '& .MuiListItemIcon-root': { color: '#D4FF00' },
+                '& .MuiListItemText-primary': { color: '#D4FF00' }
+              },
+              '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
+            }}
+          >
+            <ListItemIcon sx={{ minWidth: 40, color: '#888888' }}><QueryStatsIcon fontSize="small" /></ListItemIcon>
+            <ListItemText
+              primary={activePage === 'Observability' ? '>_ TICKETS' : 'TICKETS'}
+              primaryTypographyProps={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}
+            />
+          </ListItemButton>
+        </ListItem>
       </List>
 
       <Box sx={{ p: 3 }}>

@@ -5,6 +5,7 @@ import Layout from './components/Layout';
 import Dashboard from './pages/Dashboard';
 import Devices from './pages/Devices';
 import Observability from './pages/Observability';
+import Tickets from "./pages/Tickets.jsx";
 
 function App() {
   const [activePage, setActivePage] = useState('Dashboard');
@@ -17,6 +18,9 @@ function App() {
         return <Devices />;
       case 'Observability':
         return <Observability />;
+
+        case 'Tickets':
+        return <Tickets />;
       default:
         return <Dashboard />;
     }
