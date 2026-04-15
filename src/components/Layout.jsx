@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { Box, AppBar, Toolbar, Typography, CssBaseline, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton, Badge, Avatar } from '@mui/material';
-import DashboardIcon from '@mui/icons-material/Dashboard';
-import DnsIcon from '@mui/icons-material/Dns';
-import QueryStatsIcon from '@mui/icons-material/QueryStats';
-import NotificationsIcon from '@mui/icons-material/Notifications';
-import MenuIcon from '@mui/icons-material/Menu';
+import {
+  Dashboard as DashboardIcon,
+  Dns as DnsIcon,
+  QueryStats as QueryStatsIcon,
+  Notifications as NotificationsIcon,
+  Menu as MenuIcon
+} from '@mui/icons-material';
 
 const drawerWidth = 280;
+const headerHeight = 80;
 
 const Layout = ({ children, activePage, setActivePage }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -21,59 +24,109 @@ const Layout = ({ children, activePage, setActivePage }) => {
   };
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-      <Box sx={{ p: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', mb: 2 }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#0D0D0D' }}>
+      <Box sx={{ height: headerHeight, display: 'flex', alignItems: 'center', px: 4, borderBottom: '1px solid #2A2A2A' }}>
         <Typography
           variant="h5"
           noWrap
           sx={{
-            background: 'linear-gradient(90deg, #0A84FF, #5E5CE6)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            fontWeight: 900,
-            letterSpacing: '1px'
+            color: '#D4FF00',
+            fontFamily: '"Roboto Mono", monospace',
+            fontWeight: 700,
+            letterSpacing: '-1px'
           }}
         >
-          Nexus Monitor
+          nexus.
         </Typography>
       </Box>
-      <List sx={{ px: 2, flexGrow: 1 }}>
+      <List sx={{ px: 0, pt: 2, flexGrow: 1 }}>
         <ListItem disablePadding>
           <ListItemButton
             selected={activePage === 'Dashboard'}
             onClick={() => handleNavClick('Dashboard')}
+            sx={{
+              borderRadius: 0,
+              py: 1.5,
+              px: 4,
+              borderLeft: '2px solid transparent',
+              transition: 'none',
+              '&.Mui-selected': {
+                backgroundColor: 'transparent',
+                borderLeft: '2px solid #D4FF00',
+                '& .MuiListItemIcon-root': { color: '#D4FF00' },
+                '& .MuiListItemText-primary': { color: '#D4FF00' }
+              },
+              '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
+            }}
           >
-            <ListItemIcon><DashboardIcon /></ListItemIcon>
-            <ListItemText primary="Dashboard" />
+            <ListItemIcon sx={{ minWidth: 40, color: '#888888' }}><DashboardIcon fontSize="small" /></ListItemIcon>
+            <ListItemText
+              primary={activePage === 'Dashboard' ? '>_ DASHBOARD' : 'DASHBOARD'}
+              primaryTypographyProps={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
           <ListItemButton
             selected={activePage === 'Devices'}
             onClick={() => handleNavClick('Devices')}
+            sx={{
+              borderRadius: 0,
+              py: 1.5,
+              px: 4,
+              borderLeft: '2px solid transparent',
+              transition: 'none',
+              '&.Mui-selected': {
+                backgroundColor: 'transparent',
+                borderLeft: '2px solid #D4FF00',
+                '& .MuiListItemIcon-root': { color: '#D4FF00' },
+                '& .MuiListItemText-primary': { color: '#D4FF00' }
+              },
+              '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
+            }}
           >
-            <ListItemIcon><DnsIcon /></ListItemIcon>
-            <ListItemText primary="Devices" />
+            <ListItemIcon sx={{ minWidth: 40, color: '#888888' }}><DnsIcon fontSize="small" /></ListItemIcon>
+            <ListItemText
+              primary={activePage === 'Devices' ? '>_ DEVICES' : 'DEVICES'}
+              primaryTypographyProps={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}
+            />
           </ListItemButton>
         </ListItem>
         <ListItem disablePadding>
           <ListItemButton
             selected={activePage === 'Observability'}
             onClick={() => handleNavClick('Observability')}
+            sx={{
+              borderRadius: 0,
+              py: 1.5,
+              px: 4,
+              borderLeft: '2px solid transparent',
+              transition: 'none',
+              '&.Mui-selected': {
+                backgroundColor: 'transparent',
+                borderLeft: '2px solid #D4FF00',
+                '& .MuiListItemIcon-root': { color: '#D4FF00' },
+                '& .MuiListItemText-primary': { color: '#D4FF00' }
+              },
+              '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
+            }}
           >
-            <ListItemIcon><QueryStatsIcon /></ListItemIcon>
-            <ListItemText primary="Metrics & Logs" />
+            <ListItemIcon sx={{ minWidth: 40, color: '#888888' }}><QueryStatsIcon fontSize="small" /></ListItemIcon>
+            <ListItemText
+              primary={activePage === 'Observability' ? '>_ METRICS & LOGS' : 'METRICS & LOGS'}
+              primaryTypographyProps={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}
+            />
           </ListItemButton>
         </ListItem>
       </List>
 
       <Box sx={{ p: 3 }}>
-        <Box sx={{ p: 2, borderRadius: '16px', background: 'linear-gradient(135deg, rgba(10, 132, 255, 0.1), rgba(94, 92, 230, 0.1))', border: '1px solid rgba(255,255,255,0.05)', textAlign: 'center' }}>
-          <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 600, mb: 1 }}>
-            System Status
+        <Box sx={{ p: 2, borderRadius: 0, backgroundColor: '#141414', border: '1px solid #2A2A2A' }}>
+          <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 1 }}>
+            Buffer State
           </Typography>
-          <Typography variant="subtitle2" sx={{ color: '#34c759', fontWeight: 800 }}>
-            All Services Online
+          <Typography sx={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}>
+            OPTIMAL
           </Typography>
         </Box>
       </Box>
@@ -81,52 +134,50 @@ const Layout = ({ children, activePage, setActivePage }) => {
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#0D0D0D' }}>
       <CssBaseline />
 
       <AppBar
         position="fixed"
         elevation={0}
         sx={{
-          top: { xs: 0, sm: 24 },
-          left: { xs: 0, sm: drawerWidth },
-          right: 0,
-          mx: 'auto',
-          width: { xs: '100%', sm: 'calc(100% - 120px)' },
-          maxWidth: '1000px',
-          borderRadius: { xs: 0, sm: '24px' },
-          height: 70,
+          width: { sm: `calc(100% - ${drawerWidth}px)` },
+          ml: { sm: `${drawerWidth}px` },
+          backgroundColor: '#0D0D0D',
+          height: headerHeight,
           justifyContent: 'center',
-          border: { xs: 'none', sm: '1px solid rgba(255, 255, 255, 0.08)' }
+          borderBottom: '1px solid #2A2A2A'
         }}
       >
-        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
+        <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: { xs: 2, sm: 4 } }}>
           <IconButton
             color="inherit"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' } }}
+            sx={{ mr: 2, display: { sm: 'none' }, color: '#D4FF00', borderRadius: 0 }}
           >
             <MenuIcon />
           </IconButton>
 
           <Box sx={{ display: { xs: 'flex', sm: 'none' }, alignItems: 'center' }}>
-            <Typography variant="h6" sx={{ fontWeight: 800 }}>Nexus</Typography>
+            <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, color: '#D4FF00' }}>NEXUS</Typography>
           </Box>
 
           <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
-             <Typography variant="subtitle1" sx={{ fontWeight: 700, color: 'rgba(255,255,255,0.8)', letterSpacing: '0.5px' }}>
+             <Typography sx={{ fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', color: '#FFFFFF' }}>
                 {activePage}
              </Typography>
           </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-            <IconButton sx={{ bgcolor: 'rgba(255,255,255,0.05)', borderRadius: '12px', '&:hover': { bgcolor: 'rgba(255,255,255,0.1)' } }}>
-              <Badge badgeContent={3} color="error" sx={{ '& .MuiBadge-badge': { fontWeight: 800 } }}>
-                <NotificationsIcon sx={{ fontSize: 22 }} />
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 3 }}>
+            <IconButton sx={{ borderRadius: 0, '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' } }}>
+              <Badge badgeContent={3} sx={{ '& .MuiBadge-badge': { backgroundColor: '#D4FF00', color: '#000000', fontWeight: 700, fontFamily: '"Roboto Mono", monospace', borderRadius: 0 } }}>
+                <NotificationsIcon sx={{ fontSize: 22, color: '#888888' }} />
               </Badge>
             </IconButton>
-            <Avatar src="" sx={{ width: 42, height: 42, borderRadius: '14px', bgcolor: 'primary.main', border: '2px solid rgba(255,255,255,0.1)' }} />
+            <Avatar sx={{ width: 36, height: 36, borderRadius: 0, bgcolor: '#D4FF00', color: '#000000', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.85rem' }}>
+              SYS
+            </Avatar>
           </Box>
         </Toolbar>
       </AppBar>
@@ -141,7 +192,7 @@ const Layout = ({ children, activePage, setActivePage }) => {
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: drawerWidth, backgroundColor: '#0D0D0D', borderRight: '1px solid #2A2A2A' },
           }}
         >
           {drawerContent}
@@ -154,12 +205,8 @@ const Layout = ({ children, activePage, setActivePage }) => {
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: drawerWidth,
-              top: 24,
-              left: 24,
-              height: 'calc(100vh - 48px)',
-              borderRadius: '24px',
-              border: '1px solid rgba(255, 255, 255, 0.08)',
-              overflow: 'hidden'
+              backgroundColor: '#0D0D0D',
+              borderRight: '1px solid #2A2A2A'
             },
           }}
           open
@@ -174,7 +221,7 @@ const Layout = ({ children, activePage, setActivePage }) => {
           flexGrow: 1,
           p: 4,
           width: { sm: `calc(100% - ${drawerWidth}px)` },
-          pt: { xs: 12, sm: 15 },
+          pt: { xs: `calc(${headerHeight}px + 24px)`, sm: `calc(${headerHeight}px + 32px)` },
           px: { xs: 2, sm: 4, md: 6 }
         }}
       >

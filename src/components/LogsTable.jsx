@@ -18,13 +18,13 @@ import {
 const getLevelStyle = (level) => {
   switch (level.toLowerCase()) {
     case 'alarm':
-      return { bg: 'rgba(255, 59, 48, 0.15)', color: '#ff3b30', border: 'rgba(255, 59, 48, 0.3)' };
+      return { color: '#FF003C', borderColor: '#FF003C' };
     case 'incident':
-      return { bg: 'rgba(255, 149, 0, 0.15)', color: '#ff9500', border: 'rgba(255, 149, 0, 0.3)' };
+      return { color: '#FFA500', borderColor: '#FFA500' };
     case 'event':
-      return { bg: 'rgba(10, 132, 255, 0.15)', color: '#0A84FF', border: 'rgba(10, 132, 255, 0.3)' };
+      return { color: '#888888', borderColor: '#888888' };
     default:
-      return { bg: 'rgba(255, 255, 255, 0.1)', color: '#FFF', border: 'rgba(255, 255, 255, 0.2)' };
+      return { color: '#FFFFFF', borderColor: '#2A2A2A' };
   }
 };
 
@@ -60,13 +60,13 @@ const LogsTable = ({ entries }) => {
   }, [allowedEntries, levelFilter]);
 
   return (
-    <Box sx={{ width: '100%', minWidth: 0 }}>
-      <Box sx={{ p: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, mb: 1 }}>
-        <Typography variant="h6" sx={{ flexGrow: 1, fontWeight: 800, color: '#fff', letterSpacing: '0.5px' }}>
+    <Box sx={{ width: '100%', minWidth: 0, border: '1px solid #2A2A2A', backgroundColor: '#141414' }}>
+      <Box sx={{ p: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, borderBottom: '1px solid #2A2A2A' }}>
+        <Typography sx={{ flexGrow: 1, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', color: '#FFFFFF' }}>
           System Logs
         </Typography>
         <FormControl size="small" sx={{ minWidth: 160 }}>
-          <InputLabel id="logs-level-filter" sx={{ color: 'rgba(255,255,255,0.5)' }}>
+          <InputLabel id="logs-level-filter" sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
             Filter Level
           </InputLabel>
           <Select
@@ -75,25 +75,26 @@ const LogsTable = ({ entries }) => {
             value={levelFilter}
             onChange={(e) => setLevelFilter(e.target.value)}
             sx={{
-              color: '#fff',
-              borderRadius: '12px',
-              background: 'rgba(25, 25, 32, 0.4)',
-              backdropFilter: 'blur(12px)',
+              color: '#FFFFFF',
+              borderRadius: 0,
+              fontFamily: '"Roboto Mono", monospace',
+              fontSize: '0.85rem',
               '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'rgba(255, 255, 255, 0.1)',
+                borderColor: '#2A2A2A',
+                borderRadius: 0
               },
               '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: 'rgba(255, 255, 255, 0.3)',
+                borderColor: '#888888',
               },
               '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#0A84FF',
+                borderColor: '#D4FF00',
               },
-              '& .MuiSvgIcon-root': { color: 'rgba(255,255,255,0.5)' }
+              '& .MuiSvgIcon-root': { color: '#888888' }
             }}
           >
             {levels.map((lvl) => (
-              <MenuItem key={lvl} value={lvl}>
-                {lvl === 'all' ? 'All levels' : lvl.charAt(0).toUpperCase() + lvl.slice(1)}
+              <MenuItem key={lvl} value={lvl} sx={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', textTransform: 'uppercase' }}>
+                {lvl === 'all' ? 'All levels' : lvl}
               </MenuItem>
             ))}
           </Select>
@@ -105,17 +106,18 @@ const LogsTable = ({ entries }) => {
           maxHeight: 500,
           background: 'transparent',
           boxShadow: 'none',
-          '&::-webkit-scrollbar': { width: '6px', height: '6px' },
-          '&::-webkit-scrollbar-thumb': { backgroundColor: 'rgba(255,255,255,0.1)', borderRadius: '10px' },
+          '&::-webkit-scrollbar': { width: '8px', height: '8px' },
+          '&::-webkit-scrollbar-thumb': { backgroundColor: '#2A2A2A' },
+          '&::-webkit-scrollbar-track': { background: '#0D0D0D', borderLeft: '1px solid #2A2A2A' },
         }}
       >
-        <Table size="medium" stickyHeader sx={{ borderCollapse: 'separate', borderSpacing: '0 8px' }}>
+        <Table size="medium" stickyHeader sx={{ borderCollapse: 'collapse' }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ background: 'transparent', color: 'rgba(255,255,255,0.4)', borderBottom: 'none', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px', pl: 3 }}>Time</TableCell>
-              <TableCell sx={{ background: 'transparent', color: 'rgba(255,255,255,0.4)', borderBottom: 'none', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Level</TableCell>
-              <TableCell sx={{ background: 'transparent', color: 'rgba(255,255,255,0.4)', borderBottom: 'none', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Source</TableCell>
-              <TableCell sx={{ background: 'transparent', color: 'rgba(255,255,255,0.4)', borderBottom: 'none', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Message</TableCell>
+              <TableCell sx={{ backgroundColor: '#0D0D0D', color: '#888888', borderBottom: '1px solid #2A2A2A', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px', pl: 3 }}>Time</TableCell>
+              <TableCell sx={{ backgroundColor: '#0D0D0D', color: '#888888', borderBottom: '1px solid #2A2A2A', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Level</TableCell>
+              <TableCell sx={{ backgroundColor: '#0D0D0D', color: '#888888', borderBottom: '1px solid #2A2A2A', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Source</TableCell>
+              <TableCell sx={{ backgroundColor: '#0D0D0D', color: '#888888', borderBottom: '1px solid #2A2A2A', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Message</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -125,54 +127,40 @@ const LogsTable = ({ entries }) => {
                 <TableRow
                   key={row.id}
                   sx={{
-                    background: 'rgba(25, 25, 32, 0.4)',
-                    backdropFilter: 'blur(12px)',
-                    transition: 'all 0.2s ease-in-out',
+                    background: '#141414',
+                    transition: 'none',
                     '&:hover': {
-                      background: 'rgba(255, 255, 255, 0.08)',
-                      transform: 'translateY(-2px)',
-                      boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
+                      background: 'rgba(212, 255, 0, 0.02)',
                     },
                     '& td': {
-                      borderBottom: 'none',
-                      borderTop: '1px solid rgba(255, 255, 255, 0.03)',
-                    },
-                    '& td:first-of-type': {
-                      borderLeft: '1px solid rgba(255, 255, 255, 0.03)',
-                      borderTopLeftRadius: '16px',
-                      borderBottomLeftRadius: '16px',
-                    },
-                    '& td:last-of-type': {
-                      borderRight: '1px solid rgba(255, 255, 255, 0.03)',
-                      borderTopRightRadius: '16px',
-                      borderBottomRightRadius: '16px',
+                      borderBottom: '1px solid #2A2A2A',
                     }
                   }}
                 >
-                  <TableCell sx={{ pl: 3, color: 'rgba(255,255,255,0.6)', typography: 'body2', fontWeight: 500, whiteSpace: 'nowrap' }}>
+                  <TableCell sx={{ pl: 3, color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
                     {formatTs(row.ts)}
                   </TableCell>
                   <TableCell>
                     <Chip
                       label={row.level}
+                      variant="outlined"
                       sx={{
-                        background: style.bg,
                         color: style.color,
-                        border: `1px solid ${style.border}`,
-                        fontWeight: 800,
-                        borderRadius: '8px',
+                        borderColor: style.borderColor,
+                        fontFamily: '"Roboto Mono", monospace',
+                        fontWeight: 700,
+                        borderRadius: 0,
                         textTransform: 'uppercase',
                         fontSize: '0.65rem',
-                        letterSpacing: '0.5px',
+                        letterSpacing: '1px',
                         height: '24px',
-                        boxShadow: `0 2px 10px ${style.bg}`
                       }}
                     />
                   </TableCell>
-                  <TableCell sx={{ fontFamily: 'ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace', color: '#0A84FF', fontSize: '0.85rem', fontWeight: 600 }}>
+                  <TableCell sx={{ fontFamily: '"Roboto Mono", monospace', color: '#D4FF00', fontSize: '0.85rem' }}>
                     {row.source}
                   </TableCell>
-                  <TableCell sx={{ color: '#fff', fontSize: '0.9rem', fontWeight: 500 }}>
+                  <TableCell sx={{ color: '#FFFFFF', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem' }}>
                     {row.message}
                   </TableCell>
                 </TableRow>

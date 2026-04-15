@@ -1,50 +1,64 @@
 import { createTheme } from '@mui/material/styles';
 
-const glassTheme = createTheme({
+const terminalTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#0A84FF',
+      main: '#D4FF00',
+      contrastText: '#000000',
     },
     secondary: {
-      main: '#5E5CE6',
+      main: '#888888',
     },
     background: {
-      default: '#05050A',
-      paper: 'rgba(20, 20, 25, 0.45)',
+      default: '#0D0D0D',
+      paper: '#141414',
     },
+    text: {
+      primary: '#FFFFFF',
+      secondary: '#888888',
+    },
+    divider: '#2A2A2A',
   },
   shape: {
-    borderRadius: 20,
+    borderRadius: 0,
   },
   typography: {
     fontFamily: [
-      '-apple-system',
-      'BlinkMacSystemFont',
-      '"Segoe UI"',
-      'Roboto',
-      '"Helvetica Neue"',
-      'Arial',
-      'sans-serif',
+      '"Roboto Mono"',
+      '"Courier New"',
+      'monospace',
     ].join(','),
+    h1: { fontFamily: '"Georgia", serif', fontStyle: 'italic' },
+    h2: { fontFamily: '"Georgia", serif', fontStyle: 'italic' },
+    h3: { fontFamily: '"Georgia", serif', fontStyle: 'italic' },
+    h4: { fontFamily: '"Georgia", serif', fontStyle: 'italic' },
+    h5: { fontFamily: '"Georgia", serif', fontStyle: 'italic', color: '#FFFFFF' },
+    h6: { fontFamily: '"Georgia", serif', fontStyle: 'italic' },
+    subtitle1: { fontFamily: '"Roboto Mono", monospace', textTransform: 'uppercase', letterSpacing: '1px' },
+    subtitle2: { fontFamily: '"Roboto Mono", monospace', textTransform: 'uppercase', letterSpacing: '1px', color: '#888888' },
+    body1: { fontFamily: '"Roboto Mono", monospace' },
+    body2: { fontFamily: '"Roboto Mono", monospace' },
+    button: { fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px' },
   },
   components: {
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          background: 'radial-gradient(circle at 15% 50%, #1a1a2e 0%, #05050A 50%, #000000 100%)',
-          backgroundAttachment: 'fixed',
+          backgroundColor: '#0D0D0D',
+          backgroundImage: 'none',
           minHeight: '100vh',
+          color: '#FFFFFF',
         },
         '*::-webkit-scrollbar': {
           width: '8px',
         },
         '*::-webkit-scrollbar-track': {
-          background: 'transparent',
+          background: '#0D0D0D',
+          borderLeft: '1px solid #2A2A2A',
         },
         '*::-webkit-scrollbar-thumb': {
-          backgroundColor: 'rgba(255, 255, 255, 0.1)',
-          borderRadius: '10px',
+          backgroundColor: '#2A2A2A',
         },
       },
     },
@@ -52,13 +66,9 @@ const glassTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          backdropFilter: 'blur(24px) saturate(150%)',
-          WebkitBackdropFilter: 'blur(24px) saturate(150%)',
-          backgroundColor: 'rgba(25, 25, 32, 0.4)',
-          border: '1px solid rgba(255, 255, 255, 0.08)',
-          borderTop: '1px solid rgba(255, 255, 255, 0.15)',
-          borderLeft: '1px solid rgba(255, 255, 255, 0.15)',
-          boxShadow: '0 8px 32px 0 rgba(0, 0, 0, 0.5)',
+          backgroundColor: '#141414',
+          border: '1px solid #2A2A2A',
+          boxShadow: 'none',
         },
       },
     },
@@ -66,92 +76,100 @@ const glassTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          backdropFilter: 'blur(30px) saturate(200%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(200%)',
-          backgroundColor: 'rgba(10, 10, 15, 0.5)',
-          borderBottom: '1px solid rgba(255, 255, 255, 0.05)',
-          boxShadow: '0 4px 30px rgba(0, 0, 0, 0.3)',
+          backgroundColor: '#0D0D0D',
+          borderBottom: '1px solid #2A2A2A',
+          boxShadow: 'none',
         },
       },
     },
     MuiDrawer: {
       styleOverrides: {
         paper: {
-          backdropFilter: 'blur(30px) saturate(200%)',
-          WebkitBackdropFilter: 'blur(30px) saturate(200%)',
-          backgroundColor: 'rgba(10, 10, 15, 0.5)',
-          borderRight: '1px solid rgba(255, 255, 255, 0.05)',
-          boxShadow: '10px 0 30px rgba(0, 0, 0, 0.4)',
+          backgroundImage: 'none',
+          backgroundColor: '#0D0D0D',
+          borderRight: '1px solid #2A2A2A',
+          boxShadow: 'none',
         },
       },
     },
     MuiListItemButton: {
       styleOverrides: {
         root: {
-          borderRadius: '14px',
-          margin: '6px 12px',
-          padding: '10px 16px',
-          transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
-          border: '1px solid transparent',
+          borderRadius: 0,
+          margin: '4px 0',
+          padding: '10px 24px',
+          borderLeft: '2px solid transparent',
+          transition: 'none',
           '&.Mui-selected': {
-            backgroundColor: 'rgba(10, 132, 255, 0.15)',
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(10, 132, 255, 0.3)',
-            boxShadow: '0 4px 20px rgba(10, 132, 255, 0.2)',
+            backgroundColor: 'transparent',
+            borderLeft: '2px solid #D4FF00',
             '&:hover': {
-              backgroundColor: 'rgba(10, 132, 255, 0.25)',
-              transform: 'scale(1.02)',
+              backgroundColor: 'rgba(212, 255, 0, 0.05)',
             },
             '& .MuiListItemIcon-root': {
-              color: '#0A84FF',
+              color: '#D4FF00',
             },
             '& .MuiListItemText-primary': {
-              color: '#ffffff',
-              fontWeight: 700,
+              color: '#D4FF00',
             },
           },
           '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            transform: 'translateX(4px)',
-            border: '1px solid rgba(255, 255, 255, 0.05)',
+            backgroundColor: 'rgba(255, 255, 255, 0.02)',
           },
+        },
+      },
+    },
+    MuiListItemIcon: {
+      styleOverrides: {
+        root: {
+          color: '#888888',
+          minWidth: '40px',
+        },
+      },
+    },
+    MuiListItemText: {
+      styleOverrides: {
+        primary: {
+          textTransform: 'uppercase',
+          letterSpacing: '1px',
+          fontSize: '0.85rem',
         },
       },
     },
     MuiButton: {
       styleOverrides: {
         root: {
-          textTransform: 'none',
-          fontWeight: 600,
-          borderRadius: 12,
-          padding: '8px 20px',
-          transition: 'all 0.2s ease-in-out',
+          textTransform: 'uppercase',
+          fontWeight: 700,
+          borderRadius: 0,
+          padding: '12px 24px',
+          boxShadow: 'none',
           '&:hover': {
-            transform: 'translateY(-2px)',
-            boxShadow: '0 8px 25px rgba(10, 132, 255, 0.4)',
+            boxShadow: 'none',
           },
         },
-        contained: {
-          backgroundImage: 'linear-gradient(135deg, #0A84FF 0%, #0056b3 100%)',
-          border: '1px solid rgba(255, 255, 255, 0.2)',
-          boxShadow: '0 4px 15px rgba(0, 0, 0, 0.4)',
+        containedPrimary: {
+          backgroundColor: '#D4FF00',
+          color: '#000000',
+          '&:hover': {
+            backgroundColor: '#BDE600',
+          },
         },
       },
     },
     MuiChip: {
       styleOverrides: {
         root: {
-          fontWeight: 700,
-          borderRadius: 10,
-          backdropFilter: 'blur(10px)',
+          borderRadius: 0,
+          backgroundColor: '#141414',
+          border: '1px solid #2A2A2A',
         },
         outlined: {
-          borderWidth: '1px',
-          backgroundColor: 'rgba(0, 0, 0, 0.3)',
+          backgroundColor: 'transparent',
         },
       },
     },
   },
 });
 
-export default glassTheme;
+export default terminalTheme;

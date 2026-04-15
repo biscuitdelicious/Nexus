@@ -22,29 +22,20 @@ const devices = [
 
 const getIcon = (type) => {
   switch (type) {
-    case 'Server': return <StorageIcon />;
-    case 'Network': return <RouterIcon />;
-    case 'Security': return <SecurityIcon />;
-    default: return <DnsIcon />;
+    case 'Server': return <StorageIcon fontSize="small" />;
+    case 'Network': return <RouterIcon fontSize="small" />;
+    case 'Security': return <SecurityIcon fontSize="small" />;
+    default: return <DnsIcon fontSize="small" />;
   }
 };
 
-const getColor = (status) => {
+const getStatusStyle = (status) => {
   switch (status) {
-    case 'Healthy': return 'success';
-    case 'Event': return 'warning';
-    case 'Incident': return 'default';
-    case 'Alarm': return 'error';
-    default: return 'primary';
-  }
-};
-
-const getAvatarConfig = (type) => {
-  switch (type) {
-    case 'Server': return { bg: 'rgba(10, 132, 255, 0.15)', color: '#0A84FF', border: 'rgba(10, 132, 255, 0.3)' };
-    case 'Network': return { bg: 'rgba(94, 92, 230, 0.15)', color: '#5E5CE6', border: 'rgba(94, 92, 230, 0.3)' };
-    case 'Security': return { bg: 'rgba(255, 149, 0, 0.15)', color: '#FF9500', border: 'rgba(255, 149, 0, 0.3)' };
-    default: return { bg: 'rgba(255, 255, 255, 0.1)', color: '#FFF', border: 'rgba(255, 255, 255, 0.2)' };
+    case 'Healthy': return { color: '#D4FF00', borderColor: '#D4FF00' };
+    case 'Event': return { color: '#888888', borderColor: '#888888' };
+    case 'Incident': return { color: '#FFA500', borderColor: '#FFA500' };
+    case 'Alarm': return { color: '#FF003C', borderColor: '#FF003C' };
+    default: return { color: '#FFFFFF', borderColor: '#2A2A2A' };
   }
 };
 
@@ -65,34 +56,36 @@ const DeviceList = ({ showOnlyIssues = false }) => {
     >
       <List sx={{ width: '100%', bgcolor: 'transparent', p: 0 }}>
         {displayedDevices.map((device) => {
-          const avatarCfg = getAvatarConfig(device.type);
+          const statusStyle = getStatusStyle(device.status);
 
           return (
             <ListItem
               key={device.id}
               sx={{
-                mb: 1.5,
-                borderRadius: '14px',
-                border: '1px solid rgba(255, 255, 255, 0.05)',
-                background: 'rgba(25, 25, 32, 0.4)',
-                backdropFilter: 'blur(12px)',
-                transition: 'all 0.3s cubic-bezier(0.4, 0, 0.2, 1)',
+                mb: 1,
+                borderRadius: 0,
+                border: '1px solid #2A2A2A',
+                background: '#141414',
+                transition: 'none',
                 '&:hover': {
-                  background: 'rgba(255, 255, 255, 0.08)',
-                  transform: 'translateY(-3px)',
-                  boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-                  borderColor: 'rgba(255, 255, 255, 0.15)',
+                  background: 'rgba(212, 255, 0, 0.02)',
+                  borderColor: '#D4FF00',
+                  '& .MuiAvatar-root': {
+                    color: '#D4FF00',
+                    borderColor: '#D4FF00'
+                  }
                 }
               }}
             >
               <ListItemAvatar>
                 <Avatar
+                  variant="square"
                   sx={{
-                    bgcolor: avatarCfg.bg,
-                    color: avatarCfg.color,
-                    border: `1px solid ${avatarCfg.border}`,
-                    borderRadius: '12px',
-                    boxShadow: `0 4px 15px ${avatarCfg.bg}`
+                    bgcolor: '#0D0D0D',
+                    color: '#888888',
+                    border: '1px solid #2A2A2A',
+                    width: 36,
+                    height: 36
                   }}
                 >
                   {getIcon(device.type)}
@@ -100,19 +93,19 @@ const DeviceList = ({ showOnlyIssues = false }) => {
               </ListItemAvatar>
               <ListItemText
                 primary={
-                  <Typography sx={{ fontWeight: 700, fontSize: '0.95rem', color: '#ffffff' }}>
+                  <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.85rem', color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: '1px' }}>
                     {device.name}
                   </Typography>
                 }
                 secondary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 0.5 }}>
-                    <Typography component="span" variant="caption" sx={{ color: 'rgba(255,255,255,0.7)', fontWeight: 500 }}>
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 0.5 }}>
+                    <Typography component="span" sx={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', color: '#888888' }}>
                       {device.ip}
                     </Typography>
-                    <Typography component="span" variant="caption" sx={{ color: 'rgba(255,255,255,0.3)' }}>
-                      •
+                    <Typography component="span" sx={{ color: '#2A2A2A', fontSize: '0.75rem' }}>
+                      |
                     </Typography>
-                    <Typography component="span" variant="caption" sx={{ color: 'rgba(255,255,255,0.5)', letterSpacing: '0.5px' }}>
+                    <Typography component="span" sx={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', color: '#888888', textTransform: 'uppercase', letterSpacing: '1px' }}>
                       {device.type}
                     </Typography>
                   </Box>
@@ -120,15 +113,17 @@ const DeviceList = ({ showOnlyIssues = false }) => {
               />
               <Chip
                 label={device.status}
-                color={getColor(device.status)}
+                variant="outlined"
                 size="small"
                 sx={{
-                  fontWeight: 800,
-                  borderRadius: '8px',
-                  textTransform: 'uppercase',
+                  borderRadius: 0,
+                  fontFamily: '"Roboto Mono", monospace',
+                  fontWeight: 700,
                   fontSize: '0.65rem',
-                  letterSpacing: '0.5px',
-                  padding: '0 4px'
+                  letterSpacing: '1px',
+                  textTransform: 'uppercase',
+                  color: statusStyle.color,
+                  borderColor: statusStyle.borderColor,
                 }}
               />
             </ListItem>

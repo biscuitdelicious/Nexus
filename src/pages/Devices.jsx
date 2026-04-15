@@ -13,25 +13,22 @@ const Devices = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              p: 1.2,
-              borderRadius: '14px',
-              background: 'rgba(94, 92, 230, 0.15)',
-              backdropFilter: 'blur(10px)',
-              border: '1px solid rgba(94, 92, 230, 0.3)',
-              boxShadow: '0 4px 20px rgba(94, 92, 230, 0.2)',
+              p: 1.5,
+              borderRadius: 0,
+              background: '#141414',
+              border: '1px solid #2A2A2A',
             }}
           >
-            <DnsIcon sx={{ color: '#5E5CE6', fontSize: 28 }} />
+            <DnsIcon sx={{ color: '#D4FF00', fontSize: 28 }} />
           </Box>
           <Box>
             <Typography
               variant="h4"
               sx={{
-                fontWeight: 800,
-                letterSpacing: '-0.5px',
-                background: 'linear-gradient(180deg, #FFFFFF 0%, #A0A0AB 100%)',
-                WebkitBackgroundClip: 'text',
-                WebkitTextFillColor: 'transparent',
+                color: '#FFFFFF',
+                fontFamily: '"Georgia", serif',
+                fontStyle: 'italic',
+                fontWeight: 'normal',
               }}
             >
               Device Management
@@ -43,9 +40,12 @@ const Devices = () => {
           variant="body1"
           sx={{
             mb: 4,
-            ml: 7.5,
-            color: 'rgba(255, 255, 255, 0.5)',
-            fontWeight: 500,
+            ml: 8.5,
+            color: '#888888',
+            fontFamily: '"Roboto Mono", monospace',
+            fontSize: '0.85rem',
+            textTransform: 'uppercase',
+            letterSpacing: '1px'
           }}
         >
           Provision, monitor, and manage your infrastructure assets.
@@ -53,31 +53,31 @@ const Devices = () => {
 
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={4}>
-            <Paper variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
-              <Typography variant="h4" sx={{ fontWeight: 900, color: 'primary.main' }}>
+            <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A' }}>
+              <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: '#D4FF00' }}>
                 12
               </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+              <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Total Assets
               </Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Paper variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
-              <Typography variant="h4" sx={{ fontWeight: 900, color: '#34c759' }}>
+            <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A' }}>
+              <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: '#FFFFFF' }}>
                 8
               </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+              <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Healthy Units
               </Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Paper variant="outlined" sx={{ p: 2, textAlign: 'center' }}>
-              <Typography variant="h4" sx={{ fontWeight: 900, color: '#ff3b30' }}>
+            <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A' }}>
+              <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: '#FF003C' }}>
                 4
               </Typography>
-              <Typography variant="body2" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+              <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Active Issues
               </Typography>
             </Paper>
@@ -99,18 +99,22 @@ const Devices = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 gap: 3,
+                borderRadius: 0,
+                bgcolor: '#141414',
+                borderColor: '#2A2A2A'
               }}
             >
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
                   Environment Health
                 </Typography>
                 <Box
                   sx={{
                     height: 8,
                     width: '100%',
-                    bgcolor: 'rgba(255,255,255,0.1)',
-                    borderRadius: 4,
+                    bgcolor: '#0D0D0D',
+                    borderRadius: 0,
+                    border: '1px solid #2A2A2A',
                     overflow: 'hidden',
                   }}
                 >
@@ -118,39 +122,38 @@ const Devices = () => {
                     sx={{
                       height: '100%',
                       width: '66%',
-                      bgcolor: 'primary.main',
-                      boxShadow: '0 0 10px rgba(10, 132, 255, 0.5)',
+                      bgcolor: '#D4FF00',
                     }}
                   />
                 </Box>
-                <Typography variant="caption" sx={{ mt: 1, display: 'block', color: 'text.secondary' }}>
+                <Typography sx={{ mt: 1.5, display: 'block', color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   66% of devices are operating within normal parameters.
                 </Typography>
               </Box>
 
               <Box>
-                <Typography variant="h6" sx={{ fontWeight: 700, mb: 1 }}>
+                <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
                   Quick Actions
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                  <Button variant="contained" fullWidth>
+                  <Button variant="contained" fullWidth sx={{ borderRadius: 0, bgcolor: '#D4FF00', color: '#000000', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { bgcolor: '#BDE600' } }}>
                     Add New Device
                   </Button>
-                  <Button variant="outlined" fullWidth sx={{ borderColor: 'rgba(255,255,255,0.2)' }}>
+                  <Button variant="outlined" fullWidth sx={{ borderRadius: 0, borderColor: '#2A2A2A', color: '#FFFFFF', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { borderColor: '#888888', bgcolor: 'transparent' } }}>
                     Scan Network
                   </Button>
-                  <Button variant="outlined" fullWidth color="error" sx={{ borderColor: 'rgba(255,59,48,0.2)' }}>
+                  <Button variant="outlined" fullWidth sx={{ borderRadius: 0, borderColor: '#FF003C', color: '#FF003C', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { borderColor: '#FF003C', bgcolor: 'rgba(255, 0, 60, 0.05)' } }}>
                     Clear Alerts
                   </Button>
                 </Box>
               </Box>
 
-              <Box sx={{ mt: 'auto', p: 2, bgcolor: 'rgba(255,255,255,0.03)', borderRadius: 2 }}>
-                <Typography variant="caption" sx={{ color: 'text.secondary', fontWeight: 600 }}>
+              <Box sx={{ mt: 'auto', p: 2, bgcolor: '#0D0D0D', border: '1px solid #2A2A2A', borderRadius: 0 }}>
+                <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 0.5 }}>
                   Last Scan:
                 </Typography>
-                <Typography variant="body2" sx={{ fontWeight: 500 }}>
-                  Today at 14:45 PM
+                <Typography sx={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}>
+                  TODAY 14:45 PM
                 </Typography>
               </Box>
             </Paper>

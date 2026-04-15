@@ -7,37 +7,31 @@ import LogsTable from '../components/LogsTable';
 import { summaryMetrics, logEntries } from '../data/metricsLogsMock';
 
 const Observability = () => (
-  // Animație fină de Fade-in la încărcarea paginii
   <Fade in={true} timeout={800}>
     <Box>
-      {/* Header-ul paginii stilizat */}
       <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 2 }}>
-        {/* Cubul de sticlă pentru iconiță */}
         <Box
           sx={{
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            p: 1.2,
-            borderRadius: '14px',
-            background: 'rgba(10, 132, 255, 0.15)', // Albastru transparent
-            backdropFilter: 'blur(10px)',
-            border: '1px solid rgba(10, 132, 255, 0.3)',
-            boxShadow: '0 4px 20px rgba(10, 132, 255, 0.2)',
+            p: 1.5,
+            borderRadius: 0,
+            background: '#141414',
+            border: '1px solid #2A2A2A',
           }}
         >
-          <QueryStatsIcon sx={{ color: '#0A84FF', fontSize: 28 }} />
+          <QueryStatsIcon sx={{ color: '#D4FF00', fontSize: 28 }} />
         </Box>
 
         <Box>
           <Typography
             variant="h4"
             sx={{
-              fontWeight: 800,
-              letterSpacing: '-0.5px',
-              background: 'linear-gradient(180deg, #FFFFFF 0%, #A0A0AB 100%)', // Gradient modern metalic
-              WebkitBackgroundClip: 'text',
-              WebkitTextFillColor: 'transparent',
+              color: '#FFFFFF',
+              fontFamily: '"Georgia", serif',
+              fontStyle: 'italic',
+              fontWeight: 'normal',
             }}
           >
             Metrics & Logs
@@ -45,20 +39,21 @@ const Observability = () => (
         </Box>
       </Box>
 
-      {/* Subtitlul */}
       <Typography
         variant="body1"
         sx={{
           mb: 4,
-          ml: 7.5, // Aliniat cu textul titlului, trecând de iconiță
-          color: 'rgba(255, 255, 255, 0.5)',
-          fontWeight: 500
+          ml: 8.5,
+          color: '#888888',
+          fontFamily: '"Roboto Mono", monospace',
+          fontSize: '0.85rem',
+          textTransform: 'uppercase',
+          letterSpacing: '1px'
         }}
       >
         System telemetry, active KPIs, and the tail of recent events.
       </Typography>
 
-      {/* Conținutul (care moștenește glassmorphism din theme.js) */}
       <Box sx={{ mb: 4 }}>
         <MetricsCards metrics={summaryMetrics} />
       </Box>
