@@ -25,7 +25,7 @@ const Layout = ({ children, activePage, setActivePage }) => {
 
   const drawerContent = (
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column', backgroundColor: '#0D0D0D' }}>
-      <Box sx={{ height: headerHeight, display: 'flex', alignItems: 'center', px: 4, borderBottom: '1px solid #2A2A2A' }}>
+      <Box sx={{ height: headerHeight, display: 'flex', alignItems: 'center', px: 4, borderBottom: '0px solid #2A2A2A' }}>
         <Typography
           variant="h5"
           noWrap
@@ -140,7 +140,7 @@ const Layout = ({ children, activePage, setActivePage }) => {
           >
             <ListItemIcon sx={{ minWidth: 40, color: '#888888' }}><QueryStatsIcon fontSize="small" /></ListItemIcon>
             <ListItemText
-              primary={activePage === 'Observability' ? '>_ TICKETS' : 'TICKETS'}
+              primary={activePage === 'Tickets' ? '>_ TICKETS' : 'TICKETS'}
               primaryTypographyProps={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}
             />
           </ListItemButton>
@@ -173,7 +173,8 @@ const Layout = ({ children, activePage, setActivePage }) => {
           backgroundColor: '#0D0D0D',
           height: headerHeight,
           justifyContent: 'center',
-          borderBottom: '1px solid #2A2A2A'
+          borderBottom: '1px solid #2A2A2A',
+            borderLeft:'0px'
         }}
       >
         <Toolbar sx={{ display: 'flex', justifyContent: 'space-between', px: { xs: 2, sm: 4 } }}>

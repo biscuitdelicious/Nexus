@@ -5,7 +5,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip, Legend } from 'recha
 const data = [
   { name: 'Alarm', value: 11, color: '#ff3b30' },
   { name: 'Incident', value: 31, color: '#ff9500' },
-  { name: 'Event', value: 64, color: '#0A84FF' }
+  { name: 'Event', value: 64, color: '#696969' }
 ];
 
 const SeverityPieChart = () => {

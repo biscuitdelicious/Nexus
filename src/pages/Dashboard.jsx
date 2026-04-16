@@ -8,10 +8,10 @@ import SeverityPieChart from '../components/SeverityPieChart';
 import ResolutionBarChart from '../components/ResolutionBarChart';
 
 const topMetrics = [
-  { id: 1, title: 'CPU', value: '87%', color: '#FF003C' },
-  { id: 2, title: 'Memory', value: '6.2 GB', color: '#FFA500' },
-  { id: 3, title: 'Network Traffic', value: '340 Mb/s', color: '#D4FF00' },
-  { id: 4, title: 'Response Time', value: '142 ms', color: '#888888' },
+  { id: 1, title: 'SYS.CPU_LOAD', value: '87%' },
+  { id: 2, title: 'MEM.ALLOCATED', value: '6.2 GB' },
+  { id: 3, title: 'NET.TRAFFIC_IO', value: '340 Mb/s' },
+  { id: 4, title: 'API.LATENCY', value: '142 ms' },
 ];
 
 const Dashboard = () => {
@@ -77,12 +77,43 @@ const Dashboard = () => {
               {loading ? (
                 <Skeleton variant="rectangular" height={100} animation="wave" sx={{ borderRadius: 0, bgcolor: '#141414' }} />
               ) : (
-                <Card variant="outlined" sx={{ borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A', height: '100%', borderTop: `2px solid ${metric.color}` }}>
+                <Card
+                  variant="outlined"
+                  sx={{
+                    borderRadius: 0,
+                    bgcolor: '#141414',
+                    borderColor: '#2A2A2A',
+                    borderLeft: '4px solid #2A2A2A',
+                    height: '100%',
+                    transition: 'none',
+                    '&:hover': {
+                      borderColor: '#444444',
+                      borderLeft: '4px solid #D4FF00',
+                      bgcolor: 'rgba(212, 255, 0, 0.02)'
+                    }
+                  }}
+                >
                   <CardContent>
-                    <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 1 }}>
+                    <Typography
+                      sx={{
+                        color: '#888888',
+                        fontFamily: '"Roboto Mono", monospace',
+                        fontSize: '0.70rem',
+                        textTransform: 'uppercase',
+                        letterSpacing: '1px',
+                        mb: 1
+                      }}
+                    >
                       {metric.title}
                     </Typography>
-                    <Typography variant="h5" sx={{ color: '#FFFFFF', fontFamily: '"Roboto Mono", monospace', fontWeight: 700 }}>
+                    <Typography
+                      variant="h4"
+                      sx={{
+                        color: '#D4FF00',
+                        fontFamily: '"Roboto Mono", monospace',
+                        fontWeight: 700
+                      }}
+                    >
                       {metric.value}
                     </Typography>
                   </CardContent>
@@ -140,7 +171,7 @@ const Dashboard = () => {
              ) : (
                 <Paper variant="outlined" sx={{ borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A', p: 2, height: '100%' }}>
                   <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
-                    Total Alerts (Status)
+                    Total Alerts
                   </Typography>
                   <SeverityPieChart />
                 </Paper>
