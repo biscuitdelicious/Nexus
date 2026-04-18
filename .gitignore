@@ -1,4 +1,23 @@
-# Logs
+.env
+prompts.txt
+
+/bin/
+*.exe
+*.out
+
+/tmp/
+
+node_modules/
+dist/
+.vite/
+
+.DS_Store
+Thumbs.db
+
+.idea/
+*.swp
+*.swo
+
 logs
 *.log
 npm-debug.log*
