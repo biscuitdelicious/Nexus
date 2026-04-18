@@ -1,16 +1,7 @@
-import React from 'react';
-import { Paper, Typography, Box } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Paper, Typography, Box, Skeleton } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-
-const temperatureData = [
-  { time: '10:00', cpu: 45, ram: 40, board: 35 },
-  { time: '10:05', cpu: 48, ram: 42, board: 36 },
-  { time: '10:10', cpu: 52, ram: 47, board: 37 },
-  { time: '10:15', cpu: 82, ram: 75, board: 42 },
-  { time: '10:20', cpu: 78, ram: 72, board: 41 },
-  { time: '10:25', cpu: 65, ram: 60, board: 39 },
-  { time: '10:30', cpu: 55, ram: 52, board: 37 },
-];
+import { fetchChartData } from '../services/api';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -31,6 +22,27 @@ const CustomTooltip = ({ active, payload, label }) => {
 };
 
 const ChartWidget = () => {
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const result = await fetchChartData();
+        setData(result);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return <Skeleton variant="rectangular" height="400px" sx={{ borderRadius: 0, bgcolor: '#141414' }} />;
+  }
+
   return (
     <Paper
       variant="outlined"
@@ -39,7 +51,7 @@ const ChartWidget = () => {
         bgcolor: '#141414',
         borderColor: '#2A2A2A',
         p: 3,
-        height: '100%',
+        height: '400px',
         display: 'flex',
         flexDirection: 'column'
       }}
@@ -55,7 +67,7 @@ const ChartWidget = () => {
 
       <Box sx={{ flexGrow: 1, minHeight: 0 }}>
         <ResponsiveContainer width="100%" height="100%">
-          <LineChart data={temperatureData} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+          <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#2A2A2A" />
             <XAxis
               dataKey="time"

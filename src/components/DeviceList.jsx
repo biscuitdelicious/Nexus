@@ -1,24 +1,10 @@
-import React from 'react';
-import { List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, Paper, Chip, Box } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { List, ListItem, ListItemText, ListItemAvatar, Avatar, Typography, Paper, Chip, Box, Skeleton } from '@mui/material';
 import StorageIcon from '@mui/icons-material/Storage';
 import RouterIcon from '@mui/icons-material/Router';
 import SecurityIcon from '@mui/icons-material/Security';
 import DnsIcon from '@mui/icons-material/Dns';
-
-const devices = [
-  { id: 1, name: 'Web Server 01', type: 'Server', status: 'Healthy', ip: '192.168.1.10' },
-  { id: 2, name: 'Database 01', type: 'Server', status: 'Event', ip: '192.168.1.11' },
-  { id: 3, name: 'Core Router', type: 'Network', status: 'Healthy', ip: '192.168.1.1' },
-  { id: 4, name: 'Firewall Main', type: 'Security', status: 'Healthy', ip: '192.168.1.2' },
-  { id: 5, name: 'Switch Rack A', type: 'Network', status: 'Healthy', ip: '192.168.1.3' },
-  { id: 6, name: 'Cache Server', type: 'Server', status: 'Incident', ip: '192.168.1.12' },
-  { id: 7, name: 'Load Balancer', type: 'Network', status: 'Healthy', ip: '192.168.1.5' },
-  { id: 8, name: 'Backup Storage', type: 'Server', status: 'Event', ip: '192.168.1.15' },
-  { id: 9, name: 'VPN Gateway', type: 'Security', status: 'Healthy', ip: '192.168.1.4' },
-  { id: 10, name: 'App Server 01', type: 'Server', status: 'Healthy', ip: '192.168.1.20' },
-  { id: 11, name: 'App Server 02', type: 'Server', status: 'Alarm', ip: '192.168.1.21' },
-  { id: 12, name: 'Switch Rack B', type: 'Network', status: 'Healthy', ip: '192.168.1.6' }
-];
+import { fetchDevices } from '../services/api';
 
 const getIcon = (type) => {
   switch (type) {
@@ -40,6 +26,33 @@ const getStatusStyle = (status) => {
 };
 
 const DeviceList = ({ showOnlyIssues = false }) => {
+  const [devices, setDevices] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const result = await fetchDevices();
+        setDevices(result);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+        {[1, 2, 3, 4].map((i) => (
+          <Skeleton key={i} variant="rectangular" height={60} sx={{ borderRadius: 0, bgcolor: '#141414' }} />
+        ))}
+      </Box>
+    );
+  }
+
   const displayedDevices = showOnlyIssues
     ? devices.filter((device) => device.status !== 'Healthy')
     : devices;

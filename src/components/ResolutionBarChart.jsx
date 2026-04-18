@@ -1,20 +1,32 @@
-import React from 'react';
-import { useTheme } from '@mui/material';
+import React, { useState, useEffect } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-
-const data = [
-  { day: 'Mon', time: 120 },
-  { day: 'Tue', time: 85 },
-  { day: 'Wed', time: 100 },
-  { day: 'Thu', time: 60 },
-  { day: 'Fri', time: 40 }
-];
+import { Skeleton } from '@mui/material';
+import { fetchResolutionData } from '../services/api';
 
 const ResolutionBarChart = () => {
-  const theme = useTheme();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const result = await fetchResolutionData();
+        setData(result);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  if (loading) {
+    return <Skeleton variant="rectangular" height={240} sx={{ borderRadius: 0, bgcolor: '#141414' }} />;
+  }
 
   return (
-    <ResponsiveContainer width="100%" height={250}>
+    <ResponsiveContainer width="100%" height={240}>
       <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#2A2A2A" />
         <XAxis
