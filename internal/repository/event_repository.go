@@ -40,8 +40,7 @@ func (r *EventRepository) Update(event *model.Event) error {
 	return r.db.Save(event).Error
 }
 
-// UpdateStatus changes only the status-related fields of an event.
-// Using db.Model().Updates() instead of Save() avoids overwriting unrelated fields.
+// Changes only the status fields of an event
 func (r *EventRepository) UpdateStatus(event *model.Event) error {
 	return r.db.Model(event).Updates(map[string]interface{}{
 		"status":      event.Status,

@@ -72,8 +72,7 @@ func main() {
 
 	r.Post("/webhook/grafana", webhookHandler.HandleGrafana)
 
-	// CORS allows the React frontend (localhost:5173) to call this API.
-	// AllowedOrigins can be tightened to specific domains in production.
+	// Allow React to call this API
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:5173", "http://localhost:3000"},
 		AllowedMethods: []string{"GET", "POST", "PATCH", "PUT", "DELETE", "OPTIONS"},

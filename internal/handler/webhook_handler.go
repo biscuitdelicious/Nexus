@@ -45,7 +45,6 @@ func (h *WebhookHandler) HandleGrafana(w http.ResponseWriter, r *http.Request) {
 			message = alert.Annotations["description"]
 		}
 
-		// Fetch sensor to get location_id — required FK on event
 		sensor, err := h.sensorRepo.GetByID(sensorID)
 		if err != nil {
 			log.Printf("webhook: sensor %d not found, skipping alert", sensorID)
