@@ -1,9 +1,33 @@
-import React from 'react';
-import { Box, Typography, Fade, Grid, Paper, Button } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Fade, Grid, Paper, Button, Skeleton } from '@mui/material';
 import DnsIcon from '@mui/icons-material/Dns';
 import DeviceList from '../components/DeviceList';
+import { fetchDevices } from '../services/api';
 
 const Devices = () => {
+  const [stats, setStats] = useState({ total: 0, healthy: 0, issues: 0, healthPercentage: 0 });
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const loadStats = async () => {
+      try {
+        const data = await fetchDevices();
+        const total = data.length;
+        const healthy = data.filter(device => device.status === 'Healthy').length;
+        const issues = total - healthy;
+        const healthPercentage = total > 0 ? Math.round((healthy / total) * 100) : 0;
+
+        setStats({ total, healthy, issues, healthPercentage });
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadStats();
+  }, []);
+
   return (
     <Fade in={true} timeout={800}>
       <Box>
@@ -54,9 +78,13 @@ const Devices = () => {
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={4}>
             <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A' }}>
-              <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: '#D4FF00' }}>
-                12
-              </Typography>
+              {loading ? (
+                <Skeleton variant="rectangular" width="40%" height={45} sx={{ mx: 'auto', bgcolor: '#0D0D0D', mb: 0.5 }} />
+              ) : (
+                <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: '#D4FF00' }}>
+                  {stats.total}
+                </Typography>
+              )}
               <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Total Assets
               </Typography>
@@ -64,9 +92,13 @@ const Devices = () => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A' }}>
-              <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: '#FFFFFF' }}>
-                8
-              </Typography>
+              {loading ? (
+                <Skeleton variant="rectangular" width="40%" height={45} sx={{ mx: 'auto', bgcolor: '#0D0D0D', mb: 0.5 }} />
+              ) : (
+                <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: '#FFFFFF' }}>
+                  {stats.healthy}
+                </Typography>
+              )}
               <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Healthy Units
               </Typography>
@@ -74,9 +106,13 @@ const Devices = () => {
           </Grid>
           <Grid item xs={12} sm={4}>
             <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A' }}>
-              <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: '#FF003C' }}>
-                4
-              </Typography>
+              {loading ? (
+                <Skeleton variant="rectangular" width="40%" height={45} sx={{ mx: 'auto', bgcolor: '#0D0D0D', mb: 0.5 }} />
+              ) : (
+                <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: '#FF003C' }}>
+                  {stats.issues}
+                </Typography>
+              )}
               <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Active Issues
               </Typography>
@@ -108,26 +144,31 @@ const Devices = () => {
                 <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
                   Environment Health
                 </Typography>
-                <Box
-                  sx={{
-                    height: 8,
-                    width: '100%',
-                    bgcolor: '#0D0D0D',
-                    borderRadius: 0,
-                    border: '1px solid #2A2A2A',
-                    overflow: 'hidden',
-                  }}
-                >
+                {loading ? (
+                  <Skeleton variant="rectangular" height={8} sx={{ width: '100%', bgcolor: '#0D0D0D' }} />
+                ) : (
                   <Box
                     sx={{
-                      height: '100%',
-                      width: '66%',
-                      bgcolor: '#D4FF00',
+                      height: 8,
+                      width: '100%',
+                      bgcolor: '#0D0D0D',
+                      borderRadius: 0,
+                      border: '1px solid #2A2A2A',
+                      overflow: 'hidden',
                     }}
-                  />
-                </Box>
+                  >
+                    <Box
+                      sx={{
+                        height: '100%',
+                        width: `${stats.healthPercentage}%`,
+                        bgcolor: '#D4FF00',
+                        transition: 'width 1s ease-in-out'
+                      }}
+                    />
+                  </Box>
+                )}
                 <Typography sx={{ mt: 1.5, display: 'block', color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-                  66% of devices are operating within normal parameters.
+                  {loading ? 'CALCULATING STATUS...' : `${stats.healthPercentage}% of devices are operating within normal parameters.`}
                 </Typography>
               </Box>
 
@@ -153,7 +194,7 @@ const Devices = () => {
                   Last Scan:
                 </Typography>
                 <Typography sx={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}>
-                  TODAY 14:45 PM
+                  TODAY {new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
                 </Typography>
               </Box>
             </Paper>

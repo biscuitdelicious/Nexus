@@ -1,68 +1,97 @@
-import React from 'react';
-import { Box, Typography, Fade } from '@mui/material';
+import React, { useState, useEffect } from 'react';
+import { Box, Typography, Fade, Skeleton } from '@mui/material';
 import QueryStatsIcon from '@mui/icons-material/QueryStats';
 
 import MetricsCards from '../components/MetricsCards';
 import LogsTable from '../components/LogsTable';
-import { summaryMetrics, logEntries } from '../data/metricsLogsMock';
+import { fetchObservabilityMetrics, fetchLiveFeed } from '../services/api';
 
-const Observability = () => (
-  <Fade in={true} timeout={800}>
-    <Box>
-      <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 2 }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            p: 1.5,
-            borderRadius: 0,
-            background: '#141414',
-            border: '1px solid #2A2A2A',
-          }}
-        >
-          <QueryStatsIcon sx={{ color: '#D4FF00', fontSize: 28 }} />
-        </Box>
+const Observability = () => {
+  const [metrics, setMetrics] = useState([]);
+  const [logs, setLogs] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-        <Box>
-          <Typography
-            variant="h4"
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [metricsData, logsData] = await Promise.all([
+          fetchObservabilityMetrics(),
+          fetchLiveFeed()
+        ]);
+        setMetrics(metricsData);
+        setLogs(logsData);
+      } catch (error) {
+        console.error(error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, []);
+
+  return (
+    <Fade in={true} timeout={800}>
+      <Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 2 }}>
+          <Box
             sx={{
-              color: '#FFFFFF',
-              fontFamily: '"Georgia", serif',
-              fontStyle: 'italic',
-              fontWeight: 'normal',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              p: 1.5,
+              borderRadius: 0,
+              background: '#141414',
+              border: '1px solid #2A2A2A',
             }}
           >
-            Metrics & Logs
-          </Typography>
+            <QueryStatsIcon sx={{ color: '#D4FF00', fontSize: 28 }} />
+          </Box>
+
+          <Box>
+            <Typography
+              variant="h4"
+              sx={{
+                color: '#FFFFFF',
+                fontFamily: '"Georgia", serif',
+                fontStyle: 'italic',
+                fontWeight: 'normal',
+              }}
+            >
+              Metrics & Logs
+            </Typography>
+          </Box>
+        </Box>
+
+        <Typography
+          variant="body1"
+          sx={{
+            mb: 4,
+            ml: 8.5,
+            color: '#888888',
+            fontFamily: '"Roboto Mono", monospace',
+            fontSize: '0.85rem',
+            textTransform: 'uppercase',
+            letterSpacing: '1px'
+          }}
+        >
+          System telemetry, active KPIs, and the tail of recent events.
+        </Typography>
+
+        <Box sx={{ mb: 4 }}>
+          <MetricsCards metrics={metrics} loading={loading} />
+        </Box>
+
+        <Box sx={{ animation: 'fadeInUp 0.8s ease-out' }}>
+          {loading ? (
+            <Skeleton variant="rectangular" height={300} sx={{ bgcolor: '#141414', borderRadius: 0 }} />
+          ) : (
+            <LogsTable entries={logs} />
+          )}
         </Box>
       </Box>
-
-      <Typography
-        variant="body1"
-        sx={{
-          mb: 4,
-          ml: 8.5,
-          color: '#888888',
-          fontFamily: '"Roboto Mono", monospace',
-          fontSize: '0.85rem',
-          textTransform: 'uppercase',
-          letterSpacing: '1px'
-        }}
-      >
-        System telemetry, active KPIs, and the tail of recent events.
-      </Typography>
-
-      <Box sx={{ mb: 4 }}>
-        <MetricsCards metrics={summaryMetrics} />
-      </Box>
-
-      <Box sx={{ animation: 'fadeInUp 0.8s ease-out' }}>
-        <LogsTable entries={logEntries} />
-      </Box>
-    </Box>
-  </Fade>
-);
+    </Fade>
+  );
+};
 
 export default Observability;
