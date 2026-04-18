@@ -105,13 +105,14 @@ const DeviceList = ({ showOnlyIssues = false }) => {
                 </Avatar>
               </ListItemAvatar>
               <ListItemText
+                disableTypography
                 primary={
                   <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.85rem', color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: '1px' }}>
                     {device.name}
                   </Typography>
                 }
                 secondary={
-                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 0.5 }}>
+                  <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 0.5 }}>
                     <Typography component="span" sx={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', color: '#888888' }}>
                       {device.ip}
                     </Typography>

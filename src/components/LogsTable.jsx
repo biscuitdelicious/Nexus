@@ -16,6 +16,8 @@ import {
 } from '@mui/material';
 
 const getLevelStyle = (level) => {
+  if (!level) return { color: '#FFFFFF', borderColor: '#2A2A2A' };
+
   switch (level.toLowerCase()) {
     case 'alarm':
       return { color: '#FF003C', borderColor: '#FF003C' };
@@ -42,21 +44,24 @@ const formatTs = (iso) => {
   }
 };
 
-const LogsTable = ({ entries }) => {
+const LogsTable = ({ entries = [] }) => {
   const [levelFilter, setLevelFilter] = useState('all');
 
   const allowedEntries = useMemo(() => {
-    return entries.filter((e) => ['alarm', 'incident', 'event'].includes(e.level.toLowerCase()));
+    return entries.filter((e) => {
+      const typeStr = e.type || e.level || '';
+      return ['alarm', 'incident', 'event'].includes(typeStr.toLowerCase());
+    });
   }, [entries]);
 
   const levels = useMemo(() => {
-    const set = new Set(allowedEntries.map((e) => e.level.toLowerCase()));
+    const set = new Set(allowedEntries.map((e) => (e.type || e.level || '').toLowerCase()));
     return ['all', ...Array.from(set).sort()];
   }, [allowedEntries]);
 
   const filtered = useMemo(() => {
     if (levelFilter === 'all') return allowedEntries;
-    return allowedEntries.filter((e) => e.level.toLowerCase() === levelFilter);
+    return allowedEntries.filter((e) => (e.type || e.level || '').toLowerCase() === levelFilter);
   }, [allowedEntries, levelFilter]);
 
   return (
@@ -122,7 +127,8 @@ const LogsTable = ({ entries }) => {
           </TableHead>
           <TableBody>
             {filtered.map((row) => {
-              const style = getLevelStyle(row.level);
+              const rowType = row.type || row.level || 'UNKNOWN';
+              const style = getLevelStyle(rowType);
               return (
                 <TableRow
                   key={row.id}
@@ -142,7 +148,7 @@ const LogsTable = ({ entries }) => {
                   </TableCell>
                   <TableCell>
                     <Chip
-                      label={row.level}
+                      label={rowType}
                       variant="outlined"
                       sx={{
                         color: style.color,

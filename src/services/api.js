@@ -39,6 +39,19 @@ const mockTickets = [
   { id: 'TK-9022', ts: '2024-05-15 14:20:01', source: 'DB_CLUSTER_01', message: 'High memory usage', severity: 'ALARM', status: 'PENDING' },
 ];
 
+const mockLogs = [
+  { id: 'ALT-101', ts: '15:42:01', type: 'ALARM', message: 'Core switch packet loss > 15%', source: 'NET-SW-04' },
+  { id: 'ALT-102', ts: '15:40:55', type: 'INCIDENT', message: 'Auth service timeout', source: 'API-GATEWAY' },
+  { id: 'ALT-103', ts: '15:38:20', type: 'EVENT', message: 'Backup routine completed', source: 'BACKUP-MGR' },
+];
+
+const mockObservabilityMetrics = [
+  { id: 1, label: 'UPTIME', value: '99.99%', sublabel: 'Last 30 days' },
+  { id: 2, label: 'ERROR RATE', value: '0.12%', sublabel: 'vs 0.15% avg' },
+  { id: 3, label: 'ACTIVE CONNS', value: '1,204', sublabel: 'Peak: 1,450' },
+  { id: 4, label: 'AVG RESPONSE', value: '45ms', sublabel: 'p99: 120ms' },
+];
+
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
 export const fetchDashboardMetrics = async () => {
@@ -74,4 +87,14 @@ export const fetchTickets = async () => {
 export const acknowledgeTicket = async (ticketId) => {
   await delay(500);
   return { success: true, id: ticketId, status: 'ACKNOWLEDGED' };
+};
+
+export const fetchLiveFeed = async () => {
+  await delay(700);
+  return mockLogs;
+};
+
+export const fetchObservabilityMetrics = async () => {
+  await delay(700);
+  return mockObservabilityMetrics;
 };
