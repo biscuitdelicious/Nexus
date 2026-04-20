@@ -4,61 +4,70 @@ const terminalTheme = createTheme({
   palette: {
     mode: 'dark',
     primary: {
-      main: '#D4FF00',
+      main: '#CCFF00',
       contrastText: '#000000',
     },
     secondary: {
-      main: '#888888',
+      main: '#00E5FF',
+      contrastText: '#000000',
     },
     background: {
-      default: '#0D0D0D',
-      paper: '#141414',
+      default: '#050505',
+      paper: '#0A0A0A',
     },
     text: {
-      primary: '#FFFFFF',
-      secondary: '#888888',
+      primary: '#EAEAEA',
+      secondary: '#A1A1AA',
     },
-    divider: '#2A2A2A',
+    divider: '#1F1F1F',
   },
   shape: {
-    borderRadius: 0,
+    borderRadius: 2,
   },
   typography: {
     fontFamily: [
       '"Roboto Mono"',
-      '"Courier New"',
+      '"Fira Code"',
       'monospace',
     ].join(','),
-    h1: { fontFamily: '"Georgia", serif', fontStyle: 'italic' },
-    h2: { fontFamily: '"Georgia", serif', fontStyle: 'italic' },
-    h3: { fontFamily: '"Georgia", serif', fontStyle: 'italic' },
-    h4: { fontFamily: '"Georgia", serif', fontStyle: 'italic' },
-    h5: { fontFamily: '"Georgia", serif', fontStyle: 'italic', color: '#FFFFFF' },
-    h6: { fontFamily: '"Georgia", serif', fontStyle: 'italic' },
-    subtitle1: { fontFamily: '"Roboto Mono", monospace', textTransform: 'uppercase', letterSpacing: '1px' },
-    subtitle2: { fontFamily: '"Roboto Mono", monospace', textTransform: 'uppercase', letterSpacing: '1px', color: '#888888' },
-    body1: { fontFamily: '"Roboto Mono", monospace' },
-    body2: { fontFamily: '"Roboto Mono", monospace' },
-    button: { fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px' },
+    h1: { fontWeight: 700, letterSpacing: '-1px', textTransform: 'uppercase' },
+    h2: { fontWeight: 700, letterSpacing: '-0.5px', textTransform: 'uppercase' },
+    h3: { fontWeight: 600, textTransform: 'uppercase' },
+    h4: { fontWeight: 600 },
+    h5: { fontWeight: 600, color: '#EAEAEA' },
+    h6: { fontWeight: 600 },
+    subtitle1: { textTransform: 'uppercase', letterSpacing: '1.5px', color: '#00E5FF', fontWeight: 600 },
+    subtitle2: { textTransform: 'uppercase', letterSpacing: '1px', color: '#A1A1AA' },
+    body1: { letterSpacing: '0.2px' },
+    body2: { letterSpacing: '0.2px' },
+    button: { fontWeight: 700, letterSpacing: '1.5px' },
   },
   components: {
     MuiCssBaseline: {
       styleOverrides: {
         body: {
-          backgroundColor: '#0D0D0D',
-          backgroundImage: 'none',
+          backgroundColor: '#050505',
+          backgroundImage: 'radial-gradient(circle at 50% 0%, #111111 0%, #050505 70%)',
           minHeight: '100vh',
-          color: '#FFFFFF',
+          color: '#EAEAEA',
+          textRendering: 'optimizeLegibility',
+        },
+        '::selection': {
+          backgroundColor: '#CCFF00',
+          color: '#000000',
         },
         '*::-webkit-scrollbar': {
-          width: '8px',
+          width: '6px',
         },
         '*::-webkit-scrollbar-track': {
-          background: '#0D0D0D',
-          borderLeft: '1px solid #2A2A2A',
+          background: 'transparent',
         },
         '*::-webkit-scrollbar-thumb': {
-          backgroundColor: '#2A2A2A',
+          backgroundColor: '#1F1F1F',
+          borderRadius: '3px',
+          '&:hover': {
+            backgroundColor: '#CCFF00',
+          },
         },
       },
     },
@@ -66,9 +75,9 @@ const terminalTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          backgroundColor: '#141414',
-          border: '1px solid #2A2A2A',
-          boxShadow: 'none',
+          backgroundColor: '#0A0A0A',
+          border: '1px solid #1F1F1F',
+          boxShadow: '0 4px 24px rgba(0, 0, 0, 0.6)',
         },
       },
     },
@@ -76,8 +85,9 @@ const terminalTheme = createTheme({
       styleOverrides: {
         root: {
           backgroundImage: 'none',
-          backgroundColor: '#0D0D0D',
-          borderBottom: '1px solid #2A2A2A',
+          backgroundColor: 'rgba(5, 5, 5, 0.85)',
+          backdropFilter: 'blur(8px)',
+          borderBottom: '1px solid #1F1F1F',
           boxShadow: 'none',
         },
       },
@@ -86,8 +96,8 @@ const terminalTheme = createTheme({
       styleOverrides: {
         paper: {
           backgroundImage: 'none',
-          backgroundColor: '#0D0D0D',
-          borderRight: '1px solid #2A2A2A',
+          backgroundColor: '#050505',
+          borderRight: '1px solid #1F1F1F',
           boxShadow: 'none',
         },
       },
@@ -95,26 +105,28 @@ const terminalTheme = createTheme({
     MuiListItemButton: {
       styleOverrides: {
         root: {
-          borderRadius: 0,
-          margin: '4px 0',
-          padding: '10px 24px',
+          borderRadius: 4,
+          margin: '4px 8px',
+          padding: '8px 16px',
           borderLeft: '2px solid transparent',
-          transition: 'none',
+          transition: 'all 0.2s ease-in-out',
           '&.Mui-selected': {
-            backgroundColor: 'transparent',
-            borderLeft: '2px solid #D4FF00',
+            backgroundColor: 'rgba(204, 255, 0, 0.08)',
+            borderLeft: '2px solid #CCFF00',
             '&:hover': {
-              backgroundColor: 'rgba(212, 255, 0, 0.05)',
+              backgroundColor: 'rgba(204, 255, 0, 0.12)',
             },
             '& .MuiListItemIcon-root': {
-              color: '#D4FF00',
+              color: '#CCFF00',
+              filter: 'drop-shadow(0 0 6px rgba(204, 255, 0, 0.5))',
             },
             '& .MuiListItemText-primary': {
-              color: '#D4FF00',
+              color: '#CCFF00',
+              fontWeight: 600,
             },
           },
           '&:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.02)',
+            backgroundColor: '#111111',
           },
         },
       },
@@ -122,8 +134,9 @@ const terminalTheme = createTheme({
     MuiListItemIcon: {
       styleOverrides: {
         root: {
-          color: '#888888',
+          color: '#A1A1AA',
           minWidth: '40px',
+          transition: 'color 0.2s ease',
         },
       },
     },
@@ -140,19 +153,27 @@ const terminalTheme = createTheme({
       styleOverrides: {
         root: {
           textTransform: 'uppercase',
-          fontWeight: 700,
-          borderRadius: 0,
-          padding: '12px 24px',
-          boxShadow: 'none',
-          '&:hover': {
-            boxShadow: 'none',
-          },
+          borderRadius: 2,
+          padding: '10px 24px',
+          transition: 'all 0.2s ease',
         },
         containedPrimary: {
-          backgroundColor: '#D4FF00',
+          backgroundColor: '#CCFF00',
           color: '#000000',
+          boxShadow: '0 0 10px rgba(204, 255, 0, 0.15)',
           '&:hover': {
-            backgroundColor: '#BDE600',
+            backgroundColor: '#B3E600',
+            boxShadow: '0 0 20px rgba(204, 255, 0, 0.3)',
+            transform: 'translateY(-1px)',
+          },
+        },
+        outlinedPrimary: {
+          borderColor: '#CCFF00',
+          borderWidth: '1px',
+          '&:hover': {
+            borderWidth: '1px',
+            backgroundColor: 'rgba(204, 255, 0, 0.1)',
+            boxShadow: '0 0 12px rgba(204, 255, 0, 0.2)',
           },
         },
       },
@@ -160,12 +181,17 @@ const terminalTheme = createTheme({
     MuiChip: {
       styleOverrides: {
         root: {
-          borderRadius: 0,
-          backgroundColor: '#141414',
-          border: '1px solid #2A2A2A',
+          borderRadius: 4,
+          backgroundColor: '#111111',
+          border: '1px solid #1F1F1F',
+          transition: 'all 0.2s ease',
+          '&:hover': {
+            backgroundColor: '#1A1A1A',
+          },
         },
         outlined: {
           backgroundColor: 'transparent',
+          borderColor: '#1F1F1F',
         },
       },
     },

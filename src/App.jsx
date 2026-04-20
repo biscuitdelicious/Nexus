@@ -6,6 +6,7 @@ import Dashboard from './pages/Dashboard';
 import Devices from './pages/Devices';
 import Observability from './pages/Observability';
 import Tickets from "./pages/Tickets.jsx";
+import NocWall from './pages/NocWall.jsx';
 
 function App() {
   const [activePage, setActivePage] = useState('Dashboard');
@@ -18,9 +19,10 @@ function App() {
         return <Devices />;
       case 'Observability':
         return <Observability />;
-
-        case 'Tickets':
+      case 'Tickets':
         return <Tickets />;
+      case 'NOC Wall':
+        return <NocWall setActivePage={setActivePage} />;
       default:
         return <Dashboard />;
     }
