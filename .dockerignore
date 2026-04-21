@@ -5,7 +5,6 @@ README.md
 .git
 .gitignore
 
-# Node / FE stuff — not needed in Go image
 node_modules
 dist
 .vite
