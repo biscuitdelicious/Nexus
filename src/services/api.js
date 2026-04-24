@@ -1,115 +1,258 @@
-const API_BASE_URL = 'http://localhost:8080';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8080';
 
 const handleResponse = async (response) => {
   if (!response.ok) {
     const errorMsg = await response.text();
-    console.error("API Error:", errorMsg);
-    throw new Error(`Eroare de la server: ${response.status}`);
+    console.error('API Error:', errorMsg);
+    throw new Error(`Server error: ${response.status}`);
   }
   return response.json();
 };
 
+// Map backend severity -> UI label used by existing components.
+const severityToUi = (sev) => {
+  switch ((sev || '').toLowerCase()) {
+    case 'incident': return 'INCIDENT';
+    case 'alarm':    return 'ALARM';
+    case 'warning':  return 'ALARM';
+    case 'critical': return 'INCIDENT';
+    case 'notification':
+    case 'info':
+    case 'event':    return 'EVENT';
+    default:         return (sev || 'EVENT').toUpperCase();
+  }
+};
+
+const statusToUi = (status) => {
+  switch ((status || '').toLowerCase()) {
+    case 'acknowledged': return 'ACKNOWLEDGED';
+    case 'resolved':     return 'RESOLVED';
+    default:             return 'PENDING';
+  }
+};
+
+const formatTimestamp = (iso) => {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return iso;
+    return d.toLocaleString();
+  } catch {
+    return iso;
+  }
+};
+
+const formatClockLabel = (iso) => {
+  if (!iso) return '';
+  try {
+    const d = new Date(iso);
+    if (Number.isNaN(d.getTime())) return '';
+    const hh = String(d.getHours()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
+    const ss = String(d.getSeconds()).padStart(2, '0');
+    return `${hh}:${mm}:${ss}`;
+  } catch {
+    return '';
+  }
+};
+
+// ─────────────────────────────────────── Sensors / devices
+
+// Priority used to pick worst status per sensor: higher = worse.
+const STATUS_PRIORITY = { Healthy: 0, Event: 1, Incident: 2, Alarm: 3 };
+
+const severityToDeviceStatus = (uiSeverity) => {
+  switch (uiSeverity) {
+    case 'ALARM':    return 'Alarm';
+    case 'INCIDENT': return 'Incident';
+    case 'EVENT':    return 'Event';
+    default:         return 'Event';
+  }
+};
+
 export const fetchDevices = async () => {
   try {
-    const data = await fetch(`${API_BASE_URL}/sensors`);
-    const parsed = await handleResponse(data);
+    const [sensorsRes, eventsRes] = await Promise.all([
+      fetch(`${API_BASE_URL}/sensors`).then(handleResponse).catch(() => []),
+      fetch(`${API_BASE_URL}/events/open`).then(handleResponse).catch(() => []),
+    ]);
 
-    return (parsed || []).map(sensor => ({
-      id: sensor.id || sensor.ID || Math.random(),
-      name: sensor.name || sensor.Name || sensor.sensor_name || 'Unnamed Sensor',
-      type: sensor.type || sensor.Type || 'Sensor',
-      status: sensor.status || sensor.Status || 'Healthy',
-      ip: sensor.ip || sensor.IP || sensor.ip_address || 'N/A'
-    }));
+    // Keep only events without ACK (PENDING). `/events/open` already excludes
+    // resolved, but acknowledged events can still be open.
+    const pending = (eventsRes || []).filter((e) => {
+      const s = (e.Status || e.status || '').toLowerCase();
+      return s !== 'acknowledged' && s !== 'resolved';
+    });
+
+    // sensor_id -> worst UI status
+    const worstBySensor = new Map();
+    for (const e of pending) {
+      const sid = e.SensorID ?? e.sensor_id;
+      if (sid == null) continue;
+      const status = severityToDeviceStatus(severityToUi(e.Severity || e.severity));
+      const prev = worstBySensor.get(sid);
+      if (!prev || STATUS_PRIORITY[status] > STATUS_PRIORITY[prev]) {
+        worstBySensor.set(sid, status);
+      }
+    }
+
+    return (sensorsRes || []).map((sensor) => {
+      const id = sensor.SensorID ?? sensor.sensor_id ?? sensor.id;
+      const derived = worstBySensor.get(id);
+      return {
+        id,
+        name: sensor.Name || sensor.name || sensor.SensorNo || 'Unnamed Sensor',
+        type: sensor.Type || sensor.type || 'Sensor',
+        status: derived || sensor.status || sensor.Status || 'Healthy',
+        ip: sensor.ip || sensor.IP || sensor.SensorNo || 'N/A',
+        locationId: sensor.LocationID ?? sensor.location_id,
+      };
+    });
   } catch (err) {
-    console.error("Fetch sensors failed", err);
+    console.error('Fetch sensors failed', err);
     return [];
   }
 };
 
+// ─────────────────────────────────────── Tickets / events
+
 export const fetchTickets = async () => {
   try {
-    const data = await fetch(`${API_BASE_URL}/events/open`);
-    const parsed = await handleResponse(data);
-
-    return (parsed || []).map(event => ({
-      id: event.id || event.ID || `TK-${Math.floor(Math.random() * 1000)}`,
-      ts: event.created_at || event.CreatedAt || event.time || new Date().toISOString(),
-      source: event.sensor_name || event.Source || 'Sistem',
-      message: event.description || event.Description || event.message || event.Message || 'Fără descriere',
-      severity: event.severity || event.Severity || 'ALARM',
-      status: event.status || event.Status || 'PENDING'
+    const res = await fetch(`${API_BASE_URL}/events/open`);
+    const parsed = await handleResponse(res);
+    return (parsed || []).map((event) => ({
+      id: event.EventID ?? event.event_id ?? event.id ?? `TK-${Math.random().toString(36).slice(2, 8)}`,
+      ts: formatTimestamp(event.CreatedAt || event.created_at),
+      source: `SN-${String(event.SensorID ?? event.sensor_id ?? '').padStart(3, '0')}`,
+      message: event.Message || event.message || 'Fara descriere',
+      severity: severityToUi(event.Severity || event.severity),
+      status: statusToUi(event.Status || event.status),
+      metricValue: event.MetricValue ?? event.metric_value ?? null,
     }));
   } catch (err) {
-    console.error("Fetch tickets failed", err);
+    console.error('Fetch tickets failed', err);
     return [];
   }
 };
 
 export const acknowledgeTicket = async (ticketId) => {
   try {
-    await fetch(`${API_BASE_URL}/events/${ticketId}`, {
+    const res = await fetch(`${API_BASE_URL}/events/${ticketId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ status: 'ACKNOWLEDGED' })
+      body: JSON.stringify({ status: 'acknowledged' }),
     });
-
+    if (!res.ok) throw new Error('ack failed');
     return { success: true, id: ticketId, status: 'ACKNOWLEDGED' };
   } catch (err) {
-    console.error("Ack failed", err);
+    console.error('Ack failed', err);
     return { success: false };
   }
 };
 
 export const fetchLiveFeed = async () => {
   try {
-    const data = await fetch(`${API_BASE_URL}/events`);
-    const parsed = await handleResponse(data);
-
-    return (parsed || []).map(event => ({
-      id: event.id || event.ID || `LOG-${Math.floor(Math.random() * 1000)}`,
-      ts: event.created_at || event.CreatedAt || event.time || new Date().toLocaleTimeString(),
-      type: event.severity || event.Severity || 'EVENT',
-      message: event.description || event.Description || event.message || event.Message || 'Fără detalii',
-      source: event.sensor_name || event.Source || 'System'
+    const res = await fetch(`${API_BASE_URL}/events`);
+    const parsed = await handleResponse(res);
+    return (parsed || []).map((event) => ({
+      id: event.EventID ?? event.event_id ?? `LOG-${Math.random().toString(36).slice(2, 8)}`,
+      ts: formatTimestamp(event.CreatedAt || event.created_at),
+      type: severityToUi(event.Severity || event.severity),
+      message: event.Message || event.message || 'Fara detalii',
+      source: `SN-${String(event.SensorID ?? event.sensor_id ?? '').padStart(3, '0')}`,
     }));
-  } catch (err) {
+  } catch {
     return [];
   }
 };
 
-const mockMetrics = [
-  { id: 1, title: 'SYS.CPU_LOAD', value: '87%' },
-  { id: 2, title: 'MEM.ALLOCATED', value: '6.2 GB' },
-  { id: 3, title: 'NET.TRAFFIC_IO', value: '340 Mb/s' },
-  { id: 4, title: 'API.LATENCY', value: '142 ms' },
-];
+// ─────────────────────────────────────── Time-series readings
 
-const mockChartData = [
-  { time: '10:00', cpu: 45, ram: 40, board: 35 },
-  { time: '10:05', cpu: 48, ram: 42, board: 36 },
-  { time: '10:10', cpu: 52, ram: 47, board: 37 },
-];
+// Returns chart points `[{ time: 'HH:MM:SS', cpu: 67.5 }, ...]` for ChartWidget.
+export const fetchChartData = async ({ sensorId = 1, limit = 60 } = {}) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/readings?sensor_id=${sensorId}&limit=${limit}`);
+    const parsed = await handleResponse(res);
+    if (!Array.isArray(parsed)) return [];
+    return parsed.map((row) => ({
+      time: formatClockLabel(row.time ?? row.Time),
+      cpu: Number(row.value ?? row.Value ?? 0),
+    }));
+  } catch (err) {
+    console.error('fetchChartData failed', err);
+    return [];
+  }
+};
 
-const mockSeverityData = [
-  { name: 'ALARM', value: 11, color: '#FF003C' },
-  { name: 'INCIDENT', value: 31, color: '#FFA500' },
-  { name: 'EVENT', value: 64, color: '#888888' }
-];
+export const fetchLatestReadings = async () => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/readings/latest`);
+    const parsed = await handleResponse(res);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
 
-const mockResolutionData = [
+// ─────────────────────────────────────── Derived stats for widgets
+
+// Counts open+all events grouped by severity for SeverityPieChart.
+export const fetchSeverityData = async () => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/events`);
+    const parsed = await handleResponse(res);
+    const counts = { ALARM: 0, INCIDENT: 0, EVENT: 0 };
+    (parsed || []).forEach((e) => {
+      const key = severityToUi(e.Severity || e.severity);
+      counts[key] = (counts[key] || 0) + 1;
+    });
+    return [
+      { name: 'ALARM', value: counts.ALARM || 0, color: '#FF003C' },
+      { name: 'INCIDENT', value: counts.INCIDENT || 0, color: '#FFA500' },
+      { name: 'EVENT', value: counts.EVENT || 0, color: '#888888' },
+    ];
+  } catch {
+    return [
+      { name: 'ALARM', value: 0, color: '#FF003C' },
+      { name: 'INCIDENT', value: 0, color: '#FFA500' },
+      { name: 'EVENT', value: 0, color: '#888888' },
+    ];
+  }
+};
+
+// Latest reading-based quick stats for the top cards on Dashboard.
+export const fetchDashboardMetrics = async () => {
+  try {
+    const [chart, tickets] = await Promise.all([
+      fetchChartData({ sensorId: 1, limit: 5 }),
+      fetchTickets(),
+    ]);
+    const latest = chart.length ? chart[chart.length - 1].cpu : null;
+    const pending = tickets.filter((t) => t.status !== 'ACKNOWLEDGED' && t.status !== 'RESOLVED').length;
+    return [
+      { id: 1, title: 'CPU TEMP', value: latest !== null ? `${latest.toFixed(1)}°C` : '—' },
+      { id: 2, title: 'OPEN TICKETS', value: String(pending) },
+      { id: 3, title: 'TOTAL EVENTS', value: String(tickets.length) },
+      { id: 4, title: 'SENSOR ID', value: 'SN-001' },
+    ];
+  } catch {
+    return [
+      { id: 1, title: 'CPU TEMP', value: '—' },
+      { id: 2, title: 'OPEN TICKETS', value: '0' },
+      { id: 3, title: 'TOTAL EVENTS', value: '0' },
+      { id: 4, title: 'SENSOR ID', value: 'SN-001' },
+    ];
+  }
+};
+
+// Average resolution bar chart – still synthetic until backend aggregates.
+export const fetchResolutionData = async () => [
   { day: 'Mon', time: 120 },
   { day: 'Tue', time: 85 },
-  { day: 'Wed', time: 100 }
+  { day: 'Wed', time: 100 },
 ];
 
-const mockObservabilityMetrics = [
-  { id: 1, label: 'UPTIME', value: '99.99%', sublabel: 'Last 30 days' },
-  { id: 2, label: 'ERROR RATE', value: '0.12%', sublabel: 'vs 0.15% avg' },
+export const fetchObservabilityMetrics = async () => [
+  { id: 1, label: 'UPTIME', value: '0h 53 m', sublabel: 'Last 30 days' },
+  { id: 2, label: 'ERROR RATE', value: '>1%', sublabel: 'vs 0.15% avg' },
 ];
-
-export const fetchDashboardMetrics = async () => mockMetrics;
-export const fetchChartData = async () => mockChartData;
-export const fetchSeverityData = async () => mockSeverityData;
-export const fetchResolutionData = async () => mockResolutionData;
-export const fetchObservabilityMetrics = async () => mockObservabilityMetrics;
