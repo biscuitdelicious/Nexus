@@ -34,7 +34,7 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	eventRepo := repository.NewEventRepository(db)
 	ackRepo := repository.NewAcknowledgementRepository(db)
-	readingRepo := repository.NewSensorReadingRepository(db)
+	readingRepo := repository.NewReadingRepository(db)
 
 	locationHandler := handler.NewLocationHandler(locationRepo)
 	sensorHandler := handler.NewSensorHandler(sensorRepo)
@@ -42,7 +42,7 @@ func main() {
 	eventHandler := handler.NewEventHandler(eventRepo)
 	ackHandler := handler.NewAcknowledgementHandler(ackRepo)
 	webhookHandler := handler.NewWebhookHandler(eventRepo, sensorRepo)
-	readingHandler := handler.NewSensorReadingHandler(readingRepo)
+	readingHandler := handler.NewReadingHandler(readingRepo)
 
 	r := chi.NewRouter()
 
@@ -58,6 +58,9 @@ func main() {
 	r.Get("/sensors", sensorHandler.GetAll)
 	r.Get("/sensors/{id}", sensorHandler.GetByID)
 	r.Post("/sensors", sensorHandler.Create)
+	r.Get("/sensors/{id}/readings", readingHandler.GetBySensor)
+
+	r.Get("/metrics/summary", readingHandler.GetSummary)
 
 	r.Get("/users", userHandler.GetAll)
 	r.Get("/users/{id}", userHandler.GetByID)
