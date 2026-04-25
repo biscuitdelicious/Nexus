@@ -21,23 +21,31 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const ChartWidget = () => {
+const ChartWidget = ({ sensorId = 1, limit = 60, refreshMs = 3000 } = {}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+
     const loadData = async () => {
       try {
-        const result = await fetchChartData();
-        setData(result);
+        const result = await fetchChartData({ sensorId, limit });
+        if (!cancelled) setData(result);
       } catch (error) {
         console.error(error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
+
     loadData();
-  }, []);
+    const id = setInterval(loadData, refreshMs);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [sensorId, limit, refreshMs]);
 
   if (loading) {
     return <Skeleton variant="rectangular" height="400px" sx={{ borderRadius: 0, bgcolor: '#141414' }} />;
@@ -94,30 +102,13 @@ const ChartWidget = () => {
             <Line
               type="monotone"
               dataKey="cpu"
-              name="CPU_TEMP"
+              name="CPU"
               stroke="#D4FF00"
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 5, fill: '#D4FF00', stroke: '#141414', strokeWidth: 2 }}
             />
-            <Line
-              type="monotone"
-              dataKey="ram"
-              name="RAM_TEMP"
-              stroke="#FFA500"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 5, fill: '#FFA500', stroke: '#141414', strokeWidth: 2 }}
-            />
-            <Line
-              type="monotone"
-              dataKey="board"
-              name="SYS_BOARD"
-              stroke="#696969"
-              strokeWidth={2}
-              dot={false}
-              activeDot={{ r: 5, fill: '#696969', stroke: '#141414', strokeWidth: 2 }}
-            />
+           
           </LineChart>
         </ResponsiveContainer>
       </Box>

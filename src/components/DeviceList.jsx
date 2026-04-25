@@ -25,23 +25,29 @@ const getStatusStyle = (status) => {
   }
 };
 
-const DeviceList = ({ showOnlyIssues = false }) => {
+const DeviceList = ({ showOnlyIssues = false, refreshMs = 5000 }) => {
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const loadData = async () => {
       try {
         const result = await fetchDevices();
-        setDevices(result);
+        if (!cancelled) setDevices(result);
       } catch (error) {
         console.error(error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     loadData();
-  }, []);
+    const interval = setInterval(loadData, refreshMs);
+    return () => {
+      cancelled = true;
+      clearInterval(interval);
+    };
+  }, [refreshMs]);
 
   if (loading) {
     return (

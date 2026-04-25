@@ -77,6 +77,10 @@ func main() {
 
 	r.Post("/webhook/grafana", webhookHandler.HandleGrafana)
 
+	r.Post("/readings", readingHandler.Create)
+	r.Get("/readings", readingHandler.GetRecent)
+	r.Get("/readings/latest", readingHandler.Latest)
+
 	// Allow React to call this API
 	c := cors.New(cors.Options{
 		AllowedOrigins: []string{"http://localhost:5173", "http://localhost:3000"},
