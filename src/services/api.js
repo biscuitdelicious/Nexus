@@ -196,6 +196,31 @@ export const fetchLatestReadings = async () => {
 
 // ─────────────────────────────────────── Derived stats for widgets
 
+// Returns meta + mapped chart points so UI can distinguish:
+// - API error vs empty dataset (no readings yet)
+export const fetchChartDataStatus = async ({ sensorId = 1, limit = 60 } = {}) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/readings?sensor_id=${sensorId}&limit=${limit}`);
+    if (!res.ok) {
+      const msg = await res.text().catch(() => '');
+      return { ok: false, status: res.status, message: msg || res.statusText || 'Request failed', data: [] };
+    }
+    const parsed = await res.json();
+    if (!Array.isArray(parsed)) return { ok: true, status: 200, message: '', data: [] };
+    return {
+      ok: true,
+      status: 200,
+      message: '',
+      data: parsed.map((row) => ({
+        time: formatClockLabel(row.time ?? row.Time),
+        cpu: Number(row.value ?? row.Value ?? 0),
+      })),
+    };
+  } catch (err) {
+    return { ok: false, status: 0, message: err?.message || 'Network error', data: [] };
+  }
+};
+
 // Counts open+all events grouped by severity for SeverityPieChart.
 export const fetchSeverityData = async () => {
   try {
@@ -223,14 +248,19 @@ export const fetchSeverityData = async () => {
 // Latest reading-based quick stats for the top cards on Dashboard.
 export const fetchDashboardMetrics = async () => {
   try {
-    const [chart, tickets] = await Promise.all([
-      fetchChartData({ sensorId: 1, limit: 5 }),
+    const [chartRes, tickets] = await Promise.all([
+      fetchChartDataStatus({ sensorId: 1, limit: 5 }),
       fetchTickets(),
     ]);
+    const chart = chartRes?.data || [];
     const latest = chart.length ? chart[chart.length - 1].cpu : null;
     const pending = tickets.filter((t) => t.status !== 'ACKNOWLEDGED' && t.status !== 'RESOLVED').length;
     return [
-      { id: 1, title: 'CPU TEMP', value: latest !== null ? `${latest.toFixed(1)}°C` : '—' },
+      {
+        id: 1,
+        title: 'CPU TEMP',
+        value: chartRes?.ok === false ? 'ERR' : (latest !== null ? `${latest.toFixed(1)}°C` : '—'),
+      },
       { id: 2, title: 'OPEN TICKETS', value: String(pending) },
       { id: 3, title: 'TOTAL EVENTS', value: String(tickets.length) },
       { id: 4, title: 'SENSOR ID', value: 'SN-001' },
