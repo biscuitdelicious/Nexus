@@ -12,17 +12,23 @@ const Dashboard = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
     const loadData = async () => {
       try {
         const data = await fetchDashboardMetrics();
-        setMetrics(data);
+        if (!cancelled) setMetrics(data);
       } catch (error) {
         console.error(error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
     loadData();
+    const id = setInterval(loadData, 5000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
   }, []);
 
   return (
@@ -163,7 +169,7 @@ const Dashboard = () => {
           <Grid size={{ xs: 12, md: 4 }}>
             <Paper variant="outlined" sx={{ borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A', p: 2, height: '320px' }}>
               <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
-                Total Alerts
+                Total Tickets
               </Typography>
               <SeverityPieChart />
             </Paper>

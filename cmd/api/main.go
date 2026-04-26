@@ -34,6 +34,7 @@ func main() {
 	userRepo := repository.NewUserRepository(db)
 	eventRepo := repository.NewEventRepository(db)
 	ackRepo := repository.NewAcknowledgementRepository(db)
+	readingRepo := repository.NewReadingRepository(db)
 
 	locationHandler := handler.NewLocationHandler(locationRepo)
 	sensorHandler := handler.NewSensorHandler(sensorRepo)
@@ -41,6 +42,7 @@ func main() {
 	eventHandler := handler.NewEventHandler(eventRepo)
 	ackHandler := handler.NewAcknowledgementHandler(ackRepo)
 	webhookHandler := handler.NewWebhookHandler(eventRepo, sensorRepo)
+	readingHandler := handler.NewReadingHandler(readingRepo)
 
 	r := chi.NewRouter()
 
@@ -56,6 +58,9 @@ func main() {
 	r.Get("/sensors", sensorHandler.GetAll)
 	r.Get("/sensors/{id}", sensorHandler.GetByID)
 	r.Post("/sensors", sensorHandler.Create)
+	r.Get("/sensors/{id}/readings", readingHandler.GetBySensor)
+
+	r.Get("/metrics/summary", readingHandler.GetSummary)
 
 	r.Get("/users", userHandler.GetAll)
 	r.Get("/users/{id}", userHandler.GetByID)
@@ -71,6 +76,10 @@ func main() {
 	r.Post("/acknowledgements", ackHandler.Create)
 
 	r.Post("/webhook/grafana", webhookHandler.HandleGrafana)
+
+	r.Post("/readings", readingHandler.Create)
+	r.Get("/readings", readingHandler.GetRecent)
+	r.Get("/readings/latest", readingHandler.Latest)
 
 	// Allow React to call this API
 	c := cors.New(cors.Options{
