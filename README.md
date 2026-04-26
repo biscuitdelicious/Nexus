@@ -1,60 +1,101 @@
-# Nexus
+# 🚀 Nexus - Quick Start Guide
 
-Nexus este platforma de monitorizare si operare pentru infrastructura (dashboard, observability, tickets, NOC wall, chatbot).
+Nexus este o platformă integrată de monitorizare și operare (Dashboard, Observability, AI Chatbot). Acest ghid te va ajuta să pornești proiectul local în doar câteva minute.
 
-## Tehnologii
+---
 
-- Frontend: React + Vite + MUI + Recharts
-- API: Go
-- Baza de date: PostgreSQL/TimescaleDB
-- Orchestrare locala: Docker Compose
+## 📋 Condiții minime (Prerequisites)
 
-## Utilizare (Windows/macOS/Linux)
+Înainte de a începe, asigură-te că ai următoarele instalate pe sistemul tău:
 
-### Cerinte
+- **Docker Desktop** (pentru baza de date)
+- **Node.js** (pentru Frontend/Vite)
+- **Python 3.10+** (pentru AI Chatbot & API)
 
-- Docker Desktop (sau Docker Engine + Compose plugin)
+---
 
-### 1) Configureaza variabilele locale
+## 🛠️ 1. Instalare (Setup inițial)
 
-Copie `.env` (sau creeaza unul nou) cu minim:
+Deschide un terminal în folderul rădăcină al proiectului și rulează următoarele comenzi:
+
+### A) Pentru Partea de AI & Backend (Python)
+
+```powershell
+py -m pip install -r requirements.txt
+```
+
+### B) Pentru Interfață (Frontend - React/Vite)
+
+```powershell
+npm install
+```
+
+---
+
+## 🔑 2. Configurare variabile locale (.env)
+
+Creează un fișier numit `.env` în folderul principal al proiectului și adaugă următoarele linii (înlocuiește cheia OpenAI cu a ta):
 
 ```env
-COMPOSE_PROJECT_NAME=nexus
+# AI Configuration
+OPENAI_API_KEY=sk-introdu-cheia-ta-aici
+
+# Database Configuration (Docker)
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=nexus
 POSTGRES_EXTERNAL_PORT=5433
-DB_PORT=5432
-SERVER_PORT=8080
-API_EXTERNAL_PORT=8080
 ```
 
-### 2) Porneste aplicatia
+---
+
+## 🚀 3. Pornirea Sistemului (Ordinea pașilor)
+
+Pentru ca totul să funcționeze corect, pornește serviciile exact în această ordine:
+
+### Pasul A: Baza de date (Docker)
+
+Lansează containerele pentru PostgreSQL și TimescaleDB:
 
 ```bash
-docker compose up -d --build
+docker compose up -d
 ```
 
-### 3) Verifica servicii
+> Notă: Așteaptă aproximativ 10 secunde ca baza de date să fie complet gata înainte de pasul următor.
 
-```bash
-docker compose ps
+### Pasul B: Serverul AI (Chatbot)
+
+Pornește „creierul” proiectului care interoghează baza de date:
+
+```powershell
+py chatbot_automat.py
 ```
 
-### 4) Opreste aplicatia
+### Pasul C: Interfața Vizuală (Frontend)
+
+Pornește aplicația web în modul de dezvoltare:
+
+```powershell
+npm run dev
+```
+
+---
+
+## 📍 Endpoint-uri uzuale
+
+- API: `http://localhost:8080`
+- PostgreSQL: `localhost:5433`
+
+---
+
+## 🧹 Oprește serviciile
 
 ```bash
 docker compose down
 ```
 
-### 5) Opreste + sterge si volumul DB (optional)
+### Oprește și șterge volumul DB (optional)
 
 ```bash
 docker compose down -v
 ```
-
-## Endpoint-uri uzuale
-
-- API: `http://localhost:8080`
-- PostgreSQL: `localhost:5433`
