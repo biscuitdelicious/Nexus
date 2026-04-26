@@ -12,7 +12,8 @@ import {
   Assignment as AssignmentIcon,
   Speed as SpeedIcon,
   Memory as MemoryIcon,
-  Terminal as TerminalIcon
+  Terminal as TerminalIcon,
+  SmartToy as SmartToyIcon
 } from '@mui/icons-material';
 import { fetchDashboardMetrics, fetchLiveFeed } from '../services/api';
 
@@ -257,6 +258,36 @@ const Layout = ({ children, activePage, setActivePage }) => {
               {!isCollapsed && (
                 <ListItemText
                   primary={activePage === 'Tickets' ? '>_ TICKETS' : 'TICKETS'}
+                  primaryTypographyProps={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px', noWrap: true }}
+                />
+              )}
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={activePage === 'Chatbot'}
+              onClick={() => handleNavClick('Chatbot')}
+              sx={{
+                borderRadius: 0,
+                py: 1.5,
+                px: isCollapsed ? 0 : 3,
+                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                borderLeft: '2px solid transparent',
+                transition: 'none',
+                '&.Mui-selected': {
+                  backgroundColor: 'transparent',
+                  borderLeft: '2px solid #D4FF00',
+                  '& .MuiListItemIcon-root': { color: '#D4FF00' },
+                  '& .MuiListItemText-primary': { color: '#D4FF00' }
+                },
+                '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: '#888888', mr: isCollapsed ? 0 : 2 }}><SmartToyIcon fontSize="small" /></ListItemIcon>
+              {!isCollapsed && (
+                <ListItemText
+                  primary={activePage === 'Chatbot' ? '>_ ASSISTANT' : 'ASSISTANT'}
                   primaryTypographyProps={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px', noWrap: true }}
                 />
               )}

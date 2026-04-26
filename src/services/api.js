@@ -254,5 +254,5 @@ export const fetchResolutionData = async () => [
 
 export const fetchObservabilityMetrics = async () => [
   { id: 1, label: 'UPTIME', value: '0h 53 m', sublabel: 'Last 30 days' },
-  { id: 2, label: 'ERROR RATE', value: '>1%', sublabel: 'vs 0.15% avg' },
+  { id: 2, label: 'ERROR RATE', value: '<1%', sublabel: 'vs 0.15% avg' },
 ];

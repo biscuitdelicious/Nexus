@@ -7,6 +7,9 @@ import Devices from './pages/Devices';
 import Observability from './pages/Observability';
 import Tickets from "./pages/Tickets.jsx";
 import NocWall from './pages/NocWall.jsx';
+import Chatbot from './pages/Chatbot.jsx';
+import ChatPopup from './components/ChatPopup';
+import { getChatApiBaseUrl } from './services/chatApi';
 
 function App() {
   const [activePage, setActivePage] = useState('Dashboard');
@@ -23,6 +26,8 @@ function App() {
         return <Tickets />;
       case 'NOC Wall':
         return <NocWall setActivePage={setActivePage} />;
+      case 'Chatbot':
+        return <Chatbot />;
       default:
         return <Dashboard />;
     }
@@ -33,6 +38,12 @@ function App() {
       <Layout activePage={activePage} setActivePage={setActivePage}>
         {page}
       </Layout>
+      {activePage !== 'Chatbot' && (
+        <ChatPopup
+          apiBaseUrl={getChatApiBaseUrl()}
+          onExpand={() => setActivePage('Chatbot')}
+        />
+      )}
     </ThemeProvider>
   );
 }
