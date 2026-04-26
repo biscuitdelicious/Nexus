@@ -169,9 +169,11 @@ export const fetchLiveFeed = async () => {
 // ─────────────────────────────────────── Time-series readings
 
 // Returns chart points `[{ time: 'HH:MM:SS', cpu: 67.5 }, ...]` for ChartWidget.
-export const fetchChartData = async ({ sensorId = 1, limit = 60 } = {}) => {
+export const fetchChartData = async ({ sensorId = 1, limit = 60, range = '' } = {}) => {
   try {
-    const res = await fetch(`${API_BASE_URL}/readings?sensor_id=${sensorId}&limit=${limit}`);
+    const qs = new URLSearchParams({ sensor_id: String(sensorId), limit: String(limit) });
+    if (range) qs.set('range', range);
+    const res = await fetch(`${API_BASE_URL}/readings?${qs.toString()}`);
     const parsed = await handleResponse(res);
     if (!Array.isArray(parsed)) return [];
     return parsed.map((row) => ({
@@ -198,9 +200,11 @@ export const fetchLatestReadings = async () => {
 
 // Returns meta + mapped chart points so UI can distinguish:
 // - API error vs empty dataset (no readings yet)
-export const fetchChartDataStatus = async ({ sensorId = 1, limit = 60 } = {}) => {
+export const fetchChartDataStatus = async ({ sensorId = 1, limit = 60, range = '' } = {}) => {
   try {
-    const res = await fetch(`${API_BASE_URL}/readings?sensor_id=${sensorId}&limit=${limit}`);
+    const qs = new URLSearchParams({ sensor_id: String(sensorId), limit: String(limit) });
+    if (range) qs.set('range', range);
+    const res = await fetch(`${API_BASE_URL}/readings?${qs.toString()}`);
     if (!res.ok) {
       const msg = await res.text().catch(() => '');
       return { ok: false, status: res.status, message: msg || res.statusText || 'Request failed', data: [] };

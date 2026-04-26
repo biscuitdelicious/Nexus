@@ -10,6 +10,7 @@ import { fetchDashboardMetrics } from '../services/api';
 const Dashboard = () => {
   const [metrics, setMetrics] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [chartRange, setChartRange] = useState('1h');
 
   useEffect(() => {
     let cancelled = false;
@@ -135,7 +136,7 @@ const Dashboard = () => {
         <Grid container spacing={3} alignItems="stretch" sx={{ mb: 3 }}>
           <Grid size={{ xs: 12, md: 8 }} sx={{ minWidth: 0 }}>
             <Box sx={{ height: '100%', width: '100%', minWidth: 0 }}>
-              <ChartWidget />
+              <ChartWidget range={chartRange} onRangeChange={setChartRange} />
             </Box>
           </Grid>
 

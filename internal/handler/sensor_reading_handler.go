@@ -56,7 +56,7 @@ func (h *SensorReadingHandler) Create(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(reading)
 }
 
-// GET /readings?sensor_id=1&limit=60
+// GET /readings?sensor_id=1&limit=60&range=1h
 func (h *SensorReadingHandler) GetRecent(w http.ResponseWriter, r *http.Request) {
 	sensorIDStr := r.URL.Query().Get("sensor_id")
 	if sensorIDStr == "" {
@@ -76,7 +76,9 @@ func (h *SensorReadingHandler) GetRecent(w http.ResponseWriter, r *http.Request)
 		}
 	}
 
-	rows, err := h.repo.GetRecent(uint(sensorID), limit)
+	duration := parseRange(r.URL.Query().Get("range"))
+
+	rows, err := h.repo.GetRecent(uint(sensorID), limit, duration)
 	if err != nil {
 		http.Error(w, "failed to fetch readings", http.StatusInternalServerError)
 		return
@@ -84,6 +86,23 @@ func (h *SensorReadingHandler) GetRecent(w http.ResponseWriter, r *http.Request)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(rows)
+}
+
+// parseRange converts a query param like "15m", "1h", "6h", "24h" into a time.Duration.
+// Empty/invalid means no time filter (duration=0).
+func parseRange(raw string) time.Duration {
+	if raw == "" {
+		return 0
+	}
+	d, err := time.ParseDuration(raw)
+	if err != nil || d <= 0 {
+		return 0
+	}
+	// Guardrails to prevent accidental huge scans.
+	if d > 30*24*time.Hour {
+		return 30 * 24 * time.Hour
+	}
+	return d
 }
 
 // GET /readings/latest

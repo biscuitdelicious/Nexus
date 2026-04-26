@@ -1,7 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Typography, Box, Skeleton, Alert, Button } from '@mui/material';
+import { Paper, Typography, Box, Skeleton, Alert, Button, Menu, MenuItem } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { fetchChartDataStatus } from '../services/api';
+
+const RANGE_PRESETS = [
+  { label: '15m', value: '15m' },
+  { label: '1h', value: '1h' },
+  { label: '6h', value: '6h' },
+  { label: '24h', value: '24h' },
+];
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -21,17 +28,21 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const ChartWidget = ({ sensorId = 1, limit = 60, refreshMs = 3000 } = {}) => {
+const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, refreshMs = 3000 } = {}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [rangeAnchor, setRangeAnchor] = useState(null);
+
+  const currentRange =
+    RANGE_PRESETS.find((p) => p.value === range)?.label || String(range || 'all');
 
   useEffect(() => {
     let cancelled = false;
 
     const loadData = async () => {
       try {
-        const res = await fetchChartDataStatus({ sensorId, limit });
+        const res = await fetchChartDataStatus({ sensorId, limit, range });
         if (cancelled) return;
         if (!res.ok) {
           setError(res);
@@ -53,7 +64,7 @@ const ChartWidget = ({ sensorId = 1, limit = 60, refreshMs = 3000 } = {}) => {
       cancelled = true;
       clearInterval(id);
     };
-  }, [sensorId, limit, refreshMs]);
+  }, [sensorId, limit, range, refreshMs]);
 
   if (loading) {
     return <Skeleton variant="rectangular" height="400px" sx={{ borderRadius: 0, bgcolor: '#141414' }} />;
@@ -76,9 +87,62 @@ const ChartWidget = ({ sensorId = 1, limit = 60, refreshMs = 3000 } = {}) => {
         <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem' }}>
           Thermal Metrics
         </Typography>
-        <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', letterSpacing: '1px' }}>
-          UNIT: °C
-        </Typography>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+          <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', letterSpacing: '1px' }}>
+            UNIT: °C
+          </Typography>
+          <Button
+            size="small"
+            onClick={(e) => setRangeAnchor(e.currentTarget)}
+            sx={{
+              borderRadius: 0,
+              border: '1px solid #2A2A2A',
+              color: '#D4FF00',
+              fontFamily: '"Roboto Mono", monospace',
+              fontSize: '0.7rem',
+              letterSpacing: '1px',
+              px: 1.25,
+              minWidth: 0,
+              '&:hover': { borderColor: '#444', bgcolor: 'rgba(212,255,0,0.05)' }
+            }}
+          >
+            RANGE: {currentRange}
+          </Button>
+          <Menu
+            anchorEl={rangeAnchor}
+            open={Boolean(rangeAnchor)}
+            onClose={() => setRangeAnchor(null)}
+            PaperProps={{
+              sx: {
+                borderRadius: 0,
+                bgcolor: '#0A0A0A',
+                border: '1px solid #2A2A2A',
+                mt: 1,
+                minWidth: 120,
+              }
+            }}
+          >
+            {RANGE_PRESETS.map((p) => (
+              <MenuItem
+                key={p.value}
+                selected={p.value === range}
+                onClick={() => {
+                  onRangeChange?.(p.value);
+                  setRangeAnchor(null);
+                }}
+                sx={{
+                  fontFamily: '"Roboto Mono", monospace',
+                  fontSize: '0.75rem',
+                  color: p.value === range ? '#D4FF00' : '#EAEAEA',
+                  '&.Mui-selected': { bgcolor: 'rgba(212,255,0,0.08)' },
+                  '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' },
+                }}
+              >
+                {p.label}
+              </MenuItem>
+            ))}
+          </Menu>
+        </Box>
       </Box>
 
       {error ? (
@@ -101,7 +165,7 @@ const ChartWidget = ({ sensorId = 1, limit = 60, refreshMs = 3000 } = {}) => {
                 // Trigger immediate reload by resetting loading; effect interval will also keep it fresh.
                 // eslint-disable-next-line no-void
                 void (async () => {
-                  const res = await fetchChartDataStatus({ sensorId, limit });
+                  const res = await fetchChartDataStatus({ sensorId, limit, range });
                   if (!res.ok) {
                     setError(res);
                     setData([]);
