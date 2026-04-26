@@ -58,7 +58,7 @@ const Tickets = () => {
             <WarningAmberIcon sx={{ color: '#D4FF00', fontSize: 28 }} />
           </Box>
           <Typography variant="h4" sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic' }}>
-            Alarm & Ticket Management
+            Ticket Management
           </Typography>
         </Box>
 

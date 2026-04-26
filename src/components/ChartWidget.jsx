@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Typography, Box, Skeleton } from '@mui/material';
+import { Paper, Typography, Box, Skeleton, Alert, Button } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { fetchChartData } from '../services/api';
+import { fetchChartDataStatus } from '../services/api';
 
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
@@ -24,14 +24,22 @@ const CustomTooltip = ({ active, payload, label }) => {
 const ChartWidget = ({ sensorId = 1, limit = 60, refreshMs = 3000 } = {}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     let cancelled = false;
 
     const loadData = async () => {
       try {
-        const result = await fetchChartData({ sensorId, limit });
-        if (!cancelled) setData(result);
+        const res = await fetchChartDataStatus({ sensorId, limit });
+        if (cancelled) return;
+        if (!res.ok) {
+          setError(res);
+          setData([]);
+          return;
+        }
+        setError(null);
+        setData(res.data || []);
       } catch (error) {
         console.error(error);
       } finally {
@@ -72,6 +80,78 @@ const ChartWidget = ({ sensorId = 1, limit = 60, refreshMs = 3000 } = {}) => {
           UNIT: °C
         </Typography>
       </Box>
+
+      {error ? (
+        <Alert
+          severity="error"
+          variant="outlined"
+          sx={{
+            borderRadius: 0,
+            bgcolor: '#0D0D0D',
+            borderColor: '#2A2A2A',
+            color: '#FFFFFF',
+            '& .MuiAlert-icon': { color: '#FF003C' },
+            '& .MuiAlert-message': { width: '100%' },
+          }}
+          action={
+            <Button
+              size="small"
+              onClick={() => {
+                setLoading(true);
+                // Trigger immediate reload by resetting loading; effect interval will also keep it fresh.
+                // eslint-disable-next-line no-void
+                void (async () => {
+                  const res = await fetchChartDataStatus({ sensorId, limit });
+                  if (!res.ok) {
+                    setError(res);
+                    setData([]);
+                  } else {
+                    setError(null);
+                    setData(res.data || []);
+                  }
+                  setLoading(false);
+                })();
+              }}
+              sx={{
+                color: '#D4FF00',
+                borderRadius: 0,
+                border: '1px solid #2A2A2A',
+                minWidth: 0,
+                px: 1.25,
+                '&:hover': { borderColor: '#444' },
+              }}
+            >
+              Retry
+            </Button>
+          }
+        >
+          <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.80rem' }}>
+            Failed to load readings {error?.status ? `(HTTP ${error.status})` : ''}: {error?.message || 'Unknown error'}
+          </Typography>
+          <Typography sx={{ mt: 1, color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>
+            Check that the API is running and `/readings` is available, then retry.
+          </Typography>
+        </Alert>
+      ) : data.length === 0 ? (
+        <Alert
+          severity="info"
+          variant="outlined"
+          sx={{
+            borderRadius: 0,
+            bgcolor: '#0D0D0D',
+            borderColor: '#2A2A2A',
+            color: '#FFFFFF',
+            '& .MuiAlert-icon': { color: '#D4FF00' },
+          }}
+        >
+          <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.80rem' }}>
+            No readings yet.
+          </Typography>
+          <Typography sx={{ mt: 1, color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>
+            Start `Monitor.py` (or send readings to the API) to see live temperature.
+          </Typography>
+        </Alert>
+      ) : null}
 
       <Box sx={{ flexGrow: 1, minHeight: 0 }}>
         <ResponsiveContainer width="100%" height="100%">

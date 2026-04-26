@@ -457,45 +457,65 @@ const Chatbot = () => {
                       {formatTime(msg.timestamp || new Date())}
                     </Typography>
                   </Box>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 1.75,
-                      bgcolor: msg.isBot ? '#141414' : '#D4FF00',
-                      color: msg.isBot ? '#EAEAEA' : '#000',
-                      borderRadius: 0,
-                      border: msg.isBot ? '1px solid #2A2A2A' : 'none',
-                      borderLeft: msg.isBot ? '2px solid #D4FF00' : 'none'
-                    }}
-                  >
-                    <Typography
+                  {msg.isBot ? (
+                    <Box
                       sx={{
-                        fontSize: '0.85rem',
-                        lineHeight: 1.55,
-                        fontFamily: '"Roboto Mono", monospace',
-                        whiteSpace: 'pre-wrap',
-                        wordBreak: 'break-word'
+                        p: 0,
+                        bgcolor: 'transparent',
+                        border: 'none'
                       }}
                     >
-                      {msg.isBot && msg.tokens
-                        ? msg.tokens.slice(0, msg.revealed).join('')
-                        : msg.text}
-                      {msg.isBot && msg.streaming && (
-                        <Box
-                          component="span"
-                          sx={{
-                            display: 'inline-block',
-                            width: '8px',
-                            height: '1em',
-                            ml: '2px',
-                            bgcolor: '#D4FF00',
-                            verticalAlign: 'text-bottom',
-                            animation: 'cursorBlink 1s steps(2) infinite'
-                          }}
-                        />
-                      )}
-                    </Typography>
-                  </Paper>
+                      <Typography
+                        sx={{
+                          fontSize: '0.85rem',
+                          lineHeight: 1.6,
+                          fontFamily: '"Roboto Mono", monospace',
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word',
+                          color: '#EAEAEA'
+                        }}
+                      >
+                        {msg.tokens ? msg.tokens.slice(0, msg.revealed).join('') : msg.text}
+                        {msg.streaming && (
+                          <Box
+                            component="span"
+                            sx={{
+                              display: 'inline-block',
+                              width: '8px',
+                              height: '1em',
+                              ml: '2px',
+                              bgcolor: '#D4FF00',
+                              verticalAlign: 'text-bottom',
+                              animation: 'cursorBlink 1s steps(2) infinite'
+                            }}
+                          />
+                        )}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 1.75,
+                        bgcolor: '#D4FF00',
+                        color: '#000',
+                        borderRadius: 0,
+                        border: 'none'
+                      }}
+                    >
+                      <Typography
+                        sx={{
+                          fontSize: '0.85rem',
+                          lineHeight: 1.55,
+                          fontFamily: '"Roboto Mono", monospace',
+                          whiteSpace: 'pre-wrap',
+                          wordBreak: 'break-word'
+                        }}
+                      >
+                        {msg.text}
+                      </Typography>
+                    </Paper>
+                  )}
                 </Box>
               </Box>
             ))}
@@ -514,19 +534,7 @@ const Chatbot = () => {
                 >
                   <SmartToyIcon sx={{ fontSize: '1rem' }} />
                 </Avatar>
-                <Paper
-                  elevation={0}
-                  sx={{
-                    p: 1.5,
-                    bgcolor: '#141414',
-                    border: '1px solid #2A2A2A',
-                    borderLeft: '2px solid #D4FF00',
-                    borderRadius: 0,
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: 1
-                  }}
-                >
+                <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <CircularProgress size={12} sx={{ color: '#D4FF00' }} />
                   <Typography
                     sx={{
@@ -538,7 +546,7 @@ const Chatbot = () => {
                   >
                     PROCESSING...
                   </Typography>
-                </Paper>
+                </Box>
               </Box>
             )}
           </Box>
