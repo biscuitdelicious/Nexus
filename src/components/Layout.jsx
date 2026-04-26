@@ -35,7 +35,8 @@ import {
   Speed as SpeedIcon,
   Memory as MemoryIcon,
   Terminal as TerminalIcon,
-  SmartToy as SmartToyIcon
+  SmartToy as SmartToyIcon,
+  Forum as ForumIcon
 } from '@mui/icons-material';
 import { fetchDashboardMetrics, fetchLiveFeed } from '../services/api';
 
@@ -59,26 +60,22 @@ const saveReadIds = (set) => {
   try {
     localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(Array.from(set)));
   } catch {
-    // ignore
   }
 };
 
-const Layout = ({ children, activePage, setActivePage }) => {
+const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [], logs: [], loading: true } }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [drawerWidth, setDrawerWidth] = useState(240);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
 
-  const [metrics, setMetrics] = useState([]);
-  const [logs, setLogs] = useState([]);
-  const [telemetryLoading, setTelemetryLoading] = useState(true);
+  const { metrics, logs, loading: telemetryLoading } = sharedData;
 
-  // Notifications (top bar)
   const [notifAnchorEl, setNotifAnchorEl] = useState(null);
   const [notifLoading, setNotifLoading] = useState(false);
   const [notifError, setNotifError] = useState('');
   const [notifications, setNotifications] = useState([]);
-  const [notifFilter, setNotifFilter] = useState('ALL'); // ALL | ALARM | INCIDENT | EVENT
+  const [notifFilter, setNotifFilter] = useState('ALL');
   const [readIds, setReadIds] = useState(() => loadReadIds());
 
   useEffect(() => {
@@ -110,40 +107,14 @@ const Layout = ({ children, activePage, setActivePage }) => {
 
   useEffect(() => {
     let mounted = true;
-    const loadTelemetry = async () => {
-      try {
-        const [metricsData, logsData] = await Promise.all([
-          fetchDashboardMetrics(),
-          fetchLiveFeed()
-        ]);
-        if (mounted) {
-          setMetrics(metricsData);
-          setLogs(logsData);
-        }
-      } catch (error) {
-        console.error(error);
-      } finally {
-        if (mounted) {
-          setTelemetryLoading(false);
-        }
-      }
-    };
-    loadTelemetry();
-    return () => { mounted = false; };
-  }, []);
-
-  useEffect(() => {
-    let mounted = true;
     let timer;
 
     const loadNotifications = async () => {
       setNotifLoading(true);
       setNotifError('');
       try {
-        // Use the live feed (all events) as notification source.
         const items = await fetchLiveFeed();
         if (!mounted) return;
-        // Keep newest first; cap to avoid unbounded growth.
         const sorted = (items || []).slice().sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
         setNotifications(sorted.slice(0, 50));
       } catch (e) {
@@ -155,7 +126,7 @@ const Layout = ({ children, activePage, setActivePage }) => {
     };
 
     loadNotifications();
-    timer = setInterval(loadNotifications, 5000);
+    timer = setInterval(loadNotifications, 15000);
     return () => {
       mounted = false;
       if (timer) clearInterval(timer);
@@ -372,6 +343,36 @@ const Layout = ({ children, activePage, setActivePage }) => {
               {!isCollapsed && (
                 <ListItemText
                   primary={activePage === 'Tickets' ? '>_ TICKETS' : 'TICKETS'}
+                  primaryTypographyProps={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px', noWrap: true }}
+                />
+              )}
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
+              selected={activePage === 'Discussions'}
+              onClick={() => handleNavClick('Discussions')}
+              sx={{
+                borderRadius: 0,
+                py: 1.5,
+                px: isCollapsed ? 0 : 3,
+                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                borderLeft: '2px solid transparent',
+                transition: 'none',
+                '&.Mui-selected': {
+                  backgroundColor: 'transparent',
+                  borderLeft: '2px solid #D4FF00',
+                  '& .MuiListItemIcon-root': { color: '#D4FF00' },
+                  '& .MuiListItemText-primary': { color: '#D4FF00' }
+                },
+                '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: '#888888', mr: isCollapsed ? 0 : 2 }}><ForumIcon fontSize="small" /></ListItemIcon>
+              {!isCollapsed && (
+                <ListItemText
+                  primary={activePage === 'Discussions' ? '>_ DISCUSSIONS' : 'DISCUSSIONS'}
                   primaryTypographyProps={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px', noWrap: true }}
                 />
               )}
