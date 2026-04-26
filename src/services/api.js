@@ -186,6 +186,39 @@ export const fetchChartData = async ({ sensorId = 1, limit = 60, range = '' } = 
   }
 };
 
+export const fetchAlarmFrequency = async () => {
+  try {
+    const res = await fetch('http://localhost:8080/api/alarms/frequency');
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (e) {
+  }
+
+  const logs = await fetchLiveFeed();
+  const alarms = logs.filter(log => log.type && log.type.toUpperCase() === 'ALARM');
+
+  const freqMap = {};
+  alarms.forEach(alarm => {
+    const key = alarm.source || 'Unknown Device';
+    freqMap[key] = (freqMap[key] || 0) + 1;
+  });
+
+  const data = Object.keys(freqMap).map(key => ({
+    name: key,
+    count: freqMap[key]
+  })).sort((a, b) => b.count - a.count).slice(0, 5);
+
+  if (data.length === 0) {
+    return [
+      { name: 'SYSTEM_STABLE', count: 0 }
+    ];
+  }
+
+  return data;
+};
+
+
 export const fetchLatestReadings = async () => {
   try {
     const res = await fetch(`${API_BASE_URL}/readings/latest`);
