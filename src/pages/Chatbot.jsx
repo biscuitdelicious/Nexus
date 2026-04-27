@@ -357,7 +357,7 @@ const Chatbot = () => {
                   letterSpacing: '1.5px'
                 }}
               >
-                NEXUS_BOT
+                NEXUS
               </Typography>
               <Typography
                 sx={{
@@ -379,7 +379,7 @@ const Chatbot = () => {
                 textTransform: 'uppercase'
               }}
             >
-              session :: {sessionId.slice(-8)}
+
             </Typography>
           </Box>
 
@@ -649,7 +649,7 @@ const Chatbot = () => {
                 multiline
                 maxRows={4}
                 variant="standard"
-                placeholder={isSending ? 'Processing...' : 'Ask anything...   (Enter sends, Shift+Enter newline, Tab accepts suggestion)'}
+                placeholder={isSending ? 'Processing...' : 'Ask anything...'}
                 value={message}
                 onChange={(e) => setMessage(e.target.value)}
                 onKeyDown={handleKeyDown}
