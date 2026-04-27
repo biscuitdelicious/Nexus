@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   Box, Typography, Paper, Avatar, TextField, Button,
-  Chip, Divider, IconButton, Fade, Grid, List, ListItem, ListItemButton, ListItemText
+  Chip, Divider, Fade, Grid, List, ListItem, ListItemButton
 } from '@mui/material';
 import ErrorIcon from '@mui/icons-material/Error';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -10,7 +10,6 @@ import TimelineIcon from '@mui/icons-material/Timeline';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ForumIcon from '@mui/icons-material/Forum';
 
-// --- MOCK DATA PENTRU TOATE ALARMELE ---
 const mockIncidents = [
   {
     id: '#40',
@@ -19,11 +18,11 @@ const mockIncidents = [
     author: 'nexus_system_daemon',
     createdAt: '3 days ago',
     device: 'DB-Server-Primary-01',
-    description: `Alarma declanșată automat de sistemul de telemetrie.\n\nSenzorul termic a înregistrat o temperatură de **85.4°C** (Prag critic: 80.0°C) pe pachetul CPU.\n\n**Metrice recente:**\n- CPU Load: 98%\n- Mem Alocată: 14.2 GB / 16.0 GB\n- Fan Speed: 3200 RPM (Maxim)\n\nVă rugăm să investigați procesele care cauzează această încărcare. Dacă temperatura atinge 90°C, serverul va intra în modul de avarie (shut down) pentru a preveni daune fizice.`,
+    description: `Alarm automatically triggered by the telemetry system.\n\nThe thermal sensor recorded a temperature of **85.4°C** (Critical threshold: 80.0°C) on the CPU package.\n\n**Recent metrics:**\n- CPU Load: 98%\n- Allocated Mem: 14.2 GB / 16.0 GB\n- Fan Speed: 3200 RPM (Max)\n\nPlease investigate the processes causing this high load. If the temperature reaches 90°C, the server will initiate an emergency shutdown to prevent physical hardware damage.`,
     comments: [
-      { id: 1, author: 'mihai.admin', time: '2 days ago', text: 'Am verificat procesele. Se pare că un container de Docker (`data-indexer-v2`) a intrat într-un loop infinit și a blocat toate thread-urile. Am dat restart la container, dar temperatura încă scade foarte greu.', isSystem: false },
+      { id: 1, author: 'mihai.admin', time: '2 days ago', text: 'I checked the running processes. It looks like a Docker container (`data-indexer-v2`) entered an infinite loop and locked up the threads. I restarted the container, but the temperature is dropping very slowly.', isSystem: false },
       { id: 2, author: 'NEXUS_SYSTEM', time: '1 day ago', text: 'SYSTEM LOG: Container `data-indexer-v2` restarted successfully by [mihai.admin]. CPU load dropped to 45%.', isSystem: true },
-      { id: 3, author: 'victor.oncall', time: '12 hours ago', text: 'Temperatura a ajuns la 72°C. Încă e peste media normală de 65°C. Propun să verificăm dacă s-a acumulat praf pe heatsink sau dacă pasta termoconductoare trebuie schimbată la mentenanța de sâmbătă.', isSystem: false }
+      { id: 3, author: 'victor.oncall', time: '12 hours ago', text: 'The temperature has stabilized at 72°C. It is still above the normal 65°C average. I suggest we check for dust accumulation on the heatsink or replace the thermal paste during Saturday\'s maintenance window.', isSystem: false }
     ]
   },
   {
@@ -33,9 +32,9 @@ const mockIncidents = [
     author: 'mihai.admin',
     createdAt: '5 days ago',
     device: 'API-Gateway-02',
-    description: `Timpul de răspuns pe API Gateway a depășit 2000ms pentru mai mult de 5 minute. Posibil atac DDoS sau un query greșit în baza de date.`,
+    description: `The API Gateway response time exceeded 2000ms for more than 5 minutes. This indicates a potential DDoS attack or an unoptimized database query.`,
     comments: [
-      { id: 1, author: 'victor.oncall', time: '5 days ago', text: 'Am aplicat rate-limiting pe endpoint-ul de search. Timpul de răspuns a revenit la normal (sub 100ms).', isSystem: false }
+      { id: 1, author: 'victor.oncall', time: '5 days ago', text: 'I applied rate-limiting on the search endpoint. Response times have returned to normal operating parameters (under 100ms).', isSystem: false }
     ]
   },
   {
@@ -45,14 +44,14 @@ const mockIncidents = [
     author: 'nexus_system_daemon',
     createdAt: '1 week ago',
     device: 'Auth-Node-01',
-    description: `Serviciul de autentificare consumă 95% din memoria RAM disponibilă.`,
+    description: `The authentication service is currently consuming 95% of the available system RAM. Immediate investigation required.`,
     comments: []
   }
 ];
 
 const Discussions = () => {
   const [incidentsList, setIncidentsList] = useState(mockIncidents);
-  const [selectedIncident, setSelectedIncident] = useState(null); // null = Arată Lista, altfel arată discuția
+  const [selectedIncident, setSelectedIncident] = useState(null);
   const [newComment, setNewComment] = useState('');
 
   const handleAddComment = () => {
@@ -98,20 +97,43 @@ const Discussions = () => {
     setIncidentsList(prev => prev.map(inc => inc.id === updatedIncident.id ? updatedIncident : inc));
   };
 
-  // VEDEREA 1: LISTA CU TOATE ALARMELE
   if (!selectedIncident) {
     return (
-      <Fade in={true} timeout={600}>
-        <Box sx={{ maxWidth: 1200, mx: 'auto', pb: 5 }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 4 }}>
-            <Box>
-              <Typography variant="h4" sx={{ color: '#FFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', mb: 1 }}>
-                Incident Discussions
-              </Typography>
-              <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem' }}>
-                Forum central pentru investigarea și documentarea alarmelor.
-              </Typography>
+      <Fade in={true} timeout={800}>
+        <Box sx={{ width: '100%', overflowX: 'hidden' }}>
+
+          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: { xs: 2, sm: 1 } }}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  p: 1.5,
+                  borderRadius: 0,
+                  background: '#141414',
+                  border: '1px solid #2A2A2A',
+                }}
+              >
+                <ForumIcon sx={{ color: '#D4FF00', fontSize: { xs: 24, sm: 28 } }} />
+              </Box>
+
+              <Box>
+                <Typography
+                  variant="h4"
+                  sx={{
+                    color: '#FFFFFF',
+                    fontFamily: '"Georgia", serif',
+                    fontStyle: 'italic',
+                    fontWeight: 'normal',
+                    fontSize: { xs: '1.5rem', sm: '2.125rem' }
+                  }}
+                >
+                  Incident Discussions
+                </Typography>
+              </Box>
             </Box>
+
             <Button
               variant="contained"
               sx={{
@@ -123,7 +145,24 @@ const Discussions = () => {
             </Button>
           </Box>
 
-          <Paper variant="outlined" sx={{ bgcolor: '#141414', borderColor: '#2A2A2A', borderRadius: 0 }}>
+          <Typography
+            variant="body1"
+            sx={{
+              mb: 4,
+              ml: { xs: 0, sm: 8.5 },
+              mt: { xs: 1, sm: 0 },
+              color: '#888888',
+              fontFamily: '"Roboto Mono", monospace',
+              fontSize: { xs: '0.75rem', sm: '0.85rem' },
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              wordWrap: 'break-word'
+            }}
+          >
+            Centralized forum for investigating and documenting system alarms.
+          </Typography>
+
+          <Paper variant="outlined" sx={{ bgcolor: '#141414', borderColor: '#2A2A2A', borderRadius: 0, mt: 4 }}>
             <List disablePadding>
               {incidentsList.map((inc, index) => (
                 <React.Fragment key={inc.id}>
@@ -167,44 +206,66 @@ const Discussions = () => {
     );
   }
 
-  // VEDEREA 2: DISCUȚIA PENTRU O ALARMĂ SPECIFICĂ
   return (
-    <Fade in={true} timeout={600}>
-      <Box sx={{ maxWidth: 1200, mx: 'auto', pb: 5 }}>
+    <Fade in={true} timeout={800}>
+      <Box sx={{ width: '100%', overflowX: 'hidden', pb: 5 }}>
 
-        <Box sx={{ mb: 4 }}>
-          <Button
-            startIcon={<ArrowBackIcon />}
-            onClick={() => setSelectedIncident(null)}
-            sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', mb: 3, '&:hover': { color: '#D4FF00', bgcolor: 'transparent' } }}
+        <Button
+          startIcon={<ArrowBackIcon />}
+          onClick={() => setSelectedIncident(null)}
+          sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', mb: 3, '&:hover': { color: '#D4FF00', bgcolor: 'transparent' } }}
+        >
+          Back to Discussions
+        </Button>
+
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 1 }, gap: 2 }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              p: 1.5,
+              borderRadius: 0,
+              background: '#141414',
+              border: '1px solid #2A2A2A',
+            }}
           >
-            Back to Discussions
-          </Button>
+            <ForumIcon sx={{ color: '#D4FF00', fontSize: { xs: 24, sm: 28 } }} />
+          </Box>
 
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
-            <Typography variant="h4" sx={{ color: '#FFF', fontFamily: '"Georgia", serif', fontStyle: 'italic' }}>
+          <Box>
+            <Typography
+              variant="h4"
+              sx={{
+                color: '#FFFFFF',
+                fontFamily: '"Georgia", serif',
+                fontStyle: 'italic',
+                fontWeight: 'normal',
+                fontSize: { xs: '1.5rem', sm: '2.125rem' }
+              }}
+            >
               {selectedIncident.title} <Typography component="span" variant="h4" sx={{ color: '#888', fontStyle: 'normal' }}>{selectedIncident.id}</Typography>
             </Typography>
           </Box>
+        </Box>
 
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap' }}>
-            <Chip
-              icon={selectedIncident.status === 'OPEN' ? <ErrorIcon fontSize="small" /> : <CheckCircleIcon fontSize="small" />}
-              label={selectedIncident.status}
-              sx={{
-                borderRadius: 0,
-                bgcolor: selectedIncident.status === 'OPEN' ? 'rgba(255, 0, 60, 0.1)' : 'rgba(212, 255, 0, 0.1)',
-                color: selectedIncident.status === 'OPEN' ? '#FF003C' : '#D4FF00',
-                border: `1px solid ${selectedIncident.status === 'OPEN' ? '#FF003C' : '#D4FF00'}`,
-                fontFamily: '"Roboto Mono", monospace',
-                fontWeight: 700,
-                letterSpacing: '1px'
-              }}
-            />
-            <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem' }}>
-              <Box component="span" sx={{ color: '#D4FF00', fontWeight: 700 }}>{selectedIncident.author}</Box> triggered this {selectedIncident.createdAt} · {selectedIncident.comments.length} comments
-            </Typography>
-          </Box>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, flexWrap: 'wrap', mb: 4, ml: { xs: 0, sm: 8.5 }, mt: { xs: 1, sm: 0 } }}>
+          <Chip
+            icon={selectedIncident.status === 'OPEN' ? <ErrorIcon fontSize="small" /> : <CheckCircleIcon fontSize="small" />}
+            label={selectedIncident.status}
+            sx={{
+              borderRadius: 0,
+              bgcolor: selectedIncident.status === 'OPEN' ? 'rgba(255, 0, 60, 0.1)' : 'rgba(212, 255, 0, 0.1)',
+              color: selectedIncident.status === 'OPEN' ? '#FF003C' : '#D4FF00',
+              border: `1px solid ${selectedIncident.status === 'OPEN' ? '#FF003C' : '#D4FF00'}`,
+              fontFamily: '"Roboto Mono", monospace',
+              fontWeight: 700,
+              letterSpacing: '1px'
+            }}
+          />
+          <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem' }}>
+            <Box component="span" sx={{ color: '#D4FF00', fontWeight: 700 }}>{selectedIncident.author}</Box> triggered this {selectedIncident.createdAt} · {selectedIncident.comments.length} comments
+          </Typography>
         </Box>
 
         <Divider sx={{ borderColor: '#2A2A2A', mb: 4 }} />
