@@ -1,5 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Box, AppBar, Toolbar, Typography, CssBaseline, Drawer, List, ListItem, ListItemButton, ListItemIcon, ListItemText, IconButton, Badge, Avatar, LinearProgress, Fade, Skeleton } from '@mui/material';
+import {
+  Box,
+  AppBar,
+  Toolbar,
+  Typography,
+  CssBaseline,
+  Drawer,
+  List,
+  ListItem,
+  ListItemButton,
+  ListItemIcon,
+  ListItemText,
+  IconButton,
+  Badge,
+  Avatar,
+  LinearProgress,
+  Fade,
+  Skeleton,
+  Popover,
+  Divider,
+  Button,
+  Chip,
+  Tooltip
+} from '@mui/material';
 import {
   Dashboard as DashboardIcon,
   Dns as DnsIcon,
@@ -13,21 +36,62 @@ import {
   Speed as SpeedIcon,
   Memory as MemoryIcon,
   Terminal as TerminalIcon,
-  SmartToy as SmartToyIcon
+  SmartToy as SmartToyIcon,
+  Forum as ForumIcon,
+  NotificationsOff as NotificationsOffIcon,
+  Person as PersonIcon,
+  Settings as SettingsIcon,
+  VpnKey as VpnKeyIcon,
+  Palette as PaletteIcon,
+  MenuBook as MenuBookIcon,
+  Logout as LogoutIcon,
+  Circle as CircleIcon
 } from '@mui/icons-material';
 import { fetchDashboardMetrics, fetchLiveFeed } from '../services/api';
 
 const headerHeight = 80;
 
-const Layout = ({ children, activePage, setActivePage }) => {
+const NOTIF_STORAGE_KEY = 'nexus.notifications.readIds.v1';
+
+const loadReadIds = () => {
+  try {
+    const raw = localStorage.getItem(NOTIF_STORAGE_KEY);
+    if (!raw) return new Set();
+    const arr = JSON.parse(raw);
+    if (!Array.isArray(arr)) return new Set();
+    return new Set(arr.map(String));
+  } catch {
+    return new Set();
+  }
+};
+
+const saveReadIds = (set) => {
+  try {
+    localStorage.setItem(NOTIF_STORAGE_KEY, JSON.stringify(Array.from(set)));
+  } catch {
+  }
+};
+
+const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [], logs: [], loading: true } }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [drawerWidth, setDrawerWidth] = useState(240);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [isResizing, setIsResizing] = useState(false);
 
-  const [metrics, setMetrics] = useState([]);
-  const [logs, setLogs] = useState([]);
-  const [telemetryLoading, setTelemetryLoading] = useState(true);
+  const { metrics, logs, loading: telemetryLoading } = sharedData;
+
+  const [notifAnchorEl, setNotifAnchorEl] = useState(null);
+  const [notifLoading, setNotifLoading] = useState(false);
+  const [notifError, setNotifError] = useState('');
+  const [notifications, setNotifications] = useState([]);
+  const [notifFilter, setNotifFilter] = useState('ALL');
+  const [readIds, setReadIds] = useState(() => loadReadIds());
+
+  const [profileAnchorEl, setProfileAnchorEl] = useState(null);
+  const isProfileOpen = Boolean(profileAnchorEl);
+
+  const handleProfileClick = (event) => setProfileAnchorEl(event.currentTarget);
+  const handleProfileClose = () => setProfileAnchorEl(null);
 
   useEffect(() => {
     const handleMouseMove = (e) => {
@@ -58,27 +122,35 @@ const Layout = ({ children, activePage, setActivePage }) => {
 
   useEffect(() => {
     let mounted = true;
-    const loadTelemetry = async () => {
+    let timer;
+
+    const loadNotifications = async () => {
+      setNotifLoading(true);
+      setNotifError('');
       try {
-        const [metricsData, logsData] = await Promise.all([
-          fetchDashboardMetrics(),
-          fetchLiveFeed()
-        ]);
-        if (mounted) {
-          setMetrics(metricsData);
-          setLogs(logsData);
-        }
-      } catch (error) {
-        console.error(error);
+        const items = await fetchLiveFeed();
+        if (!mounted) return;
+        const sorted = (items || []).slice().sort((a, b) => String(b.ts).localeCompare(String(a.ts)));
+        setNotifications(sorted.slice(0, 50));
+      } catch (e) {
+        if (!mounted) return;
+        setNotifError(e?.message || 'Failed to load notifications');
       } finally {
-        if (mounted) {
-          setTelemetryLoading(false);
-        }
+        if (mounted) setNotifLoading(false);
       }
     };
-    loadTelemetry();
-    return () => { mounted = false; };
+
+    loadNotifications();
+    timer = setInterval(loadNotifications, 15000);
+    return () => {
+      mounted = false;
+      if (timer) clearInterval(timer);
+    };
   }, []);
+
+  useEffect(() => {
+    saveReadIds(readIds);
+  }, [readIds]);
 
   const handleMouseDown = (e) => {
     e.preventDefault();
@@ -107,6 +179,34 @@ const Layout = ({ children, activePage, setActivePage }) => {
       default: return '#FFFFFF';
     }
   };
+
+  const openNotifications = (e) => setNotifAnchorEl(e.currentTarget);
+  const closeNotifications = () => setNotifAnchorEl(null);
+  const notifOpen = Boolean(notifAnchorEl);
+
+  const markRead = (id) => {
+    if (!id) return;
+    setReadIds((prev) => {
+      const next = new Set(prev);
+      next.add(String(id));
+      return next;
+    });
+  };
+
+  const markAllRead = () => {
+    setReadIds((prev) => {
+      const next = new Set(prev);
+      for (const n of notifications) next.add(String(n.id));
+      return next;
+    });
+  };
+
+  const filteredNotifications = notifications.filter((n) => {
+    if (notifFilter === 'ALL') return true;
+    return String(n.type || '').toUpperCase() === notifFilter;
+  });
+
+  const unreadCount = notifications.reduce((acc, n) => acc + (readIds.has(String(n.id)) ? 0 : 1), 0);
 
   const currentWidth = isCollapsed ? 80 : drawerWidth;
   const transitionStyle = isResizing ? 'none' : 'width 0.3s ease, margin 0.3s ease';
@@ -227,7 +327,7 @@ const Layout = ({ children, activePage, setActivePage }) => {
               <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: '#888888', mr: isCollapsed ? 0 : 2 }}><QueryStatsIcon fontSize="small" /></ListItemIcon>
               {!isCollapsed && (
                 <ListItemText
-                  primary={activePage === 'Observability' ? '>_ METRICS & LOGS' : 'METRICS & LOGS'}
+                  primary={activePage === 'Observability' ? '>_ METRICS' : 'METRICS'}
                   primaryTypographyProps={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px', noWrap: true }}
                 />
               )}
@@ -266,6 +366,36 @@ const Layout = ({ children, activePage, setActivePage }) => {
 
           <ListItem disablePadding>
             <ListItemButton
+              selected={activePage === 'Discussions'}
+              onClick={() => handleNavClick('Discussions')}
+              sx={{
+                borderRadius: 0,
+                py: 1.5,
+                px: isCollapsed ? 0 : 3,
+                justifyContent: isCollapsed ? 'center' : 'flex-start',
+                borderLeft: '2px solid transparent',
+                transition: 'none',
+                '&.Mui-selected': {
+                  backgroundColor: 'transparent',
+                  borderLeft: '2px solid #D4FF00',
+                  '& .MuiListItemIcon-root': { color: '#D4FF00' },
+                  '& .MuiListItemText-primary': { color: '#D4FF00' }
+                },
+                '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
+              }}
+            >
+              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: '#888888', mr: isCollapsed ? 0 : 2 }}><ForumIcon fontSize="small" /></ListItemIcon>
+              {!isCollapsed && (
+                <ListItemText
+                  primary={activePage === 'Discussions' ? '>_ DISCUSSIONS' : 'DISCUSSIONS'}
+                  primaryTypographyProps={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px', noWrap: true }}
+                />
+              )}
+            </ListItemButton>
+          </ListItem>
+
+          <ListItem disablePadding>
+            <ListItemButton
               selected={activePage === 'Chatbot'}
               onClick={() => handleNavClick('Chatbot')}
               sx={{
@@ -287,7 +417,7 @@ const Layout = ({ children, activePage, setActivePage }) => {
               <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: '#888888', mr: isCollapsed ? 0 : 2 }}><SmartToyIcon fontSize="small" /></ListItemIcon>
               {!isCollapsed && (
                 <ListItemText
-                  primary={activePage === 'Chatbot' ? '>_ ASSISTANT' : 'ASSISTANT'}
+                  primary={activePage === 'Chatbot' ? '>_ NEXUS BOT' : 'NEXUS BOT'}
                   primaryTypographyProps={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px', noWrap: true }}
                 />
               )}
@@ -455,14 +585,272 @@ const Layout = ({ children, activePage, setActivePage }) => {
               <GridViewIcon sx={{ fontSize: 22, color: activePage === 'NOC Wall' ? '#D4FF00' : '#888888' }} />
             </IconButton>
 
-            <IconButton sx={{ borderRadius: 0, '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' } }}>
-              <Badge badgeContent={3} sx={{ '& .MuiBadge-badge': { backgroundColor: '#D4FF00', color: '#000000', fontWeight: 700, fontFamily: '"Roboto Mono", monospace', borderRadius: 0 } }}>
-                <NotificationsIcon sx={{ fontSize: 22, color: '#888888' }} />
+            <IconButton
+              onClick={openNotifications}
+              sx={{ borderRadius: 0, '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' } }}
+            >
+              <Badge
+                badgeContent={unreadCount}
+                sx={{
+                  '& .MuiBadge-badge': {
+                    backgroundColor: '#D4FF00',
+                    color: '#000000',
+                    fontWeight: 700,
+                    fontFamily: '"Roboto Mono", monospace',
+                    borderRadius: 0
+                  }
+                }}
+              >
+                <NotificationsIcon sx={{ fontSize: 22, color: unreadCount > 0 ? '#D4FF00' : '#888888' }} />
               </Badge>
             </IconButton>
-            <Avatar sx={{ width: 36, height: 36, borderRadius: 0, bgcolor: '#D4FF00', color: '#000000', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.85rem' }}>
-              SYS
-            </Avatar>
+
+            <Popover
+              open={notifOpen}
+              anchorEl={notifAnchorEl}
+              onClose={closeNotifications}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              PaperProps={{
+                sx: {
+                  mt: 1.5,
+                  width: { xs: 340, sm: 420 },
+                  maxWidth: '92vw',
+                  borderRadius: 0,
+                  bgcolor: '#0A0A0A',
+                  border: '1px solid #2A2A2A',
+                  overflow: 'hidden'
+                }
+              }}
+            >
+              <Box sx={{ px: 2, py: 1.5, bgcolor: '#141414', borderBottom: '1px solid #2A2A2A', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
+                <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5 }}>
+                  <Typography sx={{ color: '#FFF', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.8rem', letterSpacing: '1px' }}>
+                    NOTIFICATIONS
+                  </Typography>
+                  <Typography sx={{ color: '#666', fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem' }}>
+                    unread: {unreadCount}
+                  </Typography>
+                </Box>
+                <Button
+                  size="small"
+                  onClick={markAllRead}
+                  disabled={unreadCount === 0}
+                  sx={{
+                    borderRadius: 0,
+                    border: '1px solid #2A2A2A',
+                    color: unreadCount === 0 ? '#555' : '#D4FF00',
+                    fontFamily: '"Roboto Mono", monospace',
+                    fontSize: '0.7rem',
+                    '&:hover': { borderColor: '#444', bgcolor: 'rgba(212,255,0,0.05)' }
+                  }}
+                >
+                  Mark all read
+                </Button>
+              </Box>
+
+              <Box sx={{ px: 2, py: 1.25, display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center', borderBottom: '1px solid #2A2A2A' }}>
+                {['ALL', 'INCIDENT', 'ALARM', 'EVENT'].map((k) => (
+                  <Chip
+                    key={k}
+                    label={k}
+                    size="small"
+                    onClick={() => setNotifFilter(k)}
+                    sx={{
+                      borderRadius: 0,
+                      bgcolor: notifFilter === k ? 'rgba(212,255,0,0.08)' : 'transparent',
+                      color: notifFilter === k ? '#D4FF00' : '#888',
+                      border: '1px solid #2A2A2A',
+                      fontFamily: '"Roboto Mono", monospace',
+                      fontSize: '0.65rem',
+                      letterSpacing: '1px',
+                      height: 24,
+                      '&:hover': { color: '#D4FF00', borderColor: '#444' }
+                    }}
+                  />
+                ))}
+              </Box>
+
+              <Box sx={{ maxHeight: 420, overflowY: 'auto', '&::-webkit-scrollbar': { width: '6px' }, '&::-webkit-scrollbar-thumb': { bgcolor: '#2A2A2A' } }}>
+                {notifLoading ? (
+                  <Box sx={{ p: 2 }}>
+                    <Skeleton variant="rectangular" height={36} sx={{ bgcolor: '#141414', borderRadius: 0, mb: 1 }} />
+                    <Skeleton variant="rectangular" height={36} sx={{ bgcolor: '#141414', borderRadius: 0, mb: 1 }} />
+                    <Skeleton variant="rectangular" height={36} sx={{ bgcolor: '#141414', borderRadius: 0 }} />
+                  </Box>
+                ) : notifError ? (
+                  <Box sx={{ p: 2 }}>
+                    <Typography sx={{ color: '#FF003C', fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>
+                      {notifError}
+                    </Typography>
+                    <Typography sx={{ mt: 1, color: '#666', fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem' }}>
+                      Check API connectivity and try again.
+                    </Typography>
+                  </Box>
+                ) : filteredNotifications.length === 0 ? (
+                  <Box sx={{ p: 2 }}>
+                    <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>
+                      No notifications.
+                    </Typography>
+                  </Box>
+                ) : (
+                  <List sx={{ p: 0 }}>
+                    {filteredNotifications.map((n, i) => {
+                      const unread = !readIds.has(String(n.id));
+                      return (
+                        <React.Fragment key={n.id ?? i}>
+                          <ListItem
+                            disablePadding
+                            onClick={() => {
+                              markRead(n.id);
+                              handleNavClick('Tickets');
+                              closeNotifications();
+                            }}
+                            sx={{
+                              cursor: 'pointer',
+                              px: 2,
+                              py: 1.5,
+                              bgcolor: unread ? 'rgba(212,255,0,0.03)' : 'transparent',
+                              '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' }
+                            }}
+                          >
+                            <Box sx={{ width: 8, alignSelf: 'stretch', mr: 1.5, bgcolor: unread ? '#D4FF00' : '#2A2A2A' }} />
+                            <Box sx={{ minWidth: 0, flexGrow: 1 }}>
+                              <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 2 }}>
+                                <Typography sx={{ color: getLogColor(n.type), fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem', fontWeight: 700 }}>
+                                  [{String(n.type || 'EVENT').toUpperCase()}] {n.source || 'N/A'}
+                                </Typography>
+                                <Typography sx={{ color: '#666', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem' }}>
+                                  {n.ts || ''}
+                                </Typography>
+                              </Box>
+                              <Typography sx={{ mt: 0.25, color: '#FFF', fontFamily: '"Roboto Mono", monospace', fontSize: '0.78rem', lineHeight: 1.35, wordBreak: 'break-word' }}>
+                                {n.message || '—'}
+                              </Typography>
+                              <Box sx={{ mt: 0.75, display: 'flex', gap: 1 }}>
+                                {unread && (
+                                  <Button
+                                    size="small"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      markRead(n.id);
+                                    }}
+                                    sx={{
+                                      borderRadius: 0,
+                                      border: '1px solid #2A2A2A',
+                                      color: '#D4FF00',
+                                      fontFamily: '"Roboto Mono", monospace',
+                                      fontSize: '0.65rem',
+                                      px: 1,
+                                      minWidth: 0,
+                                      '&:hover': { borderColor: '#444', bgcolor: 'rgba(212,255,0,0.05)' }
+                                    }}
+                                  >
+                                    Mark read
+                                  </Button>
+                                )}
+                              </Box>
+                            </Box>
+                          </ListItem>
+                          {i !== filteredNotifications.length - 1 && <Divider sx={{ borderColor: '#2A2A2A' }} />}
+                        </React.Fragment>
+                      );
+                    })}
+                  </List>
+                )}
+              </Box>
+            </Popover>
+
+            <Tooltip title="System Profile" placement="bottom">
+              <Avatar
+                onClick={handleProfileClick}
+                sx={{
+                  width: 38,
+                  height: 38,
+                  borderRadius: '8px',
+                  bgcolor: 'transparent',
+                  border: '1px solid #D4FF00',
+                  color: '#D4FF00',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease',
+                  '&:hover': {
+                    bgcolor: 'rgba(212, 255, 0, 0.1)',
+                    boxShadow: '0 0 12px rgba(212, 255, 0, 0.4)',
+                    transform: 'scale(1.05)'
+                  }
+                }}
+              >
+                <PersonIcon fontSize="small" />
+              </Avatar>
+            </Tooltip>
+
+            <Popover
+              open={isProfileOpen}
+              anchorEl={profileAnchorEl}
+              onClose={handleProfileClose}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+              PaperProps={{
+                sx: {
+                  mt: 1.5,
+                  width: 240,
+                  borderRadius: '8px',
+                  bgcolor: 'rgba(10, 10, 10, 0.95)',
+                  backdropFilter: 'blur(10px)',
+                  border: '1px solid #2A2A2A',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
+                  overflow: 'hidden'
+                }
+              }}
+            >
+              <Box sx={{ p: 2, borderBottom: '1px solid #2A2A2A', display: 'flex', alignItems: 'center', gap: 2 }}>
+                 <Avatar sx={{ width: 44, height: 44, borderRadius: '8px', bgcolor: 'rgba(212,255,0,0.1)', color: '#D4FF00', border: '1px solid rgba(212,255,0,0.3)' }}>
+                    <PersonIcon />
+                 </Avatar>
+                 <Box>
+                   <Typography sx={{ color: '#FFF', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700 }}>
+                     admin
+                   </Typography>
+                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.5 }}>
+                     <CircleIcon sx={{ fontSize: 8, color: '#D4FF00', filter: 'drop-shadow(0 0 4px #D4FF00)' }} />
+                     <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem' }}>
+                       Root Access
+                     </Typography>
+                   </Box>
+                 </Box>
+              </Box>
+
+              <List sx={{ p: 1 }}>
+                <ListItem disablePadding>
+                  <ListItemButton onClick={handleProfileClose} sx={{ borderRadius: '4px', '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}>
+                    <ListItemIcon sx={{ minWidth: 32, color: '#888' }}><SettingsIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText primary="Account Settings" primaryTypographyProps={{ color: '#DDD', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }} />
+                  </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                  <ListItemButton onClick={handleProfileClose} sx={{ borderRadius: '4px', '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}>
+                    <ListItemIcon sx={{ minWidth: 32, color: '#888' }}><PaletteIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText primary="Appearance" primaryTypographyProps={{ color: '#DDD', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }} />
+                  </ListItemButton>
+                </ListItem>
+                <ListItem disablePadding>
+                  <ListItemButton onClick={handleProfileClose} sx={{ borderRadius: '4px', '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}>
+                    <ListItemIcon sx={{ minWidth: 32, color: '#888' }}><MenuBookIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText primary="Documentation" primaryTypographyProps={{ color: '#DDD', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }} />
+                  </ListItemButton>
+                </ListItem>
+
+                <Divider sx={{ bgcolor: '#2A2A2A', my: 1 }} />
+
+                <ListItem disablePadding>
+                  <ListItemButton onClick={handleProfileClose} sx={{ borderRadius: '4px', transition: 'all 0.2s', '&:hover': { bgcolor: 'rgba(255,0,60,0.1)', '& .MuiListItemIcon-root, & .MuiTypography-root': { color: '#FF003C' } } }}>
+                    <ListItemIcon sx={{ minWidth: 32, color: '#888', transition: 'color 0.2s' }}><LogoutIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText primary="Logout Session" primaryTypographyProps={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, transition: 'color 0.2s' }} />
+                  </ListItemButton>
+                </ListItem>
+              </List>
+            </Popover>
+
           </Box>
         </Toolbar>
       </AppBar>

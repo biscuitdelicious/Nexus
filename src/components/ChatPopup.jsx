@@ -170,36 +170,42 @@ const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
             <Box sx={{ flexGrow: 1, p: 2, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2, '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { bgcolor: '#2A2A2A' } }}>
               {chatHistory.map((msg, index) => (
                 <Box key={index} sx={{ alignSelf: msg.isBot ? 'flex-start' : 'flex-end', maxWidth: '85%' }}>
-                  <Paper
-                    elevation={0}
-                    sx={{
-                      p: 1.5,
-                      bgcolor: msg.isBot ? '#141414' : '#D4FF00',
-                      color: msg.isBot ? '#D4FF00' : '#000',
-                      borderRadius: 0,
-                      border: msg.isBot ? '1px solid #2A2A2A' : 'none'
-                    }}
-                  >
-                    <Typography sx={{ fontSize: '0.85rem', lineHeight: 1.4, fontFamily: '"Roboto Mono", monospace', whiteSpace: 'pre-wrap' }}>
-                      {msg.isBot
-                        ? `> ${msg.tokens ? msg.tokens.slice(0, msg.revealed).join('') : msg.text}`
-                        : msg.text}
-                      {msg.isBot && msg.streaming && (
-                        <Box
-                          component="span"
-                          sx={{
-                            display: 'inline-block',
-                            width: '7px',
-                            height: '0.95em',
-                            ml: '2px',
-                            bgcolor: '#D4FF00',
-                            verticalAlign: 'text-bottom',
-                            animation: 'cursorBlinkPopup 1s steps(2) infinite'
-                          }}
-                        />
-                      )}
-                    </Typography>
-                  </Paper>
+                  {msg.isBot ? (
+                    <Box sx={{ p: 0, bgcolor: 'transparent' }}>
+                      <Typography sx={{ fontSize: '0.85rem', lineHeight: 1.45, fontFamily: '"Roboto Mono", monospace', whiteSpace: 'pre-wrap', color: '#EAEAEA' }}>
+                        {msg.tokens ? msg.tokens.slice(0, msg.revealed).join('') : msg.text}
+                        {msg.streaming && (
+                          <Box
+                            component="span"
+                            sx={{
+                              display: 'inline-block',
+                              width: '7px',
+                              height: '0.95em',
+                              ml: '2px',
+                              bgcolor: '#D4FF00',
+                              verticalAlign: 'text-bottom',
+                              animation: 'cursorBlinkPopup 1s steps(2) infinite'
+                            }}
+                          />
+                        )}
+                      </Typography>
+                    </Box>
+                  ) : (
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 1.5,
+                        bgcolor: '#D4FF00',
+                        color: '#000',
+                        borderRadius: 0,
+                        border: 'none'
+                      }}
+                    >
+                      <Typography sx={{ fontSize: '0.85rem', lineHeight: 1.4, fontFamily: '"Roboto Mono", monospace', whiteSpace: 'pre-wrap' }}>
+                        {msg.text}
+                      </Typography>
+                    </Paper>
+                  )}
                 </Box>
               ))}
             </Box>

@@ -8,7 +8,6 @@ import Observability from './pages/Observability';
 import Tickets from "./pages/Tickets.jsx";
 import NocWall from './pages/NocWall.jsx';
 import Chatbot from './pages/Chatbot.jsx';
-import Discussions from './pages/Discussions.jsx';
 import ChatPopup from './components/ChatPopup';
 import { getChatApiBaseUrl } from './services/chatApi';
 
@@ -29,8 +28,6 @@ function App() {
         return <NocWall setActivePage={setActivePage} />;
       case 'Chatbot':
         return <Chatbot />;
-      case 'Discussions':
-        return <Discussions />;
       default:
         return <Dashboard />;
     }

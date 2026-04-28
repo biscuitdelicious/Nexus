@@ -3,6 +3,7 @@ package repository
 import (
 	"github.com/biscuitdelicious/Nexus/internal/model"
 	"gorm.io/gorm"
+	"time"
 )
 
 type SensorReadingRepository struct {
@@ -17,15 +18,21 @@ func (r *SensorReadingRepository) Create(reading *model.SensorReading) error {
 	return r.db.Create(reading).Error
 }
 
-// Latest N readings for a sensor, oldest → newest (good for charts).
-func (r *SensorReadingRepository) GetRecent(sensorID uint, limit int) ([]model.SensorReading, error) {
+// Latest N readings for a sensor, optionally limited to last `duration`.
+// Returns rows oldest → newest (good for charts).
+func (r *SensorReadingRepository) GetRecent(sensorID uint, limit int, duration time.Duration) ([]model.SensorReading, error) {
 	var rows []model.SensorReading
 	if limit <= 0 {
 		limit = 60
 	}
 
-	err := r.db.
-		Where("sensor_id = ?", sensorID).
+	q := r.db.Where("sensor_id = ?", sensorID)
+	if duration > 0 {
+		since := time.Now().Add(-duration)
+		q = q.Where("time >= ?", since)
+	}
+
+	err := q.
 		Order("time DESC").
 		Limit(limit).
 		Find(&rows).Error

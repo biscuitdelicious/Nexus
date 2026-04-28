@@ -169,9 +169,11 @@ export const fetchLiveFeed = async () => {
 // ─────────────────────────────────────── Time-series readings
 
 // Returns chart points `[{ time: 'HH:MM:SS', cpu: 67.5 }, ...]` for ChartWidget.
-export const fetchChartData = async ({ sensorId = 1, limit = 60 } = {}) => {
+export const fetchChartData = async ({ sensorId = 1, limit = 60, range = '' } = {}) => {
   try {
-    const res = await fetch(`${API_BASE_URL}/readings?sensor_id=${sensorId}&limit=${limit}`);
+    const qs = new URLSearchParams({ sensor_id: String(sensorId), limit: String(limit) });
+    if (range) qs.set('range', range);
+    const res = await fetch(`${API_BASE_URL}/readings?${qs.toString()}`);
     const parsed = await handleResponse(res);
     if (!Array.isArray(parsed)) return [];
     return parsed.map((row) => ({
@@ -184,6 +186,39 @@ export const fetchChartData = async ({ sensorId = 1, limit = 60 } = {}) => {
   }
 };
 
+export const fetchAlarmFrequency = async () => {
+  try {
+    const res = await fetch('http://localhost:8080/api/alarms/frequency');
+    if (res.ok) {
+      return await res.json();
+    }
+  } catch (e) {
+  }
+
+  const logs = await fetchLiveFeed();
+  const alarms = logs.filter(log => log.type && log.type.toUpperCase() === 'ALARM');
+
+  const freqMap = {};
+  alarms.forEach(alarm => {
+    const key = alarm.source || 'Unknown Device';
+    freqMap[key] = (freqMap[key] || 0) + 1;
+  });
+
+  const data = Object.keys(freqMap).map(key => ({
+    name: key,
+    count: freqMap[key]
+  })).sort((a, b) => b.count - a.count).slice(0, 5);
+
+  if (data.length === 0) {
+    return [
+      { name: 'SYSTEM_STABLE', count: 0 }
+    ];
+  }
+
+  return data;
+};
+
+
 export const fetchLatestReadings = async () => {
   try {
     const res = await fetch(`${API_BASE_URL}/readings/latest`);
@@ -195,6 +230,33 @@ export const fetchLatestReadings = async () => {
 };
 
 // ─────────────────────────────────────── Derived stats for widgets
+
+// Returns meta + mapped chart points so UI can distinguish:
+// - API error vs empty dataset (no readings yet)
+export const fetchChartDataStatus = async ({ sensorId = 1, limit = 60, range = '' } = {}) => {
+  try {
+    const qs = new URLSearchParams({ sensor_id: String(sensorId), limit: String(limit) });
+    if (range) qs.set('range', range);
+    const res = await fetch(`${API_BASE_URL}/readings?${qs.toString()}`);
+    if (!res.ok) {
+      const msg = await res.text().catch(() => '');
+      return { ok: false, status: res.status, message: msg || res.statusText || 'Request failed', data: [] };
+    }
+    const parsed = await res.json();
+    if (!Array.isArray(parsed)) return { ok: true, status: 200, message: '', data: [] };
+    return {
+      ok: true,
+      status: 200,
+      message: '',
+      data: parsed.map((row) => ({
+        time: formatClockLabel(row.time ?? row.Time),
+        cpu: Number(row.value ?? row.Value ?? 0),
+      })),
+    };
+  } catch (err) {
+    return { ok: false, status: 0, message: err?.message || 'Network error', data: [] };
+  }
+};
 
 // Counts open+all events grouped by severity for SeverityPieChart.
 export const fetchSeverityData = async () => {
@@ -223,14 +285,19 @@ export const fetchSeverityData = async () => {
 // Latest reading-based quick stats for the top cards on Dashboard.
 export const fetchDashboardMetrics = async () => {
   try {
-    const [chart, tickets] = await Promise.all([
-      fetchChartData({ sensorId: 1, limit: 5 }),
+    const [chartRes, tickets] = await Promise.all([
+      fetchChartDataStatus({ sensorId: 1, limit: 5 }),
       fetchTickets(),
     ]);
+    const chart = chartRes?.data || [];
     const latest = chart.length ? chart[chart.length - 1].cpu : null;
     const pending = tickets.filter((t) => t.status !== 'ACKNOWLEDGED' && t.status !== 'RESOLVED').length;
     return [
-      { id: 1, title: 'CPU TEMP', value: latest !== null ? `${latest.toFixed(1)}°C` : '—' },
+      {
+        id: 1,
+        title: 'CPU TEMP',
+        value: chartRes?.ok === false ? 'ERR' : (latest !== null ? `${latest.toFixed(1)}°C` : '—'),
+      },
       { id: 2, title: 'OPEN TICKETS', value: String(pending) },
       { id: 3, title: 'TOTAL EVENTS', value: String(tickets.length) },
       { id: 4, title: 'SENSOR ID', value: 'SN-001' },

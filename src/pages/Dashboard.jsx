@@ -5,11 +5,13 @@ import ChartWidget from '../components/ChartWidget';
 import DeviceList from '../components/DeviceList';
 import SeverityPieChart from '../components/SeverityPieChart';
 import ResolutionBarChart from '../components/ResolutionBarChart';
+import AlarmFrequencyChart from '../components/AlarmFrequencyChart';
 import { fetchDashboardMetrics } from '../services/api';
 
 const Dashboard = () => {
   const [metrics, setMetrics] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [chartRange, setChartRange] = useState('1h');
 
   useEffect(() => {
     let cancelled = false;
@@ -30,6 +32,17 @@ const Dashboard = () => {
       clearInterval(id);
     };
   }, []);
+
+  const paperStyle = {
+    borderRadius: 0,
+    bgcolor: '#141414',
+    borderColor: '#2A2A2A',
+    p: 2,
+    height: '350px',
+    display: 'flex',
+    flexDirection: 'column',
+    overflow: 'hidden'
+  };
 
   return (
     <Fade in={true} timeout={800}>
@@ -135,12 +148,12 @@ const Dashboard = () => {
         <Grid container spacing={3} alignItems="stretch" sx={{ mb: 3 }}>
           <Grid size={{ xs: 12, md: 8 }} sx={{ minWidth: 0 }}>
             <Box sx={{ height: '100%', width: '100%', minWidth: 0 }}>
-              <ChartWidget />
+              <ChartWidget range={chartRange} onRangeChange={setChartRange} />
             </Box>
           </Grid>
 
           <Grid size={{ xs: 12, md: 4 }}>
-            <Paper variant="outlined" sx={{ borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A', p: 2, height: '400px', display: 'flex', flexDirection: 'column' }}>
+            <Paper variant="outlined" sx={{ ...paperStyle, height: '400px' }}>
               <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
                 Active Incidents
               </Typography>
@@ -165,22 +178,39 @@ const Dashboard = () => {
           </Grid>
         </Grid>
 
-        <Grid container spacing={3} alignItems="stretch">
+        <Grid container spacing={3} alignItems="stretch" sx={{ mb: 3 }}>
           <Grid size={{ xs: 12, md: 4 }}>
-            <Paper variant="outlined" sx={{ borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A', p: 2, height: '320px' }}>
+            <Paper variant="outlined" sx={paperStyle}>
               <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
                 Total Tickets
               </Typography>
-              <SeverityPieChart />
+              <Box sx={{ flexGrow: 1, minHeight: 0 }}>
+                <SeverityPieChart />
+              </Box>
             </Paper>
           </Grid>
 
           <Grid size={{ xs: 12, md: 8 }}>
-            <Paper variant="outlined" sx={{ borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A', p: 2, height: '320px' }}>
+            <Paper variant="outlined" sx={paperStyle}>
+              <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
+                Alarms Frequency
+              </Typography>
+              <Box sx={{ flexGrow: 1, minHeight: 0 }}>
+                <AlarmFrequencyChart />
+              </Box>
+            </Paper>
+          </Grid>
+        </Grid>
+
+        <Grid container spacing={3} alignItems="stretch">
+          <Grid size={{ xs: 12 }}>
+            <Paper variant="outlined" sx={paperStyle}>
               <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
                 Average Resolution Time
               </Typography>
-              <ResolutionBarChart />
+              <Box sx={{ flexGrow: 1, minHeight: 0 }}>
+                <ResolutionBarChart />
+              </Box>
             </Paper>
           </Grid>
         </Grid>
