@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"time"
+
 	"github.com/biscuitdelicious/Nexus/internal/model"
 	"gorm.io/gorm"
 )
@@ -47,6 +49,36 @@ func (r *EventRepository) UpdateStatus(event *model.Event) error {
 		"updated_at":  event.UpdatedAt,
 		"resolved_at": event.ResolvedAt,
 	}).Error
+}
+
+// FrequencyRow is one row in alarm-frequency breakdown.
+type FrequencyRow struct {
+	Source   string `json:"source"`
+	SensorID uint   `json:"sensor_id"`
+	Count    int64  `json:"count"`
+}
+
+// FrequencyBySource returns top `limit` sensors by event count in last `d` duration.
+// Pass d=0 for all-time. Joins events → sensors to get human-readable name.
+func (r *EventRepository) FrequencyBySource(d time.Duration, limit int) ([]FrequencyRow, error) {
+	if limit <= 0 {
+		limit = 10
+	}
+
+	var rows []FrequencyRow
+	q := r.db.Table("events AS e").
+		Select("s.name AS source, e.sensor_id, COUNT(*) AS count").
+		Joins("JOIN sensors s ON s.sensor_id = e.sensor_id").
+		Group("s.name, e.sensor_id").
+		Order("count DESC").
+		Limit(limit)
+
+	if d > 0 {
+		q = q.Where("e.created_at > ?", time.Now().Add(-d))
+	}
+
+	err := q.Scan(&rows).Error
+	return rows, err
 }
 
 // Avoids duplicate events

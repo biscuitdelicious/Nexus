@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Typography, Box, Skeleton, Alert, Button, Menu, MenuItem } from '@mui/material';
+import { Paper, Typography, Box, Skeleton, Alert, Button, Menu, MenuItem, Autocomplete, TextField } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { fetchChartDataStatus } from '../services/api';
+import { fetchChartDataStatus, fetchDevices } from '../services/api';
 
 const RANGE_PRESETS = [
   { label: '15m', value: '15m' },
@@ -10,7 +10,8 @@ const RANGE_PRESETS = [
   { label: '24h', value: '24h' },
 ];
 
-const CustomTooltip = ({ active, payload, label }) => {
+
+const CustomTooltip = ({ active, payload, label, unit = '', seriesName = 'VALUE' }) => {
   if (active && payload && payload.length) {
     return (
       <Box sx={{ bgcolor: '#0D0D0D', border: '1px solid #2A2A2A', p: 1.5, borderRadius: 0 }}>
@@ -19,7 +20,7 @@ const CustomTooltip = ({ active, payload, label }) => {
         </Typography>
         {payload.map((entry, index) => (
           <Typography key={index} sx={{ color: entry.color, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700, mb: 0.5 }}>
-            {entry.name}: {entry.value}°C
+            {seriesName}: {entry.value}{unit}
           </Typography>
         ))}
       </Box>
@@ -28,11 +29,34 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, refreshMs = 3000 } = {}) => {
+
+
+// TODO: make the variables not hardcoded
+const ChartWidget = ({ limit = 60, range = '1h', onRangeChange, refreshMs = 5000 } = {}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rangeAnchor, setRangeAnchor] = useState(null);
+  const [sensors, setSensors] = useState([]);
+  const [sensorId, setSensorId] = useState(1);
+
+  // Load sensor list once for the dropdown.
+  useEffect(() => {
+    let cancelled = false;
+    fetchDevices().then((list) => {
+      if (cancelled) return;
+      setSensors(list);
+      if (list.length > 0 && !list.find((s) => s.id === sensorId)) {
+        setSensorId(list[0].id);
+      }
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const selectedSensor = sensors.find((s) => s.id === sensorId);
+  const sensorName = selectedSensor?.name || `Sensor ${sensorId}`;
+  const unit = selectedSensor?.unit || '';
+  const seriesLabel = sensorName.toUpperCase();
 
   const currentRange =
     RANGE_PRESETS.find((p) => p.value === range)?.label || String(range || 'all');
@@ -83,13 +107,53 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
         flexDirection: 'column'
       }}
     >
+
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+
+        
         <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem' }}>
           Thermal Metrics
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
+          <Autocomplete
+            size="small"
+            options={sensors}
+            getOptionLabel={(s) => s?.name || ''}
+            isOptionEqualToValue={(opt, val) => opt.id === val.id}
+            value={sensors.find((s) => s.id === sensorId) || null}
+            onChange={(_, v) => v && setSensorId(v.id)}
+            disableClearable
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="SENSOR"
+                sx={{
+                  '& .MuiInputBase-root': {
+                    bgcolor: '#0D0D0D',
+                    borderRadius: 0,
+                    color: '#FFF',
+                    fontFamily: '"Roboto Mono", monospace',
+                    fontSize: '0.75rem',
+                    py: 0,
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: '#2A2A2A' },
+                  '& .MuiSvgIcon-root': { color: '#888' },
+                }}
+              />
+            )}
+            ListboxProps={{
+              sx: {
+                bgcolor: '#0D0D0D',
+                border: '1px solid #2A2A2A',
+                color: '#EAEAEA',
+                fontFamily: '"Roboto Mono", monospace',
+                fontSize: '0.75rem',
+              },
+            }}
+            sx={{ width: 180 }}
+          />
           <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', letterSpacing: '1px' }}>
-            UNIT: °C
+            UNIT: {unit || '—'}
           </Typography>
           <Button
             size="small"
@@ -233,10 +297,10 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
               axisLine={false}
               tickLine={false}
               domain={['dataMin - 5', 'dataMax + 5']}
-              tickFormatter={(val) => `${val}°`}
+              tickFormatter={(val) => `${val}${unit}`}
             />
             <Tooltip
-              content={<CustomTooltip />}
+              content={<CustomTooltip unit={unit} seriesName={seriesLabel} />}
               cursor={{ stroke: '#444444', strokeWidth: 1, strokeDasharray: '5 5' }}
             />
             <Legend
@@ -246,7 +310,7 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
             <Line
               type="monotone"
               dataKey="cpu"
-              name="CPU"
+              name={seriesLabel}
               stroke="#D4FF00"
               strokeWidth={2}
               dot={false}

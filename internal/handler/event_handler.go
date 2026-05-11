@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/biscuitdelicious/Nexus/internal/model"
@@ -99,6 +100,34 @@ func (h *EventHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(event)
+}
+
+// Frequency handles GET /events/frequency?range=1h&limit=10
+// Returns top sensors by alarm count in window:
+//   [{ "source": "cpu_temp", "sensor_id": 1, "count": 12 }, ...]
+// Missing/invalid range defaults to 1h. limit defaults to 10, max 50.
+func (h *EventHandler) Frequency(w http.ResponseWriter, r *http.Request) {
+	d := parseRange(r.URL.Query().Get("range"))
+
+	limit := 10
+	if raw := r.URL.Query().Get("limit"); raw != "" {
+		if v, err := strconv.Atoi(raw); err == nil && v > 0 && v <= 50 {
+			limit = v
+		}
+	}
+
+	rows, err := h.repo.FrequencyBySource(d, limit)
+	if err != nil {
+		http.Error(w, "failed to fetch alarm frequency", http.StatusInternalServerError)
+		return
+	}
+
+	if rows == nil {
+		rows = []repository.FrequencyRow{}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(rows)
 }
 
 func (h *EventHandler) Create(w http.ResponseWriter, r *http.Request) {

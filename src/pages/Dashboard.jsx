@@ -37,8 +37,8 @@ const Dashboard = () => {
     borderRadius: 0,
     bgcolor: '#141414',
     borderColor: '#2A2A2A',
-    p: 2,
-    height: '350px',
+    p: 1,
+    height: '300px',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden'

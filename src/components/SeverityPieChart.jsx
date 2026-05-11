@@ -21,7 +21,7 @@ const CustomTooltip = ({ active, payload }) => {
 
 const SeverityPieChart = () => {
   const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(true); 
 
   useEffect(() => {
     let cancelled = false;
