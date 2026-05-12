@@ -10,6 +10,13 @@ const RANGE_PRESETS = [
   { label: '24h', value: '24h' },
 ];
 
+const RANGE_LIMITS = {
+  '15m': 300,   // ~3s cadence
+  '1h': 1200,
+  '6h': 5000,   // capped to backend max
+  '24h': 5000,  // capped to backend max
+};
+
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
@@ -36,13 +43,14 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
 
   const currentRange =
     RANGE_PRESETS.find((p) => p.value === range)?.label || String(range || 'all');
+  const effectiveLimit = RANGE_LIMITS[range] || limit;
 
   useEffect(() => {
     let cancelled = false;
 
     const loadData = async () => {
       try {
-        const res = await fetchChartDataStatus({ sensorId, limit, range });
+        const res = await fetchChartDataStatus({ sensorId, limit: effectiveLimit, range });
         if (cancelled) return;
         if (!res.ok) {
           setError(res);
@@ -64,7 +72,7 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
       cancelled = true;
       clearInterval(id);
     };
-  }, [sensorId, limit, range, refreshMs]);
+  }, [sensorId, effectiveLimit, range, refreshMs]);
 
   if (loading) {
     return <Skeleton variant="rectangular" height="400px" sx={{ borderRadius: 0, bgcolor: '#141414' }} />;
@@ -165,7 +173,7 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
                 // Trigger immediate reload by resetting loading; effect interval will also keep it fresh.
                 // eslint-disable-next-line no-void
                 void (async () => {
-                  const res = await fetchChartDataStatus({ sensorId, limit, range });
+                  const res = await fetchChartDataStatus({ sensorId, limit: effectiveLimit, range });
                   if (!res.ok) {
                     setError(res);
                     setData([]);
