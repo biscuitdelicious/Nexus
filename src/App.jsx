@@ -9,12 +9,13 @@ import Tickets from "./pages/Tickets.jsx";
 import NocWall from './pages/NocWall.jsx';
 import Chatbot from './pages/Chatbot.jsx';
 import Discussions from './pages/Discussions.jsx';
+import Login from './pages/Login.jsx';
 import ChatPopup from './components/ChatPopup';
 import { getChatApiBaseUrl } from './services/chatApi';
 import { useUrlState } from './hooks/useUrlState';
 
 const VALID_PAGES = new Set([
-  'Dashboard', 'Devices', 'Observability', 'Tickets', 'NOC Wall', 'Chatbot', 'Discussions'
+  'Dashboard', 'Devices', 'Observability', 'Tickets', 'NOC Wall', 'Chatbot', 'Discussions', 'Login'
 ]);
 
 // Per-page params are dropped when navigating between pages.
@@ -46,6 +47,8 @@ function App() {
         return <Chatbot />;
       case 'Discussions':
         return <Discussions />;
+      case 'Login':
+        return <Login />;
       default:
         return <Dashboard />;
     }

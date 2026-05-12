@@ -44,7 +44,7 @@ import {
   VpnKey as VpnKeyIcon,
   Palette as PaletteIcon,
   MenuBook as MenuBookIcon,
-  Logout as LogoutIcon,
+  Login as LoginIcon,
   Circle as CircleIcon
 } from '@mui/icons-material';
 import { fetchDashboardMetrics, fetchLiveFeed } from '../services/api';
@@ -809,17 +809,17 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
               }}
             >
               <Box sx={{ p: 2, borderBottom: '1px solid #2A2A2A', display: 'flex', alignItems: 'center', gap: 2 }}>
-                 <Avatar sx={{ width: 44, height: 44, borderRadius: '8px', bgcolor: 'rgba(212,255,0,0.1)', color: '#D4FF00', border: '1px solid rgba(212,255,0,0.3)' }}>
+                 <Avatar sx={{ width: 44, height: 44, borderRadius: '8px', bgcolor: 'rgba(255,255,255,0.04)', color: '#666', border: '1px solid #2A2A2A' }}>
                     <PersonIcon />
                  </Avatar>
                  <Box>
                    <Typography sx={{ color: '#FFF', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700 }}>
-                     admin
+                     Not signed in
                    </Typography>
                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.5 }}>
-                     <CircleIcon sx={{ fontSize: 8, color: '#D4FF00', filter: 'drop-shadow(0 0 4px #D4FF00)' }} />
+                     <CircleIcon sx={{ fontSize: 8, color: '#666' }} />
                      <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem' }}>
-                       Root Access
+                       Guest Session
                      </Typography>
                    </Box>
                  </Box>
@@ -848,9 +848,19 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                 <Divider sx={{ bgcolor: '#2A2A2A', my: 1 }} />
 
                 <ListItem disablePadding>
-                  <ListItemButton onClick={handleProfileClose} sx={{ borderRadius: '4px', transition: 'all 0.2s', '&:hover': { bgcolor: 'rgba(255,0,60,0.1)', '& .MuiListItemIcon-root, & .MuiTypography-root': { color: '#FF003C' } } }}>
-                    <ListItemIcon sx={{ minWidth: 32, color: '#888', transition: 'color 0.2s' }}><LogoutIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText primary="Logout Session" primaryTypographyProps={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, transition: 'color 0.2s' }} />
+                  <ListItemButton
+                    onClick={() => { handleProfileClose(); handleNavClick('Login'); }}
+                    sx={{
+                      borderRadius: '4px',
+                      transition: 'all 0.2s',
+                      '&:hover': {
+                        bgcolor: 'rgba(212,255,0,0.08)',
+                        '& .MuiListItemIcon-root, & .MuiTypography-root': { color: '#D4FF00' }
+                      }
+                    }}
+                  >
+                    <ListItemIcon sx={{ minWidth: 32, color: '#D4FF00', transition: 'color 0.2s' }}><LoginIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText primary="Login" primaryTypographyProps={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1.5px', transition: 'color 0.2s' }} />
                   </ListItemButton>
                 </ListItem>
               </List>
