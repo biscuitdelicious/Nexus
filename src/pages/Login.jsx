@@ -68,18 +68,7 @@ const Login = () => {
                 fontWeight: 'normal'
               }}
             >
-              Operator Login
-            </Typography>
-            <Typography
-              sx={{
-                color: '#888',
-                fontFamily: '"Roboto Mono", monospace',
-                fontSize: '0.75rem',
-                textTransform: 'uppercase',
-                letterSpacing: '1px'
-              }}
-            >
-              Authenticate to access Nexus control plane.
+               LOGIN
             </Typography>
           </Box>
         </Box>
@@ -96,43 +85,12 @@ const Login = () => {
             overflow: 'hidden'
           }}
         >
-          <Box
-            sx={{
-              px: 2.5,
-              py: 1.5,
-              bgcolor: '#0A0A0A',
-              borderBottom: '1px solid #2A2A2A',
-              display: 'flex',
-              alignItems: 'center',
-              gap: 1.5
-            }}
-          >
-            <TerminalIcon sx={{ color: '#D4FF00', fontSize: 16 }} />
-            <Typography
-              sx={{
-                color: '#FFF',
-                fontFamily: '"Roboto Mono", monospace',
-                fontWeight: 700,
-                fontSize: '0.75rem',
-                letterSpacing: '1.5px'
-              }}
-            >
-              SESSION_AUTH
-            </Typography>
-            <Box sx={{ flexGrow: 1 }} />
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75 }}>
-              <Box sx={{ width: 6, height: 6, bgcolor: '#FF003C', boxShadow: '0 0 6px #FF003C' }} />
-              <Typography sx={{ color: '#FF003C', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', letterSpacing: '2px' }}>
-                LOCKED
-              </Typography>
-            </Box>
-          </Box>
-
+          
           <Box sx={{ p: 3, display: 'flex', flexDirection: 'column', gap: 2.5 }}>
             <TextField
               fullWidth
               variant="standard"
-              label="Operator ID"
+              label="Username or Email"
               placeholder="admin@nexus.local"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -150,7 +108,7 @@ const Login = () => {
             <TextField
               fullWidth
               variant="standard"
-              label="Access Key"
+              label="Password"
               type={showPassword ? 'text' : 'password'}
               placeholder="••••••••••••"
               value={password}
@@ -188,7 +146,7 @@ const Login = () => {
                     }}
                   />
                 }
-                label="Keep session"
+                label="Remember me"
                 sx={{
                   '& .MuiFormControlLabel-label': {
                     color: '#888',
@@ -211,10 +169,9 @@ const Login = () => {
                   '&:hover': { color: '#D4FF00' }
                 }}
               >
-                Reset Key
+                Forgot password?
               </Typography>
             </Box>
-
             <Button
               fullWidth
               variant="contained"
@@ -232,67 +189,10 @@ const Login = () => {
                 '&:hover': { bgcolor: '#b8de00' }
               }}
             >
-              {'>_ AUTHENTICATE'}
+              {'>_ LOG IN'}
             </Button>
-
-            <Divider sx={{ borderColor: '#2A2A2A', my: 0.5 }}>
-              <Typography sx={{ color: '#444', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', letterSpacing: '2px', px: 1 }}>
-                OR
-              </Typography>
-            </Divider>
-
-            <Button
-              fullWidth
-              variant="outlined"
-              sx={{
-                bgcolor: 'transparent',
-                color: '#888',
-                borderRadius: 0,
-                borderColor: '#2A2A2A',
-                py: 1.25,
-                fontFamily: '"Roboto Mono", monospace',
-                fontWeight: 700,
-                letterSpacing: '2px',
-                fontSize: '0.75rem',
-                '&:hover': { borderColor: '#D4FF00', color: '#D4FF00', bgcolor: 'rgba(212,255,0,0.04)' }
-              }}
-            >
-              SSO / IDP PROVIDER
-            </Button>
-          </Box>
-
-          <Box
-            sx={{
-              px: 2.5,
-              py: 1.25,
-              bgcolor: '#0A0A0A',
-              borderTop: '1px solid #2A2A2A',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center'
-            }}
-          >
-            <Typography sx={{ color: '#555', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', letterSpacing: '1.5px' }}>
-              v0.1.0 · MOCK
-            </Typography>
-            <Typography sx={{ color: '#555', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', letterSpacing: '1.5px' }}>
-              No request to backend
-            </Typography>
           </Box>
         </Paper>
-
-        <Typography
-          sx={{
-            mt: 3,
-            color: '#555',
-            fontFamily: '"Roboto Mono", monospace',
-            fontSize: '0.7rem',
-            letterSpacing: '1px',
-            textAlign: 'center'
-          }}
-        >
-          Request access from the NOC admin if you do not have credentials.
-        </Typography>
       </Box>
     </Fade>
   );

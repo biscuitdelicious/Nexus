@@ -434,10 +434,10 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
           <Box sx={{ p: 2, whiteSpace: 'nowrap' }}>
             <Box sx={{ p: 1.5, borderRadius: 0, backgroundColor: '#141414', border: '1px solid #2A2A2A' }}>
               <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 0.5 }}>
-                Buffer State
+                Status
               </Typography>
               <Typography sx={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}>
-                OPTIMAL
+                ACTIVE
               </Typography>
             </Box>
           </Box>

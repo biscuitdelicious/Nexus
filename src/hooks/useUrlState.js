@@ -38,7 +38,6 @@ export function useUrlState() {
     };
   }, []);
 
-  // Merge patch: undefined/null/'' clears the key.
   const patchParams = useCallback((patch, opts) => {
     const current = readParams();
     const next = { ...current };
@@ -49,7 +48,6 @@ export function useUrlState() {
     writeParams(next, opts);
   }, []);
 
-  // Full replace: drops keys not present in next.
   const replaceParams = useCallback((next, opts) => {
     writeParams(next || {}, opts);
   }, []);

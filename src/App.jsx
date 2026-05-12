@@ -18,8 +18,6 @@ const VALID_PAGES = new Set([
   'Dashboard', 'Devices', 'Observability', 'Tickets', 'NOC Wall', 'Chatbot', 'Discussions', 'Login'
 ]);
 
-// Per-page params are dropped when navigating between pages.
-// Global params (e.g. notif_filter) survive nav.
 const PAGE_SCOPED_PARAMS = ['incident', 'chart_range'];
 
 function App() {
