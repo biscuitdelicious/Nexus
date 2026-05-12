@@ -26,7 +26,7 @@ const buildBotMessage = (text, { stream = true } = {}) => {
 };
 
 const initialBotMessage = () =>
-  buildBotMessage('SYSTEM.READY > How can I help you?', { stream: true });
+  buildBotMessage('How can I help you?', { stream: true });
 
 const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
   const [isOpen, setIsOpen] = useState(false);

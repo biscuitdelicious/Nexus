@@ -26,7 +26,7 @@ mod_testare      = True
 email_test       = "victor05florea@gmail.com"
 emailuri_nokia   = ["nokia-support@nokia.ro", "nokia-staff@nokia.ro"]
 
-prag_critic      = float(os.getenv("PRAG_CRITIC", "50.0"))
+prag_critic      = float(os.getenv("PRAG_CRITIC", "80.0"))
 secunde_pauza    = int(os.getenv("SECUNDE_PAUZA", "600"))
 interval_citire  = int(os.getenv("INTERVAL_CITIRE", "3"))
 lhm_port         = int(os.getenv("LHM_PORT", "8085"))
