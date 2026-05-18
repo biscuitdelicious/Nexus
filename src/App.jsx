@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import glassTheme from './theme';
 import Layout from './components/Layout';
@@ -24,12 +24,28 @@ const PAGE_SCOPED_PARAMS = ['incident', 'chart_range'];
 
 function App() {
   const [params, patchParams] = useUrlState();
+  const [isAuthed, setIsAuthed] = useState(() => {
+    try { return sessionStorage.getItem('nexus_auth') === '1'; } catch { return false; }
+  });
   const activePage = VALID_PAGES.has(params.page) ? params.page : 'Dashboard';
 
   const setActivePage = (page) => {
     const reset = Object.fromEntries(PAGE_SCOPED_PARAMS.map((k) => [k, undefined]));
     patchParams({ page, ...reset });
   };
+
+  const handleLogin = () => {
+    try { sessionStorage.setItem('nexus_auth', '1'); } catch {}
+    setIsAuthed(true);
+  };
+
+  if (!isAuthed) {
+    return (
+      <ThemeProvider theme={glassTheme}>
+        <Login onLogin={handleLogin} />
+      </ThemeProvider>
+    );
+  }
 
   const page = (() => {
     switch (activePage) {

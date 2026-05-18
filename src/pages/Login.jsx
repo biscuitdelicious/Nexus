@@ -9,10 +9,15 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import TerminalIcon from '@mui/icons-material/Terminal';
 
-const Login = () => {
+const Login = ({ onLogin }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+
+  const handleSubmit = (e) => {
+    e?.preventDefault?.();
+    onLogin?.();
+  };
 
   const fieldSx = {
     '& .MuiInputBase-root': {
@@ -219,6 +224,7 @@ const Login = () => {
               fullWidth
               variant="contained"
               disableElevation
+              onClick={handleSubmit}
               sx={{
                 mt: 1,
                 bgcolor: '#D4FF00',
@@ -244,6 +250,7 @@ const Login = () => {
             <Button
               fullWidth
               variant="outlined"
+              onClick={handleSubmit}
               sx={{
                 bgcolor: 'transparent',
                 color: '#888',
