@@ -45,6 +45,7 @@ import {
   Palette as PaletteIcon,
   MenuBook as MenuBookIcon,
   Login as LoginIcon,
+  Logout as LogoutIcon,
   Circle as CircleIcon
 } from '@mui/icons-material';
 import { fetchDashboardMetrics, fetchLiveFeed } from '../services/api';
@@ -75,7 +76,7 @@ const saveReadIds = (set) => {
   }
 };
 
-const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [], logs: [], loading: true } }) => {
+const Layout = ({ children, activePage, setActivePage, onLogout, user, sharedData = { metrics: [], logs: [], loading: true } }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [drawerWidth, setDrawerWidth] = useState(240);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -398,7 +399,7 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
               )}
             </ListItemButton>
           </ListItem>
-
+ 
           <ListItem disablePadding>
             <ListItemButton
               selected={activePage === 'Chatbot'}
@@ -766,7 +767,42 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
               </Box>
             </Popover>
 
-            <Tooltip title="System Profile" placement="bottom">
+            {user?.email && (
+              <Box
+                sx={{
+                  display: { xs: 'none', md: 'flex' },
+                  flexDirection: 'column',
+                  alignItems: 'flex-end',
+                  mr: 1.5,
+                  lineHeight: 1.1
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: '#D4FF00',
+                    fontFamily: '"Roboto Mono", monospace',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    letterSpacing: '1px'
+                  }}
+                >
+                  {user.email}
+                </Typography>
+                <Typography
+                  sx={{
+                    color: '#666',
+                    fontFamily: '"Roboto Mono", monospace',
+                    fontSize: '0.6rem',
+                    letterSpacing: '1.5px',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  {user.role || 'operator'}
+                </Typography>
+              </Box>
+            )}
+
+            <Tooltip title={user?.email || 'System Profile'} placement="bottom">
               <Avatar
                 onClick={handleProfileClick}
                 sx={{
@@ -814,12 +850,15 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                  </Avatar>
                  <Box>
                    <Typography sx={{ color: '#FFF', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700 }}>
-                     Not signed in
+                     {user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email : 'Not signed in'}
+                   </Typography>
+                   <Typography sx={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem', mt: 0.25, wordBreak: 'break-all' }}>
+                     {user?.email || ''}
                    </Typography>
                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.5 }}>
-                     <CircleIcon sx={{ fontSize: 8, color: '#666' }} />
-                     <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem' }}>
-                       Guest Session
+                     <CircleIcon sx={{ fontSize: 8, color: user ? '#D4FF00' : '#666' }} />
+                     <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                       {user?.role || 'Guest Session'}
                      </Typography>
                    </Box>
                  </Box>
@@ -849,18 +888,18 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
 
                 <ListItem disablePadding>
                   <ListItemButton
-                    onClick={() => { handleProfileClose(); handleNavClick('Login'); }}
+                    onClick={() => { handleProfileClose(); onLogout?.(); }}
                     sx={{
                       borderRadius: '4px',
                       transition: 'all 0.2s',
                       '&:hover': {
-                        bgcolor: 'rgba(212,255,0,0.08)',
-                        '& .MuiListItemIcon-root, & .MuiTypography-root': { color: '#D4FF00' }
+                        bgcolor: 'rgba(255,0,60,0.08)',
+                        '& .MuiListItemIcon-root, & .MuiTypography-root': { color: '#FF003C' }
                       }
                     }}
                   >
-                    <ListItemIcon sx={{ minWidth: 32, color: '#D4FF00', transition: 'color 0.2s' }}><LoginIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText primary="Login" primaryTypographyProps={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1.5px', transition: 'color 0.2s' }} />
+                    <ListItemIcon sx={{ minWidth: 32, color: '#FF003C', transition: 'color 0.2s' }}><LogoutIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText primary="Logout" primaryTypographyProps={{ color: '#FF003C', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, letterSpacing: '1.5px', transition: 'color 0.2s' }} />
                   </ListItemButton>
                 </ListItem>
               </List>

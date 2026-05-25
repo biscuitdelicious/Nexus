@@ -22,19 +22,28 @@ const PAGE_SCOPED_PARAMS = ['incident', 'chart_range'];
 
 function App() {
   const [params, patchParams] = useUrlState();
-  const [isAuthed, setIsAuthed] = useState(() => {
-    try { return sessionStorage.getItem('nexus_auth') === '1'; } catch { return false; }
+  const [user, setUser] = useState(() => {
+    try {
+      const raw = sessionStorage.getItem('nexus_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
   });
+  const isAuthed = !!user;
   const activePage = VALID_PAGES.has(params.page) ? params.page : 'Dashboard';
-
+ 
   const setActivePage = (page) => {
     const reset = Object.fromEntries(PAGE_SCOPED_PARAMS.map((k) => [k, undefined]));
     patchParams({ page, ...reset });
   };
 
-  const handleLogin = () => {
-    try { sessionStorage.setItem('nexus_auth', '1'); } catch {}
-    setIsAuthed(true);
+  const handleLogin = (userData) => {
+    try { sessionStorage.setItem('nexus_user', JSON.stringify(userData)); } catch {}
+    setUser(userData);
+  };
+
+  const handleLogout = () => {
+    try { sessionStorage.removeItem('nexus_user'); } catch {}
+    setUser(null);
   };
 
   if (!isAuthed) {
@@ -70,7 +79,7 @@ function App() {
 
   return (
     <ThemeProvider theme={glassTheme}>
-      <Layout activePage={activePage} setActivePage={setActivePage}>
+      <Layout activePage={activePage} setActivePage={setActivePage} onLogout={handleLogout} user={user}>
         {page}
       </Layout>
       {activePage !== 'Chatbot' && (
