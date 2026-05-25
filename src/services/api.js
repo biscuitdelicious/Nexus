@@ -349,21 +349,22 @@ export const fetchDashboardMetrics = async () => {
     const chart = chartRes?.data || [];
     const latest = chart.length ? chart[chart.length - 1].cpu : null;
     const pending = tickets.filter((t) => t.status !== 'ACKNOWLEDGED' && t.status !== 'RESOLVED').length;
+    const hasAnyEvents = tickets.length > 0;
     return [
       {
         id: 1,
         title: 'CPU TEMP',
-        value: chartRes?.ok === false ? 'ERR' : (latest !== null ? `${latest.toFixed(1)}°C` : '—'),
+        value: chartRes?.ok === false ? 'ERR' : (latest !== null ? `${latest.toFixed(1)}°C` : 'No readings'),
       },
-      { id: 2, title: 'OPEN TICKETS', value: String(pending) },
-      { id: 3, title: 'TOTAL EVENTS', value: String(tickets.length) },
+      { id: 2, title: 'OPEN TICKETS', value: hasAnyEvents ? String(pending) : 'No events' },
+      { id: 3, title: 'TOTAL EVENTS', value: hasAnyEvents ? String(tickets.length) : 'No events' },
       { id: 4, title: 'SENSOR ID', value: 'SN-001' },
     ];
   } catch {
     return [
-      { id: 1, title: 'CPU TEMP', value: '—' },
-      { id: 2, title: 'OPEN TICKETS', value: '0' },
-      { id: 3, title: 'TOTAL EVENTS', value: '0' },
+      { id: 1, title: 'CPU TEMP', value: 'No readings' },
+      { id: 2, title: 'OPEN TICKETS', value: 'No events' },
+      { id: 3, title: 'TOTAL EVENTS', value: 'No events' },
       { id: 4, title: 'SENSOR ID', value: 'SN-001' },
     ];
   }

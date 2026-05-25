@@ -12,8 +12,14 @@ const RANGE_PRESETS = [
   { label: '7d', value: '7d'},
 ];
 
+const RANGE_LIMITS = {
+  '15m': 300,   // ~3s cadence
+  '1h': 1200,
+  '6h': 5000,   // capped to backend max
+  '24h': 5000,  // capped to backend max
+};
 
-const CustomTooltip = ({ active, payload, label, unit = '', seriesName = 'VALUE' }) => {
+const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
       <Box sx={{ bgcolor: COLORS.surface, border: '1px solid', borderColor: COLORS.border, p: 1.5, borderRadius: 0 }}>
@@ -61,13 +67,14 @@ const ChartWidget = ({ limit = 60, range = '1h', onRangeChange, refreshMs = 8000
 
   const currentRange =
     RANGE_PRESETS.find((p) => p.value === range)?.label || String(range || 'all');
+  const effectiveLimit = RANGE_LIMITS[range] || limit;
 
   useEffect(() => {
     let cancelled = false;
 
     const loadData = async () => {
       try {
-        const res = await fetchChartDataStatus({ sensorId, limit, range });
+        const res = await fetchChartDataStatus({ sensorId, limit: effectiveLimit, range });
         if (cancelled) return;
         if (!res.ok) {
           setError(res);
@@ -89,7 +96,7 @@ const ChartWidget = ({ limit = 60, range = '1h', onRangeChange, refreshMs = 8000
       cancelled = true;
       clearInterval(id);
     };
-  }, [sensorId, limit, range, refreshMs]);
+  }, [sensorId, effectiveLimit, range, refreshMs]);
 
   if (loading) {
     return <Skeleton variant="rectangular" sx={{ borderRadius: 0, bgcolor: COLORS.surface, height: '100%', minHeight: 0 }} />;
@@ -230,7 +237,7 @@ const ChartWidget = ({ limit = 60, range = '1h', onRangeChange, refreshMs = 8000
                 // Trigger immediate reload by resetting loading; effect interval will also keep it fresh.
                 // eslint-disable-next-line no-void
                 void (async () => {
-                  const res = await fetchChartDataStatus({ sensorId, limit, range });
+                  const res = await fetchChartDataStatus({ sensorId, limit: effectiveLimit, range });
                   if (!res.ok) {
                     setError(res);
                     setData([]);
