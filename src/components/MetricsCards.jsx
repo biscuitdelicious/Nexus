@@ -1,12 +1,13 @@
 import React from 'react';
 import { Grid, Paper, Typography, Box, Skeleton } from '@mui/material';
+import { COLORS } from '../theme/colors';
 
 const MetricsCards = ({ metrics, loading }) => (
   <Grid container spacing={2}>
     {loading ? (
       [1, 2, 3, 4].map((i) => (
         <Grid key={i} size={{ xs: 12, sm: 6, lg: 3 }}>
-          <Skeleton variant="rectangular" height={100} sx={{ bgcolor: '#141414', borderRadius: 0 }} />
+          <Skeleton variant="rectangular" height={100} sx={{ bgcolor: COLORS.surface, borderRadius: 0 }} />
         </Grid>
       ))
     ) : (
@@ -17,27 +18,27 @@ const MetricsCards = ({ metrics, loading }) => (
             sx={{
               p: 2,
               height: '100%',
-              bgcolor: '#141414',
-              borderColor: '#2A2A2A',
+              bgcolor: COLORS.surface,
+              borderColor: COLORS.border,
               borderRadius: 0,
-              borderLeft: '4px solid #2A2A2A',
+              borderLeft: `4px solid ${COLORS.border}`,
               transition: 'none',
               '&:hover': {
-                borderColor: '#444444',
-                borderLeft: '4px solid #D4FF00',
-                bgcolor: 'rgba(212, 255, 0, 0.02)'
+                borderColor: COLORS.textMuted,
+                borderLeft: `4px solid ${COLORS.info}`,
+                bgcolor: 'rgba(88, 166, 255, 0.05)'
               }
             }}
           >
-            <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.70rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 1 }}>
+            <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.70rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 1 }}>
               {m.label}
             </Typography>
-            <Typography variant="h4" sx={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontWeight: 700 }}>
+            <Typography variant="h4" sx={{ color: COLORS.info, fontFamily: '"Roboto Mono", monospace', fontWeight: 700 }}>
               {m.value}
             </Typography>
             {m.sublabel ? (
               <Box sx={{ mt: 1 }}>
-                <Typography sx={{ color: '#444', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase' }}>
+                <Typography sx={{ color: COLORS.border, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase' }}>
                   {m.sublabel}
                 </Typography>
               </Box>

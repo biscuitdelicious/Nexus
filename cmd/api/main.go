@@ -70,9 +70,11 @@ func main() {
 
 	r.Get("/events", eventHandler.GetAll)
 	r.Get("/events/open", eventHandler.GetOpen)
+	r.Get("/events/frequency", eventHandler.Frequency)
 	r.Get("/events/{id}", eventHandler.GetByID)
 	r.Post("/events", eventHandler.Create)
 	r.Patch("/events/{id}", eventHandler.UpdateStatus)
+	r.Post("/events/{id}/snooze", eventHandler.Snooze)
 
 	r.Get("/events/{eventId}/acknowledgements", ackHandler.GetByEventID)
 	r.Post("/acknowledgements", ackHandler.Create)

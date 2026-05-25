@@ -2,11 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { Box, Typography, Fade, Grid, Paper, Button, Skeleton } from '@mui/material';
 import DnsIcon from '@mui/icons-material/Dns';
 import DeviceList from '../components/DeviceList';
+import AddDeviceModal from '../components/AddDeviceModal';
 import { fetchDevices } from '../services/api';
+import { COLORS } from '../theme/colors';
 
 const Devices = () => {
   const [stats, setStats] = useState({ total: 0, healthy: 0, issues: 0, healthPercentage: 0 });
   const [loading, setLoading] = useState(true);
+  const [addOpen, setAddOpen] = useState(false);
+  const [refreshKey, setRefreshKey] = useState(0);
 
   useEffect(() => {
     const loadStats = async () => {
@@ -26,7 +30,11 @@ const Devices = () => {
     };
 
     loadStats();
-  }, []);
+  }, [refreshKey]);
+
+  const handleCreated = () => {
+    setRefreshKey((k) => k + 1);
+  };
 
   return (
     <Fade in={true} timeout={800}>
@@ -39,17 +47,17 @@ const Devices = () => {
               justifyContent: 'center',
               p: 1.5,
               borderRadius: 0,
-              background: '#141414',
-              border: '1px solid #2A2A2A',
+              background: COLORS.surface,
+              border: `1px solid ${COLORS.border}`,
             }}
           >
-            <DnsIcon sx={{ color: '#D4FF00', fontSize: 28 }} />
+            <DnsIcon sx={{ color: COLORS.info, fontSize: 28 }} />
           </Box>
           <Box>
             <Typography
               variant="h4"
               sx={{
-                color: '#FFFFFF',
+                color: COLORS.text,
                 fontFamily: '"Georgia", serif',
                 fontStyle: 'italic',
                 fontWeight: 'normal',
@@ -65,7 +73,7 @@ const Devices = () => {
           sx={{
             mb: 4,
             ml: 8.5,
-            color: '#888888',
+            color: COLORS.textMuted,
             fontFamily: '"Roboto Mono", monospace',
             fontSize: '0.85rem',
             textTransform: 'uppercase',
@@ -77,43 +85,43 @@ const Devices = () => {
 
         <Grid container spacing={3} sx={{ mb: 4 }}>
           <Grid item xs={12} sm={4}>
-            <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A' }}>
+            <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 0, bgcolor: COLORS.surface, borderColor: COLORS.border }}>
               {loading ? (
-                <Skeleton variant="rectangular" width="40%" height={45} sx={{ mx: 'auto', bgcolor: '#0D0D0D', mb: 0.5 }} />
+                <Skeleton variant="rectangular" width="40%" height={45} sx={{ mx: 'auto', bgcolor: COLORS.surface, mb: 0.5 }} />
               ) : (
-                <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: '#D4FF00' }}>
+                <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: COLORS.info }}>
                   {stats.total}
                 </Typography>
               )}
-              <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Total Assets
               </Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A' }}>
+            <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 0, bgcolor: COLORS.surface, borderColor: COLORS.border }}>
               {loading ? (
-                <Skeleton variant="rectangular" width="40%" height={45} sx={{ mx: 'auto', bgcolor: '#0D0D0D', mb: 0.5 }} />
+                <Skeleton variant="rectangular" width="40%" height={45} sx={{ mx: 'auto', bgcolor: COLORS.surface, mb: 0.5 }} />
               ) : (
-                <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: '#FFFFFF' }}>
+                <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: COLORS.text }}>
                   {stats.healthy}
                 </Typography>
               )}
-              <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Healthy Units
               </Typography>
             </Paper>
           </Grid>
           <Grid item xs={12} sm={4}>
-            <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 0, bgcolor: '#141414', borderColor: '#2A2A2A' }}>
+            <Paper variant="outlined" sx={{ p: 2, textAlign: 'center', borderRadius: 0, bgcolor: COLORS.surface, borderColor: COLORS.border }}>
               {loading ? (
-                <Skeleton variant="rectangular" width="40%" height={45} sx={{ mx: 'auto', bgcolor: '#0D0D0D', mb: 0.5 }} />
+                <Skeleton variant="rectangular" width="40%" height={45} sx={{ mx: 'auto', bgcolor: COLORS.surface, mb: 0.5 }} />
               ) : (
-                <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: '#FF003C' }}>
+                <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '2rem', color: COLORS.critical }}>
                   {stats.issues}
                 </Typography>
               )}
-              <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+              <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                 Active Issues
               </Typography>
             </Paper>
@@ -123,7 +131,7 @@ const Devices = () => {
         <Grid container spacing={3}>
           <Grid item xs={12} md={8}>
             <Box sx={{ height: '60vh' }}>
-              <DeviceList />
+              <DeviceList key={refreshKey} />
             </Box>
           </Grid>
           <Grid item xs={12} md={4}>
@@ -136,24 +144,24 @@ const Devices = () => {
                 flexDirection: 'column',
                 gap: 3,
                 borderRadius: 0,
-                bgcolor: '#141414',
-                borderColor: '#2A2A2A'
+                bgcolor: COLORS.surface,
+                borderColor: COLORS.border
               }}
             >
               <Box>
-                <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
+                <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
                   Environment Health
                 </Typography>
                 {loading ? (
-                  <Skeleton variant="rectangular" height={8} sx={{ width: '100%', bgcolor: '#0D0D0D' }} />
+                  <Skeleton variant="rectangular" height={8} sx={{ width: '100%', bgcolor: COLORS.surface }} />
                 ) : (
                   <Box
                     sx={{
                       height: 8,
                       width: '100%',
-                      bgcolor: '#0D0D0D',
+                      bgcolor: COLORS.surface,
                       borderRadius: 0,
-                      border: '1px solid #2A2A2A',
+                      border: `1px solid ${COLORS.border}`,
                       overflow: 'hidden',
                     }}
                   >
@@ -161,45 +169,51 @@ const Devices = () => {
                       sx={{
                         height: '100%',
                         width: `${stats.healthPercentage}%`,
-                        bgcolor: '#D4FF00',
+                        bgcolor: COLORS.info,
                         transition: 'width 1s ease-in-out'
                       }}
                     />
                   </Box>
                 )}
-                <Typography sx={{ mt: 1.5, display: 'block', color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                <Typography sx={{ mt: 1.5, display: 'block', color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
                   {loading ? 'CALCULATING STATUS...' : `${stats.healthPercentage}% of devices are operating within normal parameters.`}
                 </Typography>
               </Box>
 
               <Box>
-                <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
+                <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
                   Quick Actions
                 </Typography>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-                  <Button variant="contained" fullWidth sx={{ borderRadius: 0, bgcolor: '#D4FF00', color: '#000000', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { bgcolor: '#BDE600' } }}>
+                  <Button onClick={() => setAddOpen(true)} variant="contained" fullWidth sx={{ borderRadius: 0, bgcolor: COLORS.info, color: COLORS.bg, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { bgcolor: COLORS.info } }}>
                     Add New Device
                   </Button>
-                  <Button variant="outlined" fullWidth sx={{ borderRadius: 0, borderColor: '#2A2A2A', color: '#FFFFFF', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { borderColor: '#888888', bgcolor: 'transparent' } }}>
+                  <Button variant="outlined" fullWidth sx={{ borderRadius: 0, borderColor: COLORS.border, color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { borderColor: COLORS.textMuted, bgcolor: 'transparent' } }}>
                     Scan Network
                   </Button>
-                  <Button variant="outlined" fullWidth sx={{ borderRadius: 0, borderColor: '#FF003C', color: '#FF003C', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { borderColor: '#FF003C', bgcolor: 'rgba(255, 0, 60, 0.05)' } }}>
+                  <Button variant="outlined" fullWidth sx={{ borderRadius: 0, borderColor: COLORS.critical, color: COLORS.critical, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { borderColor: COLORS.critical, bgcolor: 'rgba(255, 0, 60, 0.05)' } }}>
                     Clear Alerts
                   </Button>
                 </Box>
               </Box>
 
-              <Box sx={{ mt: 'auto', p: 2, bgcolor: '#0D0D0D', border: '1px solid #2A2A2A', borderRadius: 0 }}>
-                <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 0.5 }}>
+              <Box sx={{ mt: 'auto', p: 2, bgcolor: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 0 }}>
+                <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 0.5 }}>
                   Last Scan:
                 </Typography>
-                <Typography sx={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}>
+                <Typography sx={{ color: COLORS.info, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}>
                   TODAY {new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
                 </Typography>
               </Box>
             </Paper>
           </Grid>
         </Grid>
+
+        <AddDeviceModal
+          open={addOpen}
+          onClose={() => setAddOpen(false)}
+          onCreated={handleCreated}
+        />
       </Box>
     </Fade>
   );

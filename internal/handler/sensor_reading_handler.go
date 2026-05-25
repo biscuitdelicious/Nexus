@@ -19,7 +19,7 @@ func NewSensorReadingHandler(repo *repository.SensorReadingRepository) *SensorRe
 }
 
 // POST /readings
-// Body: { "sensor_id": 1, "value": 67.5, "host": "Victor" }
+// Body: { "sensor_id": 1, "value": 67.5, "host": "Admin" }
 func (h *SensorReadingHandler) Create(w http.ResponseWriter, r *http.Request) {
 	var body struct {
 		SensorID uint      `json:"sensor_id"`
@@ -86,23 +86,6 @@ func (h *SensorReadingHandler) GetRecent(w http.ResponseWriter, r *http.Request)
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(rows)
-}
-
-// parseRange converts a query param like "15m", "1h", "6h", "24h" into a time.Duration.
-// Empty/invalid means no time filter (duration=0).
-func parseRange(raw string) time.Duration {
-	if raw == "" {
-		return 0
-	}
-	d, err := time.ParseDuration(raw)
-	if err != nil || d <= 0 {
-		return 0
-	}
-	// Guardrails to prevent accidental huge scans.
-	if d > 30*24*time.Hour {
-		return 30 * 24 * time.Hour
-	}
-	return d
 }
 
 // GET /readings/latest

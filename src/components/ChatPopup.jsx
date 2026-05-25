@@ -9,6 +9,7 @@ import {
   sendChatMessage,
   resetChatSession
 } from '../services/chatApi';
+import { COLORS } from '../theme/colors';
 
 const TYPEWRITER_DELAY_MS = 35;
 
@@ -117,12 +118,12 @@ const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
               maxHeight: '80vh',
               display: 'flex',
               flexDirection: 'column',
-              bgcolor: '#0A0A0A',
-              border: '1px solid #D4FF00',
+              bgcolor: COLORS.surface,
+              border: `1px solid ${COLORS.info}`,
               borderRadius: 0,
               overflow: 'hidden',
               resize: 'both',
-              boxShadow: '0 0 20px rgba(212, 255, 0, 0.15)',
+              boxShadow: '0 0 20px rgba(88, 166, 255, 0.2)',
               '&::after': {
                 content: '""',
                 position: 'absolute',
@@ -131,20 +132,20 @@ const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
                 width: '15px',
                 height: '15px',
                 cursor: 'nwse-resize',
-                background: 'linear-gradient(135deg, transparent 50%, #D4FF00 50%)'
+                background: `linear-gradient(135deg, transparent 50%, ${COLORS.info} 50%)`
               }
             }}
           >
-            <Box sx={{ p: 2, bgcolor: '#141414', display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: '1px solid #2A2A2A' }}>
+            <Box sx={{ p: 2, bgcolor: COLORS.surface, display: 'flex', alignItems: 'center', justifyContent: 'space-between', borderBottom: `1px solid ${COLORS.border}` }}>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5 }}>
-                <Avatar sx={{ bgcolor: '#D4FF00', width: 32, height: 32, borderRadius: 0 }}>
-                  <SmartToyIcon sx={{ color: '#000', fontSize: '1.2rem' }} />
+                <Avatar sx={{ bgcolor: COLORS.info, width: 32, height: 32, borderRadius: 0 }}>
+                  <SmartToyIcon sx={{ color: COLORS.bg, fontSize: '1.2rem' }} />
                 </Avatar>
                 <Box>
-                  <Typography sx={{ color: '#fff', fontSize: '0.9rem', fontWeight: 700, fontFamily: '"Roboto Mono", monospace', letterSpacing: '1px' }}>
+                  <Typography sx={{ color: COLORS.text, fontSize: '0.9rem', fontWeight: 700, fontFamily: '"Roboto Mono", monospace', letterSpacing: '1px' }}>
                     NEXUS BOT
                   </Typography>
-                  <Typography sx={{ color: '#D4FF00', fontSize: '0.65rem', fontFamily: '"Roboto Mono", monospace', letterSpacing: '2px' }}>
+                  <Typography sx={{ color: COLORS.info, fontSize: '0.65rem', fontFamily: '"Roboto Mono", monospace', letterSpacing: '2px' }}>
                     ONLINE
                   </Typography>
                 </Box>
@@ -155,24 +156,24 @@ const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
                     <IconButton
                       size="small"
                       onClick={handleExpand}
-                      sx={{ color: '#888', borderRadius: 0, '&:hover': { color: '#D4FF00', bgcolor: 'transparent' } }}
+                      sx={{ color: COLORS.textMuted, borderRadius: 0, '&:hover': { color: COLORS.info, bgcolor: 'transparent' } }}
                     >
                       <OpenInFullIcon fontSize="small" />
                     </IconButton>
                   </Tooltip>
                 )}
-                <IconButton size="small" onClick={handleToggle} sx={{ color: '#888', borderRadius: 0, '&:hover': { color: '#D4FF00', bgcolor: 'transparent' } }}>
+                <IconButton size="small" onClick={handleToggle} sx={{ color: COLORS.textMuted, borderRadius: 0, '&:hover': { color: COLORS.info, bgcolor: 'transparent' } }}>
                   <CloseIcon fontSize="small" />
                 </IconButton>
               </Box>
             </Box>
 
-            <Box sx={{ flexGrow: 1, p: 2, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2, '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { bgcolor: '#2A2A2A' } }}>
+            <Box sx={{ flexGrow: 1, p: 2, overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 2, '&::-webkit-scrollbar': { width: '4px' }, '&::-webkit-scrollbar-thumb': { bgcolor: COLORS.border } }}>
               {chatHistory.map((msg, index) => (
                 <Box key={index} sx={{ alignSelf: msg.isBot ? 'flex-start' : 'flex-end', maxWidth: '85%' }}>
                   {msg.isBot ? (
                     <Box sx={{ p: 0, bgcolor: 'transparent' }}>
-                      <Typography sx={{ fontSize: '0.85rem', lineHeight: 1.45, fontFamily: '"Roboto Mono", monospace', whiteSpace: 'pre-wrap', color: '#EAEAEA' }}>
+                      <Typography sx={{ fontSize: '0.85rem', lineHeight: 1.45, fontFamily: '"Roboto Mono", monospace', whiteSpace: 'pre-wrap', color: COLORS.text }}>
                         {msg.tokens ? msg.tokens.slice(0, msg.revealed).join('') : msg.text}
                         {msg.streaming && (
                           <Box
@@ -182,7 +183,7 @@ const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
                               width: '7px',
                               height: '0.95em',
                               ml: '2px',
-                              bgcolor: '#D4FF00',
+                              bgcolor: COLORS.info,
                               verticalAlign: 'text-bottom',
                               animation: 'cursorBlinkPopup 1s steps(2) infinite'
                             }}
@@ -195,8 +196,8 @@ const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
                       elevation={0}
                       sx={{
                         p: 1.5,
-                        bgcolor: '#D4FF00',
-                        color: '#000',
+                        bgcolor: COLORS.info,
+                        color: COLORS.bg,
                         borderRadius: 0,
                         border: 'none'
                       }}
@@ -210,7 +211,7 @@ const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
               ))}
             </Box>
 
-            <Box sx={{ p: 2, bgcolor: '#141414', borderTop: '1px solid #2A2A2A' }}>
+            <Box sx={{ p: 2, bgcolor: COLORS.surface, borderTop: `1px solid ${COLORS.border}` }}>
               <Box sx={{ display: 'flex', gap: 1 }}>
                 <TextField
                   fullWidth
@@ -222,16 +223,16 @@ const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
                   disabled={isSending}
                   InputProps={{
                     disableUnderline: true,
-                    sx: { color: '#D4FF00', fontSize: '0.85rem', fontFamily: '"Roboto Mono", monospace', bgcolor: '#0A0A0A', p: '8px 12px', borderRadius: 0, border: '1px solid #2A2A2A' }
+                    sx: { color: COLORS.info, fontSize: '0.85rem', fontFamily: '"Roboto Mono", monospace', bgcolor: COLORS.surface, p: '8px 12px', borderRadius: 0, border: `1px solid ${COLORS.border}` }
                   }}
                 />
                 <IconButton
                   onClick={handleSendMessage}
                   disabled={isSending}
                   sx={{
-                    bgcolor: '#D4FF00',
-                    color: '#000',
-                    '&:hover': { bgcolor: '#b8de00' },
+                    bgcolor: COLORS.info,
+                    color: COLORS.bg,
+                    '&:hover': { bgcolor: COLORS.info },
                     borderRadius: 0,
                     width: 40,
                     height: 40
@@ -253,9 +254,9 @@ const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
           right: isOpen ? 30 : -25,
           width: 65,
           height: 60,
-          bgcolor: '#0A0A0A',
-          border: '1px solid #D4FF00',
-          borderRight: isOpen ? '1px solid #D4FF00' : 'none',
+          bgcolor: COLORS.surface,
+          border: `1px solid ${COLORS.info}`,
+          borderRight: isOpen ? `1px solid ${COLORS.info}` : 'none',
           borderRadius: isOpen ? 0 : '10px 0 0 10px',
           display: 'flex',
           alignItems: 'center',
@@ -263,19 +264,19 @@ const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
           pl: isOpen ? 0 : 1.5,
           cursor: 'pointer',
           zIndex: 9999,
-          boxShadow: isOpen ? '0 0 15px rgba(212, 255, 0, 0.2)' : '-4px 4px 15px rgba(0,0,0,0.5)',
+          boxShadow: isOpen ? '0 0 15px rgba(88, 166, 255, 0.25)' : '-4px 4px 15px rgba(0,0,0,0.5)',
           transition: 'all 0.3s ease',
           '&:hover': {
             right: 0,
-            bgcolor: '#141414',
-            boxShadow: '0 0 15px rgba(212, 255, 0, 0.4)'
+            bgcolor: COLORS.surface,
+            boxShadow: '0 0 15px rgba(88, 166, 255, 0.5)'
           }
         }}
       >
         {isOpen ? (
-          <CloseIcon sx={{ color: '#D4FF00', fontSize: 28 }} />
+          <CloseIcon sx={{ color: COLORS.info, fontSize: 28 }} />
         ) : (
-          <SmartToyIcon sx={{ color: '#D4FF00', fontSize: 32 }} />
+          <SmartToyIcon sx={{ color: COLORS.info, fontSize: 32 }} />
         )}
       </Box>
 
