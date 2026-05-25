@@ -5,6 +5,7 @@ import RouterIcon from '@mui/icons-material/Router';
 import SecurityIcon from '@mui/icons-material/Security';
 import DnsIcon from '@mui/icons-material/Dns';
 import { fetchDevices } from '../services/api';
+import { COLORS } from '../theme/colors';
 
 const getIcon = (type) => {
   switch (type) {
@@ -17,11 +18,11 @@ const getIcon = (type) => {
 
 const getStatusStyle = (status) => {
   switch (status) {
-    case 'Healthy': return { color: '#D4FF00', borderColor: '#D4FF00' };
-    case 'Event': return { color: '#888888', borderColor: '#888888' };
-    case 'Incident': return { color: '#FFA500', borderColor: '#FFA500' };
-    case 'Alarm': return { color: '#FF003C', borderColor: '#FF003C' };
-    default: return { color: '#FFFFFF', borderColor: '#2A2A2A' };
+    case 'Healthy':  return { color: COLORS.ok,        borderColor: COLORS.ok };
+    case 'Event':    return { color: COLORS.textMuted, borderColor: COLORS.textMuted };
+    case 'Incident': return { color: COLORS.warn,      borderColor: COLORS.warn };
+    case 'Alarm':    return { color: COLORS.critical,  borderColor: COLORS.critical };
+    default:         return { color: COLORS.text,      borderColor: COLORS.border };
   }
 };
 
@@ -53,7 +54,7 @@ const DeviceList = ({ showOnlyIssues = false, refreshMs = 5000 }) => {
     return (
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
         {[1, 2, 3, 4].map((i) => (
-          <Skeleton key={i} variant="rectangular" height={60} sx={{ borderRadius: 0, bgcolor: '#141414' }} />
+          <Skeleton key={i} variant="rectangular" height={60} sx={{ borderRadius: 0, bgcolor: COLORS.surface }} />
         ))}
       </Box>
     );
@@ -83,15 +84,15 @@ const DeviceList = ({ showOnlyIssues = false, refreshMs = 5000 }) => {
               sx={{
                 mb: 1,
                 borderRadius: 0,
-                border: '1px solid #2A2A2A',
-                background: '#141414',
+                border: `1px solid ${COLORS.border}`,
+                background: COLORS.surface,
                 transition: 'none',
                 '&:hover': {
-                  background: 'rgba(212, 255, 0, 0.02)',
-                  borderColor: '#D4FF00',
+                  background: 'rgba(88, 166, 255, 0.06)',
+                  borderColor: COLORS.info,
                   '& .MuiAvatar-root': {
-                    color: '#D4FF00',
-                    borderColor: '#D4FF00'
+                    color: COLORS.info,
+                    borderColor: COLORS.info
                   }
                 }
               }}
@@ -100,9 +101,9 @@ const DeviceList = ({ showOnlyIssues = false, refreshMs = 5000 }) => {
                 <Avatar
                   variant="square"
                   sx={{
-                    bgcolor: '#0D0D0D',
-                    color: '#888888',
-                    border: '1px solid #2A2A2A',
+                    bgcolor: COLORS.surface,
+                    color: COLORS.textMuted,
+                    border: `1px solid ${COLORS.border}`,
                     width: 36,
                     height: 36
                   }}
@@ -113,19 +114,19 @@ const DeviceList = ({ showOnlyIssues = false, refreshMs = 5000 }) => {
               <ListItemText
                 disableTypography
                 primary={
-                  <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.85rem', color: '#FFFFFF', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                  <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.85rem', color: COLORS.text, textTransform: 'uppercase', letterSpacing: '1px' }}>
                     {device.name}
                   </Typography>
                 }
                 secondary={
                   <Box component="span" sx={{ display: 'flex', alignItems: 'center', gap: 1.5, mt: 0.5 }}>
-                    <Typography component="span" sx={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', color: '#888888' }}>
+                    <Typography component="span" sx={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', color: COLORS.textMuted }}>
                       {device.ip}
                     </Typography>
-                    <Typography component="span" sx={{ color: '#2A2A2A', fontSize: '0.75rem' }}>
+                    <Typography component="span" sx={{ color: COLORS.border, fontSize: '0.75rem' }}>
                       |
                     </Typography>
-                    <Typography component="span" sx={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', color: '#888888', textTransform: 'uppercase', letterSpacing: '1px' }}>
+                    <Typography component="span" sx={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', color: COLORS.textMuted, textTransform: 'uppercase', letterSpacing: '1px' }}>
                       {device.type}
                     </Typography>
                   </Box>

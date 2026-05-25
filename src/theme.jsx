@@ -13,7 +13,7 @@ const terminalTheme = createTheme({
     },
     background: {
       default: '#050505',
-      paper: '#0A0A0A',
+      paper: '#0F1419',
     },
     text: {
       primary: '#EAEAEA',

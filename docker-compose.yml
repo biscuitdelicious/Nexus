@@ -4,9 +4,9 @@ services:
     container_name: ${COMPOSE_PROJECT_NAME:-nexus}-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${POSTGRES_USER:-postgres}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      POSTGRES_DB: ${POSTGRES_DB:-nexus}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "${POSTGRES_EXTERNAL_PORT:-5433}:5432"
     volumes:
@@ -14,7 +14,7 @@ services:
       - ./migrations:/docker-entrypoint-initdb.d:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-nexus}"]
-      interval: 5s
+      interval: 60s
       timeout: 5s
       retries: 5
     networks:
@@ -30,16 +30,32 @@ services:
       - .env
     environment:
       DB_HOST: postgres
-      DB_PORT: ${DB_PORT:-5432}
-      DB_USER: ${POSTGRES_USER:-postgres}
-      DB_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
-      DB_NAME: ${POSTGRES_DB:-nexus}
-      SERVER_PORT: ${SERVER_PORT:-8080}
+      DB_PORT: ${DB_PORT}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: ${DB_NAME}
+      SERVER_PORT: ${SERVER_PORT}
     ports:
       - "${API_EXTERNAL_PORT:-8080}:${SERVER_PORT:-8080}"
     depends_on:
       postgres:
         condition: service_healthy
+    networks:
+      - nexus_net
+
+  simulator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: ${COMPOSE_PROJECT_NAME:-nexus}-simulator
+    restart: unless-stopped
+    command: ["/app/simulator"]
+    environment:
+      API_BASE_URL: http://api:8080
+      INTERVAL_SEC: "3"
+    depends_on:
+      api:
+        condition: service_started
     networks:
       - nexus_net
 

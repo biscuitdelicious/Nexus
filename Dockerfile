@@ -11,6 +11,7 @@ RUN go mod download
 # Copy source and build
 COPY . .
 RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/api ./cmd/api
+RUN CGO_ENABLED=0 GOOS=linux go build -o /app/bin/simulator ./cmd/simulator
 
 # Stage 2: minimal runtime image
 FROM alpine:3.20
@@ -20,6 +21,7 @@ RUN apk --no-cache add ca-certificates
 
 WORKDIR /app
 COPY --from=builder /app/bin/api /app/api
+COPY --from=builder /app/bin/simulator /app/simulator
 
 EXPOSE 8080
 

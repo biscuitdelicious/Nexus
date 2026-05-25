@@ -14,7 +14,6 @@ type Event struct {
 	Message string `gorm:"not null"`
 	CreatedAt time.Time `gorm:"not null;autoCreateTime"`
 	UpdatedAt *time.Time
-	ResolvedAt *time.Time 
-
-
+	ResolvedAt *time.Time
+	SnoozedUntil *time.Time
 }

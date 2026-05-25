@@ -10,6 +10,7 @@ type Sensor struct {
 	User User `gorm:"foreignKey:UpdatedUserID"`
 	SensorNo string `gorm:"unique"`
 	Name string
+	Unit string `gorm:"not null;default:''"`
 	IsObsolete bool `gorm:"not null;default:false"`
 	LowerLimit *float64 `gorm:"type:decimal(10, 2)"`
 	UpperLimit *float64 `gorm:"type:decimal(10, 2)"`

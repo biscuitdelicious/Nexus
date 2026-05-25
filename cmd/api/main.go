@@ -35,6 +35,7 @@ func main() {
 	eventRepo := repository.NewEventRepository(db)
 	ackRepo := repository.NewAcknowledgementRepository(db)
 	readingRepo := repository.NewReadingRepository(db)
+	sensorReadingRepo := repository.NewSensorReadingRepository(db)
 
 	locationHandler := handler.NewLocationHandler(locationRepo)
 	sensorHandler := handler.NewSensorHandler(sensorRepo)
@@ -43,6 +44,7 @@ func main() {
 	ackHandler := handler.NewAcknowledgementHandler(ackRepo)
 	webhookHandler := handler.NewWebhookHandler(eventRepo, sensorRepo)
 	readingHandler := handler.NewReadingHandler(readingRepo)
+	sensorReadingHandler := handler.NewSensorReadingHandler(sensorReadingRepo)
 
 	r := chi.NewRouter()
 
@@ -68,18 +70,20 @@ func main() {
 
 	r.Get("/events", eventHandler.GetAll)
 	r.Get("/events/open", eventHandler.GetOpen)
+	r.Get("/events/frequency", eventHandler.Frequency)
 	r.Get("/events/{id}", eventHandler.GetByID)
 	r.Post("/events", eventHandler.Create)
 	r.Patch("/events/{id}", eventHandler.UpdateStatus)
+	r.Post("/events/{id}/snooze", eventHandler.Snooze)
 
 	r.Get("/events/{eventId}/acknowledgements", ackHandler.GetByEventID)
 	r.Post("/acknowledgements", ackHandler.Create)
 
 	r.Post("/webhook/grafana", webhookHandler.HandleGrafana)
 
-	r.Post("/readings", readingHandler.Create)
-	r.Get("/readings", readingHandler.GetRecent)
-	r.Get("/readings/latest", readingHandler.Latest)
+	r.Post("/readings", sensorReadingHandler.Create)
+	r.Get("/readings", sensorReadingHandler.GetRecent)
+	r.Get("/readings/latest", sensorReadingHandler.Latest)
 
 	// Allow React to call this API
 	c := cors.New(cors.Options{

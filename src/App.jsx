@@ -18,7 +18,7 @@ function App() {
   const page = (() => {
     switch (activePage) {
       case 'Dashboard':
-        return <Dashboard />;
+        return <Dashboard setActivePage={setActivePage} />;
       case 'Devices':
         return <Devices />;
       case 'Observability':
