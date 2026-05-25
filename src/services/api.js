@@ -1,3 +1,5 @@
+import { COLORS } from '../theme/colors';
+
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
 const handleResponse = async (response) => {
@@ -49,7 +51,7 @@ const formatClockLabel = (iso) => {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return '';
     const hh = String(d.getHours()).padStart(2, '0');
-    const mm = String(d.getMinutes()).padStart(2, '0');
+    const mxm = String(d.getMinutes()).padStart(2, '0');
     const ss = String(d.getSeconds()).padStart(2, '0');
     return `${hh}:${mm}:${ss}`;
   } catch {
@@ -115,6 +117,47 @@ export const fetchDevices = async () => {
   }
 };
 
+export const fetchLocations = async () => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/locations`);
+    const parsed = await handleResponse(res);
+    return (parsed || []).map((loc) => ({
+      id: loc.LocationID,
+      name: loc.Name,
+    }));
+  } catch (err) {
+    console.error('Fetch locations failed', err);
+    return [];
+  }
+};
+
+export const createSensor = async ({ name, sensorNo, locationId, unit, lowerLimit, upperLimit }) => {
+  try {
+    const body = {
+      Name: name,
+      SensorNo: sensorNo,
+      LocationID: Number(locationId),
+      Unit: unit,
+      UpdatedUserID: 1, // TODO: Make it so it's updated based on the logged user
+      LowerLimit: lowerLimit !== '' && lowerLimit != null ? Number(lowerLimit) : null,
+      UpperLimit: upperLimit !== '' && upperLimit != null ? Number(upperLimit) : null,
+    };
+    const res = await fetch(`${API_BASE_URL}/sensors`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+    });
+    if (!res.ok) {
+      const msg = await res.text().catch(() => '');
+      return { ok: false, message: msg || `HTTP ${res.status}` };
+    }
+    const created = await res.json();
+    return { ok: true, sensor: created };
+  } catch (err) {
+    return { ok: false, message: err?.message || 'Network error' };
+  }
+};
+
 
 export const fetchTickets = async () => {
   try {
@@ -132,6 +175,25 @@ export const fetchTickets = async () => {
   } catch (err) {
     console.error('Fetch tickets failed', err);
     return [];
+  }
+};
+
+// Snoozed events dissapear from the open tickets till the timer expires
+export const snoozeTicket = async (ticketId, duration) => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/events/${ticketId}/snooze`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ duration }),
+    });
+    if (!res.ok) {
+      const msg = await res.text().catch(() => '');
+      return { ok: false, message: msg || `HTTP ${res.status}` };
+    }
+    const data = await res.json();
+    return { ok: true, ...data };
+  } catch (err) {
+    return { ok: false, message: err?.message || 'Network error' };
   }
 };
 
@@ -204,6 +266,23 @@ export const fetchLatestReadings = async () => {
   }
 };
 
+// Top-N sensors by alarm count in window. Backend aggregates.
+// range: Go duration string ('30m' | '1h' | '6h' | '24h' | '168h').
+export const fetchAlarmFrequency = async ({ range = '1h', limit = 5 } = {}) => {
+  try {
+    const qs = new URLSearchParams({ range, limit: String(limit) });
+    const res = await fetch(`${API_BASE_URL}/events/frequency?${qs.toString()}`);
+    const rows = await handleResponse(res);
+    if (!Array.isArray(rows)) return [];
+    const data = rows.map((r) => ({ name: r.source, count: Number(r.count) }));
+    if (data.length === 0) return [{ name: 'SYSTEM_STABLE', count: 0 }];
+    return data;
+  } catch (err) {
+    console.error('fetchAlarmFrequency failed', err);
+    return [{ name: 'SYSTEM_STABLE', count: 0 }];
+  }
+};
+
 
 // TODO: make the sensor based on a variable given
 export const fetchChartDataStatus = async ({ sensorId = 2, limit = 60, range = '' } = {}) => {
@@ -247,15 +326,15 @@ export const fetchSeverityData = async () => {
       counts[key] = (counts[key] || 0) + 1;
     });
     return [
-      { name: 'ALARM', value: counts.ALARM || 0, color: '#FF003C' },
-      { name: 'INCIDENT', value: counts.INCIDENT || 0, color: '#FFA500' },
-      { name: 'EVENT', value: counts.EVENT || 0, color: '#888888' },
+      { name: 'ALARM',    value: counts.ALARM || 0,    color: COLORS.critical },
+      { name: 'INCIDENT', value: counts.INCIDENT || 0, color: COLORS.warn },
+      { name: 'EVENT',    value: counts.EVENT || 0,    color: COLORS.textMuted },
     ];
   } catch {
     return [
-      { name: 'ALARM', value: 0, color: '#FF003C' },
-      { name: 'INCIDENT', value: 0, color: '#FFA500' },
-      { name: 'EVENT', value: 0, color: '#888888' },
+      { name: 'ALARM',    value: 0, color: COLORS.critical },
+      { name: 'INCIDENT', value: 0, color: COLORS.warn },
+      { name: 'EVENT',    value: 0, color: COLORS.textMuted },
     ];
   }
 };

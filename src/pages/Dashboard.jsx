@@ -7,8 +7,9 @@ import SeverityPieChart from '../components/SeverityPieChart';
 import ResolutionBarChart from '../components/ResolutionBarChart';
 import AlarmFrequencyChart from '../components/AlarmFrequencyChart';
 import { fetchDashboardMetrics } from '../services/api';
+import { COLORS } from '../theme/colors';
 
-const Dashboard = () => {
+const Dashboard = ({ setActivePage }) => {
   const [metrics, setMetrics] = useState([]);
   const [loading, setLoading] = useState(true);
   const [chartRange, setChartRange] = useState('1h');
@@ -35,10 +36,10 @@ const Dashboard = () => {
 
   const paperStyle = {
     borderRadius: 0,
-    bgcolor: '#141414',
-    borderColor: '#2A2A2A',
-    p: 1,
-    height: '300px',
+    bgcolor: COLORS.surface,
+    borderColor: COLORS.border,
+    p: .6,
+    height: '100%',
     display: 'flex',
     flexDirection: 'column',
     overflow: 'hidden'
@@ -46,95 +47,83 @@ const Dashboard = () => {
 
   return (
     <Fade in={true} timeout={800}>
-      <Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 2 }}>
+      <Box sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column', gap: 1, overflow: 'hidden' }}>
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
           <Box
             sx={{
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              p: 1.5,
+              p: 0.75,
               borderRadius: 0,
-              background: '#141414',
-              border: '1px solid #2A2A2A',
+              background: COLORS.surface,
+              border: `1px solid ${COLORS.border}`,
             }}
           >
-            <DashboardIcon sx={{ color: '#D4FF00', fontSize: 28 }} />
+            <DashboardIcon sx={{ color: COLORS.info, fontSize: 20 }} />
           </Box>
-          <Box>
-            <Typography
-              variant="h4"
-              sx={{
-                color: '#FFFFFF',
-                fontFamily: '"Georgia", serif',
-                fontStyle: 'italic',
-                fontWeight: 'normal',
-              }}
-            >
-              Incident Control Panel
-            </Typography>
-          </Box>
+          <Typography
+            variant="h6"
+            sx={{
+              color: COLORS.text,
+              fontFamily: '"Georgia", serif',
+              fontStyle: 'italic',
+              fontWeight: 'normal',
+            }}
+          >
+            Incident Control Panel
+          </Typography>
         </Box>
 
-        <Typography
-          variant="body1"
-          sx={{
-            mb: 4,
-            ml: 8.5,
-            color: '#888888',
-            fontFamily: '"Roboto Mono", monospace',
-            fontSize: '0.85rem',
-            textTransform: 'uppercase',
-            letterSpacing: '1px'
-          }}
-        >
-          Overview of system status, active incidents, and resolution metrics.
-        </Typography>
-
-        <Grid container spacing={2} sx={{ mb: 3 }}>
+        <Grid container spacing={1} sx={{ flexShrink: 0 }}>
           {loading
             ? [1, 2, 3, 4].map((skeletonId) => (
                 <Grid size={{ xs: 12, sm: 6, md: 3 }} key={skeletonId}>
-                  <Skeleton variant="rectangular" height={100} animation="wave" sx={{ borderRadius: 0, bgcolor: '#141414' }} />
+                  <Skeleton variant="rectangular" height={60} animation="wave" sx={{ borderRadius: 0, bgcolor: COLORS.surface }} />
                 </Grid>
               ))
-            : metrics.map((metric) => (
+            : metrics.map((metric) => {
+                const clickable = metric.title === 'OPEN TICKETS' && typeof setActivePage === 'function';
+                return (
                 <Grid size={{ xs: 12, sm: 6, md: 3 }} key={metric.id}>
                   <Card
                     variant="outlined"
+                    onClick={clickable ? () => setActivePage('Tickets') : undefined}
                     sx={{
                       borderRadius: 0,
-                      bgcolor: '#141414',
-                      borderColor: '#2A2A2A',
-                      borderLeft: '4px solid #2A2A2A',
+                      bgcolor: COLORS.surface,
+                      borderColor: COLORS.border,
+                      borderLeft: `4px solid ${COLORS.border}`,
                       height: '100%',
                       transition: 'none',
+                      cursor: clickable ? 'pointer' : 'default',
                       '&:hover': {
-                        borderColor: '#444444',
-                        borderLeft: '4px solid #D4FF00',
-                        bgcolor: 'rgba(212, 255, 0, 0.02)'
+                        borderColor: COLORS.textMuted,
+                        borderLeft: `4px solid ${COLORS.info}`,
+                        bgcolor: 'rgba(88, 166, 255, 0.05)'
                       }
                     }}
                   >
-                    <CardContent>
+                    <CardContent sx={{ p: 1.25, '&:last-child': { pb: 1.25 } }}>
                       <Typography
                         sx={{
-                          color: '#888888',
+                          color: COLORS.textMuted,
                           fontFamily: '"Roboto Mono", monospace',
-                          fontSize: '0.70rem',
+                          fontSize: '0.65rem',
                           textTransform: 'uppercase',
                           letterSpacing: '1px',
-                          mb: 1
+                          mb: 0.25
                         }}
                       >
                         {metric.title}
                       </Typography>
                       <Typography
-                        variant="h4"
                         sx={{
-                          color: '#D4FF00',
+                          color: COLORS.info,
                           fontFamily: '"Roboto Mono", monospace',
-                          fontWeight: 700
+                          fontWeight: 700,
+                          fontSize: '1.4rem',
+                          lineHeight: 1.1,
                         }}
                       >
                         {metric.value}
@@ -142,24 +131,26 @@ const Dashboard = () => {
                     </CardContent>
                   </Card>
                 </Grid>
-              ))}
+                );
+              })}
         </Grid>
 
-        <Grid container spacing={3} alignItems="stretch" sx={{ mb: 3 }}>
-          <Grid size={{ xs: 12, md: 8 }} sx={{ minWidth: 0 }}>
+        <Grid container spacing={1} alignItems="stretch" sx={{ flex: '1 1 0', minHeight: 0 }}>
+          <Grid size={{ xs: 12, md: 8 }} sx={{ minWidth: 0, height: '100%' }}>
             <Box sx={{ height: '100%', width: '100%', minWidth: 0 }}>
               <ChartWidget range={chartRange} onRangeChange={setChartRange} />
             </Box>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 4 }}>
-            <Paper variant="outlined" sx={{ ...paperStyle, height: '400px' }}>
-              <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
+          <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%' }}>
+            <Paper variant="outlined" sx={paperStyle}>
+              <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '0.95rem', mb: 0.5, flexShrink: 0 }}>
                 Active Incidents
               </Typography>
               <Box
                 sx={{
                   flexGrow: 1,
+                  minHeight: 0,
                   overflow: 'auto',
                   '& .MuiPaper-root': {
                     background: 'transparent',
@@ -178,10 +169,10 @@ const Dashboard = () => {
           </Grid>
         </Grid>
 
-        <Grid container spacing={3} alignItems="stretch" sx={{ mb: 3 }}>
-          <Grid size={{ xs: 12, md: 4 }}>
+        <Grid container spacing={1} alignItems="stretch" sx={{ flex: '1 1 0', minHeight: 0 }}>
+          <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%' }}>
             <Paper variant="outlined" sx={paperStyle}>
-              <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
+              <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '0.95rem', mb: 0.5, flexShrink: 1 }}>
                 Total Tickets
               </Typography>
               <Box sx={{ flexGrow: 1, minHeight: 0 }}>
@@ -190,9 +181,9 @@ const Dashboard = () => {
             </Paper>
           </Grid>
 
-          <Grid size={{ xs: 12, md: 8 }}>
+          <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%' }}>
             <Paper variant="outlined" sx={paperStyle}>
-              <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
+              <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '0.95rem', mb: 0.5, flexShrink: 1 }}>
                 Alarms Frequency
               </Typography>
               <Box sx={{ flexGrow: 1, minHeight: 0 }}>
@@ -200,13 +191,11 @@ const Dashboard = () => {
               </Box>
             </Paper>
           </Grid>
-        </Grid>
 
-        <Grid container spacing={3} alignItems="stretch">
-          <Grid size={{ xs: 12 }}>
+          <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%' }}>
             <Paper variant="outlined" sx={paperStyle}>
-              <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', mb: 2 }}>
-                Average Resolution Time
+              <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '0.95rem', mb: 0.5, flexShrink: 1 }}>
+                Avg Resolution
               </Typography>
               <Box sx={{ flexGrow: 1, minHeight: 0 }}>
                 <ResolutionBarChart />

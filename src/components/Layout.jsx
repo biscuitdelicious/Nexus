@@ -48,8 +48,9 @@ import {
   Circle as CircleIcon
 } from '@mui/icons-material';
 import { fetchDashboardMetrics, fetchLiveFeed } from '../services/api';
+import { COLORS } from '../theme/colors';
 
-const headerHeight = 80;
+const headerHeight = 40;
 
 const NOTIF_STORAGE_KEY = 'nexus.notifications.readIds.v1';
 
@@ -171,12 +172,12 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
   };
 
   const getLogColor = (type) => {
-    if (!type) return '#FFFFFF';
+    if (!type) return COLORS.text;
     switch (type.toUpperCase()) {
-      case 'ALARM': return '#FF003C';
-      case 'INCIDENT': return '#FFA500';
-      case 'EVENT': return '#888888';
-      default: return '#FFFFFF';
+      case 'ALARM':    return COLORS.critical;
+      case 'INCIDENT': return COLORS.warn;
+      case 'EVENT':    return COLORS.textMuted;
+      default:         return COLORS.text;
     }
   };
 
@@ -220,16 +221,16 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
   const memPct = Math.min((memNum / 16) * 100, 100);
 
   const drawerContent = (
-    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'row', backgroundColor: '#0D0D0D', position: 'relative', overflow: 'hidden' }}>
+    <Box sx={{ height: '100%', display: 'flex', flexDirection: 'row', backgroundColor: COLORS.surface, position: 'relative', overflow: 'hidden' }}>
 
       <Box sx={{ width: isCollapsed ? 80 : 240, flexShrink: 0, display: 'flex', flexDirection: 'column', transition: transitionStyle }}>
-        <Box sx={{ height: headerHeight, display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between', px: isCollapsed ? 0 : 3, borderBottom: '0px solid #2A2A2A' }}>
+        <Box sx={{ height: headerHeight, display: 'flex', alignItems: 'center', justifyContent: isCollapsed ? 'center' : 'space-between', px: isCollapsed ? 0 : 3, borderBottom: `0px solid ${COLORS.border}` }}>
           {!isCollapsed && (
             <Typography
               variant="h5"
               noWrap
               sx={{
-                color: '#D4FF00',
+                color: COLORS.accentNeon,
                 fontFamily: '"Roboto Mono", monospace',
                 fontWeight: 700,
                 letterSpacing: '-1px'
@@ -238,7 +239,7 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
               nexus.
             </Typography>
           )}
-          <IconButton onClick={toggleCollapse} sx={{ color: '#D4FF00', borderRadius: 0, '&:hover': { backgroundColor: 'rgba(212, 255, 0, 0.1)' } }}>
+          <IconButton onClick={toggleCollapse} sx={{ color: COLORS.accentNeon, borderRadius: 0, '&:hover': { backgroundColor: 'rgba(212, 255, 0, 0.1)' } }}>
             {isCollapsed ? <ChevronRightIcon /> : <ChevronLeftIcon />}
           </IconButton>
         </Box>
@@ -257,14 +258,14 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                 transition: 'none',
                 '&.Mui-selected': {
                   backgroundColor: 'transparent',
-                  borderLeft: '2px solid #D4FF00',
-                  '& .MuiListItemIcon-root': { color: '#D4FF00' },
-                  '& .MuiListItemText-primary': { color: '#D4FF00' }
+                  borderLeft: `2px solid ${COLORS.accentNeon}`,
+                  '& .MuiListItemIcon-root': { color: COLORS.accentNeon },
+                  '& .MuiListItemText-primary': { color: COLORS.accentNeon }
                 },
                 '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
               }}
             >
-              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: '#888888', mr: isCollapsed ? 0 : 2 }}><DashboardIcon fontSize="small" /></ListItemIcon>
+              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: COLORS.textMuted, mr: isCollapsed ? 0 : 2 }}><DashboardIcon fontSize="small" /></ListItemIcon>
               {!isCollapsed && (
                 <ListItemText
                   primary={activePage === 'Dashboard' ? '>_ DASHBOARD' : 'DASHBOARD'}
@@ -287,14 +288,14 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                 transition: 'none',
                 '&.Mui-selected': {
                   backgroundColor: 'transparent',
-                  borderLeft: '2px solid #D4FF00',
-                  '& .MuiListItemIcon-root': { color: '#D4FF00' },
-                  '& .MuiListItemText-primary': { color: '#D4FF00' }
+                  borderLeft: `2px solid ${COLORS.accentNeon}`,
+                  '& .MuiListItemIcon-root': { color: COLORS.accentNeon },
+                  '& .MuiListItemText-primary': { color: COLORS.accentNeon }
                 },
                 '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
               }}
             >
-              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: '#888888', mr: isCollapsed ? 0 : 2 }}><DnsIcon fontSize="small" /></ListItemIcon>
+              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: COLORS.textMuted, mr: isCollapsed ? 0 : 2 }}><DnsIcon fontSize="small" /></ListItemIcon>
               {!isCollapsed && (
                 <ListItemText
                   primary={activePage === 'Devices' ? '>_ DEVICES' : 'DEVICES'}
@@ -317,14 +318,14 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                 transition: 'none',
                 '&.Mui-selected': {
                   backgroundColor: 'transparent',
-                  borderLeft: '2px solid #D4FF00',
-                  '& .MuiListItemIcon-root': { color: '#D4FF00' },
-                  '& .MuiListItemText-primary': { color: '#D4FF00' }
+                  borderLeft: `2px solid ${COLORS.accentNeon}`,
+                  '& .MuiListItemIcon-root': { color: COLORS.accentNeon },
+                  '& .MuiListItemText-primary': { color: COLORS.accentNeon }
                 },
                 '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
               }}
             >
-              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: '#888888', mr: isCollapsed ? 0 : 2 }}><QueryStatsIcon fontSize="small" /></ListItemIcon>
+              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: COLORS.textMuted, mr: isCollapsed ? 0 : 2 }}><QueryStatsIcon fontSize="small" /></ListItemIcon>
               {!isCollapsed && (
                 <ListItemText
                   primary={activePage === 'Observability' ? '>_ METRICS' : 'METRICS'}
@@ -347,14 +348,14 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                 transition: 'none',
                 '&.Mui-selected': {
                   backgroundColor: 'transparent',
-                  borderLeft: '2px solid #D4FF00',
-                  '& .MuiListItemIcon-root': { color: '#D4FF00' },
-                  '& .MuiListItemText-primary': { color: '#D4FF00' }
+                  borderLeft: `2px solid ${COLORS.accentNeon}`,
+                  '& .MuiListItemIcon-root': { color: COLORS.accentNeon },
+                  '& .MuiListItemText-primary': { color: COLORS.accentNeon }
                 },
                 '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
               }}
             >
-              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: '#888888', mr: isCollapsed ? 0 : 2 }}><AssignmentIcon fontSize="small" /></ListItemIcon>
+              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: COLORS.textMuted, mr: isCollapsed ? 0 : 2 }}><AssignmentIcon fontSize="small" /></ListItemIcon>
               {!isCollapsed && (
                 <ListItemText
                   primary={activePage === 'Tickets' ? '>_ TICKETS' : 'TICKETS'}
@@ -377,14 +378,14 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                 transition: 'none',
                 '&.Mui-selected': {
                   backgroundColor: 'transparent',
-                  borderLeft: '2px solid #D4FF00',
-                  '& .MuiListItemIcon-root': { color: '#D4FF00' },
-                  '& .MuiListItemText-primary': { color: '#D4FF00' }
+                  borderLeft: `2px solid ${COLORS.accentNeon}`,
+                  '& .MuiListItemIcon-root': { color: COLORS.accentNeon },
+                  '& .MuiListItemText-primary': { color: COLORS.accentNeon }
                 },
                 '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
               }}
             >
-              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: '#888888', mr: isCollapsed ? 0 : 2 }}><ForumIcon fontSize="small" /></ListItemIcon>
+              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: COLORS.textMuted, mr: isCollapsed ? 0 : 2 }}><ForumIcon fontSize="small" /></ListItemIcon>
               {!isCollapsed && (
                 <ListItemText
                   primary={activePage === 'Discussions' ? '>_ DISCUSSIONS' : 'DISCUSSIONS'}
@@ -407,14 +408,14 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                 transition: 'none',
                 '&.Mui-selected': {
                   backgroundColor: 'transparent',
-                  borderLeft: '2px solid #D4FF00',
-                  '& .MuiListItemIcon-root': { color: '#D4FF00' },
-                  '& .MuiListItemText-primary': { color: '#D4FF00' }
+                  borderLeft: `2px solid ${COLORS.accentNeon}`,
+                  '& .MuiListItemIcon-root': { color: COLORS.accentNeon },
+                  '& .MuiListItemText-primary': { color: COLORS.accentNeon }
                 },
                 '&:hover': { backgroundColor: 'rgba(255,255,255,0.02)' }
               }}
             >
-              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: '#888888', mr: isCollapsed ? 0 : 2 }}><SmartToyIcon fontSize="small" /></ListItemIcon>
+              <ListItemIcon sx={{ minWidth: 40, justifyContent: 'center', color: COLORS.textMuted, mr: isCollapsed ? 0 : 2 }}><SmartToyIcon fontSize="small" /></ListItemIcon>
               {!isCollapsed && (
                 <ListItemText
                   primary={activePage === 'Chatbot' ? '>_ NEXUS BOT' : 'NEXUS BOT'}
@@ -427,11 +428,11 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
 
         {!isCollapsed && (
           <Box sx={{ p: 2, whiteSpace: 'nowrap' }}>
-            <Box sx={{ p: 1.5, borderRadius: 0, backgroundColor: '#141414', border: '1px solid #2A2A2A' }}>
-              <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 0.5 }}>
+            <Box sx={{ p: 1.5, borderRadius: 0, backgroundColor: COLORS.surface, border: `1px solid ${COLORS.border}` }}>
+              <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 0.5 }}>
                 Buffer State
               </Typography>
-              <Typography sx={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}>
+              <Typography sx={{ color: COLORS.accentNeon, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}>
                 OPTIMAL
               </Typography>
             </Box>
@@ -441,58 +442,58 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
 
       {showExtendedPanel && (
         <Fade in={true} timeout={400}>
-          <Box sx={{ flexGrow: 1, borderLeft: '1px solid #2A2A2A', backgroundColor: '#0a0a0a', p: 3, display: 'flex', flexDirection: 'column', gap: 4, overflowY: 'auto', minWidth: 150 }}>
+          <Box sx={{ flexGrow: 1, borderLeft: `1px solid ${COLORS.border}`, backgroundColor: COLORS.surface, p: 3, display: 'flex', flexDirection: 'column', gap: 4, overflowY: 'auto', minWidth: 150 }}>
             <Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
-                <TerminalIcon sx={{ color: '#888', fontSize: 18 }} />
-                <Typography sx={{ color: '#FFF', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.85rem', letterSpacing: '1px' }}>
+                <TerminalIcon sx={{ color: COLORS.textMuted, fontSize: 18 }} />
+                <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.85rem', letterSpacing: '1px' }}>
                   GLOBAL_TELEMETRY
                 </Typography>
               </Box>
 
               {telemetryLoading ? (
                 <Box>
-                  <Skeleton variant="text" width="100%" height={24} sx={{ bgcolor: '#141414', mb: 1 }} />
-                  <Skeleton variant="rectangular" width="100%" height={4} sx={{ bgcolor: '#141414', mb: 3 }} />
-                  <Skeleton variant="text" width="100%" height={24} sx={{ bgcolor: '#141414', mb: 1 }} />
-                  <Skeleton variant="rectangular" width="100%" height={4} sx={{ bgcolor: '#141414' }} />
+                  <Skeleton variant="text" width="100%" height={24} sx={{ bgcolor: COLORS.surface, mb: 1 }} />
+                  <Skeleton variant="rectangular" width="100%" height={4} sx={{ bgcolor: COLORS.surface, mb: 3 }} />
+                  <Skeleton variant="text" width="100%" height={24} sx={{ bgcolor: COLORS.surface, mb: 1 }} />
+                  <Skeleton variant="rectangular" width="100%" height={4} sx={{ bgcolor: COLORS.surface }} />
                 </Box>
               ) : (
                 <>
                   <Box sx={{ mb: 3 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <SpeedIcon sx={{ color: '#D4FF00', fontSize: 14 }} />
-                        <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>CPU_AVG</Typography>
+                        <SpeedIcon sx={{ color: COLORS.accentNeon, fontSize: 14 }} />
+                        <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>CPU_AVG</Typography>
                       </Box>
-                      <Typography sx={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700 }}>{cpuMetric.value}</Typography>
+                      <Typography sx={{ color: COLORS.accentNeon, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700 }}>{cpuMetric.value}</Typography>
                     </Box>
-                    <LinearProgress variant="determinate" value={cpuVal} sx={{ height: 4, backgroundColor: '#141414', '& .MuiLinearProgress-bar': { backgroundColor: '#D4FF00' } }} />
+                    <LinearProgress variant="determinate" value={cpuVal} sx={{ height: 4, backgroundColor: COLORS.surface, '& .MuiLinearProgress-bar': { backgroundColor: COLORS.accentNeon } }} />
                   </Box>
 
                   <Box sx={{ mb: 3 }}>
                     <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
                       <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                        <MemoryIcon sx={{ color: '#FFA500', fontSize: 14 }} />
-                        <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>MEM_ALLOC</Typography>
+                        <MemoryIcon sx={{ color: COLORS.warn, fontSize: 14 }} />
+                        <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>MEM_ALLOC</Typography>
                       </Box>
-                      <Typography sx={{ color: '#FFA500', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700 }}>{memMetric.value}</Typography>
+                      <Typography sx={{ color: COLORS.warn, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700 }}>{memMetric.value}</Typography>
                     </Box>
-                    <LinearProgress variant="determinate" value={memPct} sx={{ height: 4, backgroundColor: '#141414', '& .MuiLinearProgress-bar': { backgroundColor: '#FFA500' } }} />
+                    <LinearProgress variant="determinate" value={memPct} sx={{ height: 4, backgroundColor: COLORS.surface, '& .MuiLinearProgress-bar': { backgroundColor: COLORS.warn } }} />
                   </Box>
                 </>
               )}
             </Box>
 
             <Box>
-              <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 2, borderBottom: '1px solid #2A2A2A', pb: 1 }}>
+              <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 2, borderBottom: `1px solid ${COLORS.border}`, pb: 1 }}>
                 Recent Logs
               </Typography>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1.5 }}>
                 {telemetryLoading ? (
                   <>
-                    <Skeleton variant="rectangular" width="100%" height={32} sx={{ bgcolor: '#141414', mb: 1 }} />
-                    <Skeleton variant="rectangular" width="100%" height={32} sx={{ bgcolor: '#141414' }} />
+                    <Skeleton variant="rectangular" width="100%" height={32} sx={{ bgcolor: COLORS.surface, mb: 1 }} />
+                    <Skeleton variant="rectangular" width="100%" height={32} sx={{ bgcolor: COLORS.surface }} />
                   </>
                 ) : (
                   logs.slice(0, 4).map((log) => (
@@ -500,7 +501,7 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                       <Typography sx={{ color: getLogColor(log.type), fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem', fontWeight: 700 }}>
                         [{log.type}]
                       </Typography>
-                      <Typography sx={{ color: '#FFF', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', whiteSpace: 'normal', lineHeight: 1.3 }}>
+                      <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', whiteSpace: 'normal', lineHeight: 1.3 }}>
                         {log.message}
                       </Typography>
                     </Box>
@@ -522,11 +523,11 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
             width: '4px',
             height: '100%',
             cursor: 'col-resize',
-            backgroundColor: isResizing ? '#D4FF00' : 'transparent',
+            backgroundColor: isResizing ? COLORS.accentNeon : 'transparent',
             transition: 'background-color 0.2s ease',
             zIndex: 10,
             '&:hover': {
-              backgroundColor: '#D4FF00'
+              backgroundColor: COLORS.accentNeon
             }
           }}
         />
@@ -535,7 +536,7 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
   );
 
   return (
-    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: '#0D0D0D', overflowX: 'hidden' }}>
+    <Box sx={{ display: 'flex', minHeight: '100vh', backgroundColor: COLORS.surface, overflowX: 'hidden' }}>
       <CssBaseline />
 
       <AppBar
@@ -544,10 +545,10 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
         sx={{
           width: { sm: `calc(100% - ${currentWidth}px)` },
           ml: { sm: `${currentWidth}px` },
-          backgroundColor: '#0D0D0D',
+          backgroundColor: COLORS.surface,
           height: headerHeight,
           justifyContent: 'center',
-          borderBottom: '1px solid #2A2A2A',
+          borderBottom: `1px solid ${COLORS.border}`,
           borderLeft: '0px',
           transition: transitionStyle
         }}
@@ -557,17 +558,17 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
             color="inherit"
             edge="start"
             onClick={handleDrawerToggle}
-            sx={{ mr: 2, display: { sm: 'none' }, color: '#D4FF00', borderRadius: 0 }}
+            sx={{ mr: 2, display: { sm: 'none' }, color: COLORS.accentNeon, borderRadius: 0 }}
           >
             <MenuIcon />
           </IconButton>
 
           <Box sx={{ display: { xs: 'flex', sm: 'none' }, alignItems: 'center' }}>
-            <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, color: '#D4FF00' }}>NEXUS</Typography>
+            <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontWeight: 700, color: COLORS.accentNeon }}>NEXUS</Typography>
           </Box>
 
           <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
-             <Typography sx={{ fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', color: '#FFFFFF' }}>
+             <Typography sx={{ fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', color: COLORS.text }}>
                 {activePage}
              </Typography>
           </Box>
@@ -577,12 +578,12 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
               onClick={() => handleNavClick('NOC Wall')}
               sx={{
                 borderRadius: 0,
-                border: activePage === 'NOC Wall' ? '1px solid #D4FF00' : '1px solid transparent',
+                border: activePage === 'NOC Wall' ? `1px solid ${COLORS.accentNeon}` : '1px solid transparent',
                 backgroundColor: activePage === 'NOC Wall' ? 'rgba(212, 255, 0, 0.05)' : 'transparent',
                 '&:hover': { backgroundColor: 'rgba(255,255,255,0.05)' }
               }}
             >
-              <GridViewIcon sx={{ fontSize: 22, color: activePage === 'NOC Wall' ? '#D4FF00' : '#888888' }} />
+              <GridViewIcon sx={{ fontSize: 22, color: activePage === 'NOC Wall' ? COLORS.accentNeon : COLORS.textMuted }} />
             </IconButton>
 
             <IconButton
@@ -593,15 +594,15 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                 badgeContent={unreadCount}
                 sx={{
                   '& .MuiBadge-badge': {
-                    backgroundColor: '#D4FF00',
-                    color: '#000000',
+                    backgroundColor: COLORS.accentNeon,
+                    color: COLORS.bg,
                     fontWeight: 700,
                     fontFamily: '"Roboto Mono", monospace',
                     borderRadius: 0
                   }
                 }}
               >
-                <NotificationsIcon sx={{ fontSize: 22, color: unreadCount > 0 ? '#D4FF00' : '#888888' }} />
+                <NotificationsIcon sx={{ fontSize: 22, color: unreadCount > 0 ? COLORS.accentNeon : COLORS.textMuted }} />
               </Badge>
             </IconButton>
 
@@ -617,18 +618,18 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                   width: { xs: 340, sm: 420 },
                   maxWidth: '92vw',
                   borderRadius: 0,
-                  bgcolor: '#0A0A0A',
-                  border: '1px solid #2A2A2A',
+                  bgcolor: COLORS.surface,
+                  border: `1px solid ${COLORS.border}`,
                   overflow: 'hidden'
                 }
               }}
             >
-              <Box sx={{ px: 2, py: 1.5, bgcolor: '#141414', borderBottom: '1px solid #2A2A2A', display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
+              <Box sx={{ px: 2, py: 1.5, bgcolor: COLORS.surface, borderBottom: `1px solid ${COLORS.border}`, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 1.5 }}>
                 <Box sx={{ display: 'flex', alignItems: 'baseline', gap: 1.5 }}>
-                  <Typography sx={{ color: '#FFF', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.8rem', letterSpacing: '1px' }}>
+                  <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.8rem', letterSpacing: '1px' }}>
                     NOTIFICATIONS
                   </Typography>
-                  <Typography sx={{ color: '#666', fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem' }}>
+                  <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem' }}>
                     unread: {unreadCount}
                   </Typography>
                 </Box>
@@ -638,18 +639,18 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                   disabled={unreadCount === 0}
                   sx={{
                     borderRadius: 0,
-                    border: '1px solid #2A2A2A',
-                    color: unreadCount === 0 ? '#555' : '#D4FF00',
+                    border: `1px solid ${COLORS.border}`,
+                    color: unreadCount === 0 ? COLORS.border : COLORS.accentNeon,
                     fontFamily: '"Roboto Mono", monospace',
                     fontSize: '0.7rem',
-                    '&:hover': { borderColor: '#444', bgcolor: 'rgba(212,255,0,0.05)' }
+                    '&:hover': { borderColor: COLORS.border, bgcolor: 'rgba(212,255,0,0.05)' }
                   }}
                 >
                   Mark all read
                 </Button>
               </Box>
 
-              <Box sx={{ px: 2, py: 1.25, display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center', borderBottom: '1px solid #2A2A2A' }}>
+              <Box sx={{ px: 2, py: 1.25, display: 'flex', gap: 1, flexWrap: 'wrap', alignItems: 'center', borderBottom: `1px solid ${COLORS.border}` }}>
                 {['ALL', 'INCIDENT', 'ALARM', 'EVENT'].map((k) => (
                   <Chip
                     key={k}
@@ -659,37 +660,37 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                     sx={{
                       borderRadius: 0,
                       bgcolor: notifFilter === k ? 'rgba(212,255,0,0.08)' : 'transparent',
-                      color: notifFilter === k ? '#D4FF00' : '#888',
-                      border: '1px solid #2A2A2A',
+                      color: notifFilter === k ? COLORS.accentNeon : COLORS.textMuted,
+                      border: `1px solid ${COLORS.border}`,
                       fontFamily: '"Roboto Mono", monospace',
                       fontSize: '0.65rem',
                       letterSpacing: '1px',
                       height: 24,
-                      '&:hover': { color: '#D4FF00', borderColor: '#444' }
+                      '&:hover': { color: COLORS.accentNeon, borderColor: COLORS.border }
                     }}
                   />
                 ))}
               </Box>
 
-              <Box sx={{ maxHeight: 420, overflowY: 'auto', '&::-webkit-scrollbar': { width: '6px' }, '&::-webkit-scrollbar-thumb': { bgcolor: '#2A2A2A' } }}>
+              <Box sx={{ maxHeight: 420, overflowY: 'auto', '&::-webkit-scrollbar': { width: '6px' }, '&::-webkit-scrollbar-thumb': { bgcolor: COLORS.border } }}>
                 {notifLoading ? (
                   <Box sx={{ p: 2 }}>
-                    <Skeleton variant="rectangular" height={36} sx={{ bgcolor: '#141414', borderRadius: 0, mb: 1 }} />
-                    <Skeleton variant="rectangular" height={36} sx={{ bgcolor: '#141414', borderRadius: 0, mb: 1 }} />
-                    <Skeleton variant="rectangular" height={36} sx={{ bgcolor: '#141414', borderRadius: 0 }} />
+                    <Skeleton variant="rectangular" height={36} sx={{ bgcolor: COLORS.surface, borderRadius: 0, mb: 1 }} />
+                    <Skeleton variant="rectangular" height={36} sx={{ bgcolor: COLORS.surface, borderRadius: 0, mb: 1 }} />
+                    <Skeleton variant="rectangular" height={36} sx={{ bgcolor: COLORS.surface, borderRadius: 0 }} />
                   </Box>
                 ) : notifError ? (
                   <Box sx={{ p: 2 }}>
-                    <Typography sx={{ color: '#FF003C', fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>
+                    <Typography sx={{ color: COLORS.critical, fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>
                       {notifError}
                     </Typography>
-                    <Typography sx={{ mt: 1, color: '#666', fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem' }}>
+                    <Typography sx={{ mt: 1, color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem' }}>
                       Check API connectivity and try again.
                     </Typography>
                   </Box>
                 ) : filteredNotifications.length === 0 ? (
                   <Box sx={{ p: 2 }}>
-                    <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>
+                    <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>
                       No notifications.
                     </Typography>
                   </Box>
@@ -714,17 +715,17 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                               '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' }
                             }}
                           >
-                            <Box sx={{ width: 8, alignSelf: 'stretch', mr: 1.5, bgcolor: unread ? '#D4FF00' : '#2A2A2A' }} />
+                            <Box sx={{ width: 8, alignSelf: 'stretch', mr: 1.5, bgcolor: unread ? COLORS.accentNeon : COLORS.border }} />
                             <Box sx={{ minWidth: 0, flexGrow: 1 }}>
                               <Box sx={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', gap: 2 }}>
                                 <Typography sx={{ color: getLogColor(n.type), fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem', fontWeight: 700 }}>
                                   [{String(n.type || 'EVENT').toUpperCase()}] {n.source || 'N/A'}
                                 </Typography>
-                                <Typography sx={{ color: '#666', fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem' }}>
+                                <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem' }}>
                                   {n.ts || ''}
                                 </Typography>
                               </Box>
-                              <Typography sx={{ mt: 0.25, color: '#FFF', fontFamily: '"Roboto Mono", monospace', fontSize: '0.78rem', lineHeight: 1.35, wordBreak: 'break-word' }}>
+                              <Typography sx={{ mt: 0.25, color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.78rem', lineHeight: 1.35, wordBreak: 'break-word' }}>
                                 {n.message || '—'}
                               </Typography>
                               <Box sx={{ mt: 0.75, display: 'flex', gap: 1 }}>
@@ -737,13 +738,13 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                                     }}
                                     sx={{
                                       borderRadius: 0,
-                                      border: '1px solid #2A2A2A',
-                                      color: '#D4FF00',
+                                      border: `1px solid ${COLORS.border}`,
+                                      color: COLORS.accentNeon,
                                       fontFamily: '"Roboto Mono", monospace',
                                       fontSize: '0.65rem',
                                       px: 1,
                                       minWidth: 0,
-                                      '&:hover': { borderColor: '#444', bgcolor: 'rgba(212,255,0,0.05)' }
+                                      '&:hover': { borderColor: COLORS.border, bgcolor: 'rgba(212,255,0,0.05)' }
                                     }}
                                   >
                                     Mark read
@@ -752,7 +753,7 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                               </Box>
                             </Box>
                           </ListItem>
-                          {i !== filteredNotifications.length - 1 && <Divider sx={{ borderColor: '#2A2A2A' }} />}
+                          {i !== filteredNotifications.length - 1 && <Divider sx={{ borderColor: COLORS.border }} />}
                         </React.Fragment>
                       );
                     })}
@@ -769,8 +770,8 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                   height: 38,
                   borderRadius: '8px',
                   bgcolor: 'transparent',
-                  border: '1px solid #D4FF00',
-                  color: '#D4FF00',
+                  border: `1px solid ${COLORS.accentNeon}`,
+                  color: COLORS.accentNeon,
                   cursor: 'pointer',
                   transition: 'all 0.3s ease',
                   '&:hover': {
@@ -797,23 +798,23 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                   borderRadius: '8px',
                   bgcolor: 'rgba(10, 10, 10, 0.95)',
                   backdropFilter: 'blur(10px)',
-                  border: '1px solid #2A2A2A',
+                  border: `1px solid ${COLORS.border}`,
                   boxShadow: '0 8px 32px rgba(0,0,0,0.8)',
                   overflow: 'hidden'
                 }
               }}
             >
-              <Box sx={{ p: 2, borderBottom: '1px solid #2A2A2A', display: 'flex', alignItems: 'center', gap: 2 }}>
-                 <Avatar sx={{ width: 44, height: 44, borderRadius: '8px', bgcolor: 'rgba(212,255,0,0.1)', color: '#D4FF00', border: '1px solid rgba(212,255,0,0.3)' }}>
+              <Box sx={{ p: 2, borderBottom: `1px solid ${COLORS.border}`, display: 'flex', alignItems: 'center', gap: 2 }}>
+                 <Avatar sx={{ width: 44, height: 44, borderRadius: '8px', bgcolor: 'rgba(212,255,0,0.1)', color: COLORS.accentNeon, border: '1px solid rgba(212,255,0,0.3)' }}>
                     <PersonIcon />
                  </Avatar>
                  <Box>
-                   <Typography sx={{ color: '#FFF', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700 }}>
+                   <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700 }}>
                      admin
                    </Typography>
                    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.5 }}>
-                     <CircleIcon sx={{ fontSize: 8, color: '#D4FF00', filter: 'drop-shadow(0 0 4px #D4FF00)' }} />
-                     <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem' }}>
+                     <CircleIcon sx={{ fontSize: 8, color: COLORS.accentNeon, filter: `drop-shadow(0 0 4px ${COLORS.accentNeon})` }} />
+                     <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem' }}>
                        Root Access
                      </Typography>
                    </Box>
@@ -823,29 +824,29 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
               <List sx={{ p: 1 }}>
                 <ListItem disablePadding>
                   <ListItemButton onClick={handleProfileClose} sx={{ borderRadius: '4px', '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}>
-                    <ListItemIcon sx={{ minWidth: 32, color: '#888' }}><SettingsIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText primary="Account Settings" primaryTypographyProps={{ color: '#DDD', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }} />
+                    <ListItemIcon sx={{ minWidth: 32, color: COLORS.textMuted }}><SettingsIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText primary="Account Settings" primaryTypographyProps={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }} />
                   </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
                   <ListItemButton onClick={handleProfileClose} sx={{ borderRadius: '4px', '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}>
-                    <ListItemIcon sx={{ minWidth: 32, color: '#888' }}><PaletteIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText primary="Appearance" primaryTypographyProps={{ color: '#DDD', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }} />
+                    <ListItemIcon sx={{ minWidth: 32, color: COLORS.textMuted }}><PaletteIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText primary="Appearance" primaryTypographyProps={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }} />
                   </ListItemButton>
                 </ListItem>
                 <ListItem disablePadding>
                   <ListItemButton onClick={handleProfileClose} sx={{ borderRadius: '4px', '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' } }}>
-                    <ListItemIcon sx={{ minWidth: 32, color: '#888' }}><MenuBookIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText primary="Documentation" primaryTypographyProps={{ color: '#DDD', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }} />
+                    <ListItemIcon sx={{ minWidth: 32, color: COLORS.textMuted }}><MenuBookIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText primary="Documentation" primaryTypographyProps={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }} />
                   </ListItemButton>
                 </ListItem>
 
-                <Divider sx={{ bgcolor: '#2A2A2A', my: 1 }} />
+                <Divider sx={{ bgcolor: COLORS.border, my: 1 }} />
 
                 <ListItem disablePadding>
-                  <ListItemButton onClick={handleProfileClose} sx={{ borderRadius: '4px', transition: 'all 0.2s', '&:hover': { bgcolor: 'rgba(255,0,60,0.1)', '& .MuiListItemIcon-root, & .MuiTypography-root': { color: '#FF003C' } } }}>
-                    <ListItemIcon sx={{ minWidth: 32, color: '#888', transition: 'color 0.2s' }}><LogoutIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText primary="Logout Session" primaryTypographyProps={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, transition: 'color 0.2s' }} />
+                  <ListItemButton onClick={handleProfileClose} sx={{ borderRadius: '4px', transition: 'all 0.2s', '&:hover': { bgcolor: 'rgba(255,0,60,0.1)', '& .MuiListItemIcon-root, & .MuiTypography-root': { color: COLORS.critical } } }}>
+                    <ListItemIcon sx={{ minWidth: 32, color: COLORS.textMuted, transition: 'color 0.2s' }}><LogoutIcon fontSize="small" /></ListItemIcon>
+                    <ListItemText primary="Logout Session" primaryTypographyProps={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, transition: 'color 0.2s' }} />
                   </ListItemButton>
                 </ListItem>
               </List>
@@ -865,7 +866,7 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
           }}
           sx={{
             display: { xs: 'block', sm: 'none' },
-            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: currentWidth, backgroundColor: '#0D0D0D', borderRight: '1px solid #2A2A2A', transition: transitionStyle },
+            '& .MuiDrawer-paper': { boxSizing: 'border-box', width: currentWidth, backgroundColor: COLORS.surface, borderRight: `1px solid ${COLORS.border}`, transition: transitionStyle },
           }}
         >
           {drawerContent}
@@ -878,8 +879,8 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
             '& .MuiDrawer-paper': {
               boxSizing: 'border-box',
               width: currentWidth,
-              backgroundColor: '#0D0D0D',
-              borderRight: '1px solid #2A2A2A',
+              backgroundColor: COLORS.surface,
+              borderRight: `1px solid ${COLORS.border}`,
               transition: transitionStyle,
               overflowX: 'hidden'
             },

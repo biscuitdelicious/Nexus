@@ -146,3 +146,44 @@ func (h *EventHandler) Create(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusCreated)
 	json.NewEncoder(w).Encode(event)
 }
+
+// Snooze handles POST /events/{id}/snooze with JSON body `{"duration":"1h"}`.
+// duration uses Go time.ParseDuration format (15m, 1h, 8h, etc).
+func (h *EventHandler) Snooze(w http.ResponseWriter, r *http.Request) {
+	id, err := parseID(r, "id")
+	if err != nil {
+		http.Error(w, "invalid id", http.StatusBadRequest)
+		return
+	}
+
+	var body struct {
+		Duration string `json:"duration"`
+	}
+	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
+		http.Error(w, "invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	d, err := time.ParseDuration(body.Duration)
+	if err != nil || d <= 0 {
+		http.Error(w, "invalid duration", http.StatusBadRequest)
+		return
+	}
+	// Cap at 7 days to prevent runaway snoozes.
+	if d > 7*24*time.Hour {
+		d = 7 * 24 * time.Hour
+	}
+
+	until := time.Now().Add(d)
+	if err := h.repo.Snooze(id, until); err != nil {
+		http.Error(w, "failed to snooze event", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"event_id":      id,
+		"status":        "snoozed",
+		"snoozed_until": until,
+	})
+}

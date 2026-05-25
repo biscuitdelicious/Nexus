@@ -27,11 +27,26 @@ func (r *EventRepository) GetByID(id uint) (*model.Event, error) {
 	return &event, result.Error
 }
 
-// Returns all events that have not been resolved
+// Returns events that are not resolved AND not currently snoozed.
+// A snoozed event reappears automatically when `snoozed_until` is in the past.
 func (r *EventRepository) GetOpen() ([]model.Event, error) {
 	var events []model.Event
-	result := r.db.Where("status != ?", "resolved").Find(&events)
+	result := r.db.
+		Where("status != ?", "resolved").
+		Where("(status != 'snoozed' OR snoozed_until IS NULL OR snoozed_until <= NOW())").
+		Find(&events)
 	return events, result.Error
+}
+
+// Snooze marks event as snoozed until the given time.
+func (r *EventRepository) Snooze(eventID uint, until time.Time) error {
+	return r.db.Model(&model.Event{}).
+		Where("event_id = ?", eventID).
+		Updates(map[string]interface{}{
+			"status":         "snoozed",
+			"snoozed_until":  until,
+			"updated_at":     time.Now(),
+		}).Error
 }
 
 func (r *EventRepository) Create(event *model.Event) error {

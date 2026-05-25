@@ -13,6 +13,9 @@ import (
 	"time"
 )
 
+// TODO: Find out how to not send all the data(filter by time, sensor id); make it scalable for huge data
+
+
 // Sensor describes one simulated metric channel.
 type Sensor struct {
 	ID       uint
