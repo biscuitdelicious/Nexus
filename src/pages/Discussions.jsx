@@ -9,6 +9,9 @@ import SettingsIcon from '@mui/icons-material/Settings';
 import TimelineIcon from '@mui/icons-material/Timeline';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ForumIcon from '@mui/icons-material/Forum';
+import { useUrlState } from '../hooks/useUrlState';
+
+const idToSlug = (id) => String(id).replace(/^#/, '');
 import { COLORS } from '../theme/colors';
 
 const mockIncidents = [
@@ -51,9 +54,17 @@ const mockIncidents = [
 ];
 
 const Discussions = () => {
+  const [params, patchParams] = useUrlState();
   const [incidentsList, setIncidentsList] = useState(mockIncidents);
-  const [selectedIncident, setSelectedIncident] = useState(null);
   const [newComment, setNewComment] = useState('');
+
+  const incidentSlug = params.incident;
+  const selectedIncident = incidentSlug
+    ? incidentsList.find((inc) => idToSlug(inc.id) === incidentSlug) || null
+    : null;
+
+  const openIncident = (inc) => patchParams({ incident: idToSlug(inc.id) });
+  const closeIncident = () => patchParams({ incident: undefined });
 
   const handleAddComment = () => {
     if (!newComment.trim() || !selectedIncident) return;
@@ -66,36 +77,35 @@ const Discussions = () => {
       isSystem: false
     };
 
-    const updatedIncident = {
-      ...selectedIncident,
-      comments: [...selectedIncident.comments, comment]
-    };
-
-    setSelectedIncident(updatedIncident);
-    setIncidentsList(prev => prev.map(inc => inc.id === updatedIncident.id ? updatedIncident : inc));
+    setIncidentsList((prev) =>
+      prev.map((inc) =>
+        inc.id === selectedIncident.id
+          ? { ...inc, comments: [...inc.comments, comment] }
+          : inc
+      )
+    );
     setNewComment('');
   };
 
   const handleToggleStatus = () => {
     if (!selectedIncident) return;
 
-    const updatedIncident = {
-      ...selectedIncident,
-      status: selectedIncident.status === 'OPEN' ? 'RESOLVED' : 'OPEN',
-      comments: [
-        ...selectedIncident.comments,
-        {
-          id: Date.now(),
-          author: 'NEXUS_SYSTEM',
-          time: 'just now',
-          text: `Incident status changed to ${selectedIncident.status === 'OPEN' ? 'RESOLVED' : 'OPEN'} by [current_user].`,
-          isSystem: true
-        }
-      ]
+    const nextStatus = selectedIncident.status === 'OPEN' ? 'RESOLVED' : 'OPEN';
+    const systemEntry = {
+      id: Date.now(),
+      author: 'NEXUS_SYSTEM',
+      time: 'just now',
+      text: `Incident status changed to ${nextStatus} by [current_user].`,
+      isSystem: true
     };
 
-    setSelectedIncident(updatedIncident);
-    setIncidentsList(prev => prev.map(inc => inc.id === updatedIncident.id ? updatedIncident : inc));
+    setIncidentsList((prev) =>
+      prev.map((inc) =>
+        inc.id === selectedIncident.id
+          ? { ...inc, status: nextStatus, comments: [...inc.comments, systemEntry] }
+          : inc
+      )
+    );
   };
 
   if (!selectedIncident) {
@@ -169,7 +179,7 @@ const Discussions = () => {
                 <React.Fragment key={inc.id}>
                   <ListItem disablePadding>
                     <ListItemButton
-                      onClick={() => setSelectedIncident(inc)}
+                      onClick={() => openIncident(inc)}
                       sx={{
                         p: 3,
                         transition: 'none',

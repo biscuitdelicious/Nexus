@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import glassTheme from './theme';
 import Layout from './components/Layout';
@@ -9,11 +9,25 @@ import Tickets from "./pages/Tickets.jsx";
 import NocWall from './pages/NocWall.jsx';
 import Chatbot from './pages/Chatbot.jsx';
 import Discussions from './pages/Discussions.jsx';
+import Login from './pages/Login.jsx';
 import ChatPopup from './components/ChatPopup';
 import { getChatApiBaseUrl } from './services/chatApi';
+import { useUrlState } from './hooks/useUrlState';
+
+const VALID_PAGES = new Set([
+  'Dashboard', 'Devices', 'Observability', 'Tickets', 'NOC Wall', 'Chatbot', 'Discussions', 'Login'
+]);
+
+const PAGE_SCOPED_PARAMS = ['incident', 'chart_range'];
 
 function App() {
-  const [activePage, setActivePage] = useState('Dashboard');
+  const [params, patchParams] = useUrlState();
+  const activePage = VALID_PAGES.has(params.page) ? params.page : 'Dashboard';
+
+  const setActivePage = (page) => {
+    const reset = Object.fromEntries(PAGE_SCOPED_PARAMS.map((k) => [k, undefined]));
+    patchParams({ page, ...reset });
+  };
 
   const page = (() => {
     switch (activePage) {
@@ -31,6 +45,8 @@ function App() {
         return <Chatbot />;
       case 'Discussions':
         return <Discussions />;
+      case 'Login':
+        return <Login />;
       default:
         return <Dashboard />;
     }

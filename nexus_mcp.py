@@ -12,11 +12,11 @@ load_dotenv()
 mcp = FastMCP("Nexus_TimescaleDB")
 
 DB_CONFIG = {
-    "host": os.getenv("DB_HOST", "localhost"),
-    "database": os.getenv("DB_NAME", "nexus"),
-    "user": os.getenv("DB_USER", "postgres"),
-    "password": os.getenv("DB_PASSWORD", "postgres"),
-    "port": int(os.getenv("DB_PORT", "5432")),
+    "host":         os.getenv("DB_HOST", "localhost"),
+    "database":     os.getenv("DB_NAME", "nexus"),
+    "user":         os.getenv("DB_USER", "postgres"),
+    "password":     os.getenv("DB_PASSWORD", "postgres"),
+    "port":     int(os.getenv("DB_PORT", "5432")),
 }
 
 

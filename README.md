@@ -24,6 +24,8 @@ Deschide un terminal în folderul rădăcină al proiectului și rulează următ
 py -m pip install -r requirements.txt
 ```
 
+!!! Daca nu merge, trebuie instalat python-ul de pe https://www.python.org/downloads/ !!!
+
 ### B) Pentru Interfață (Frontend - React/Vite)
 
 ```powershell
@@ -99,3 +101,4 @@ docker compose down
 ```bash
 docker compose down -v
 ```
+

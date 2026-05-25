@@ -7,12 +7,19 @@ import SeverityPieChart from '../components/SeverityPieChart';
 import ResolutionBarChart from '../components/ResolutionBarChart';
 import AlarmFrequencyChart from '../components/AlarmFrequencyChart';
 import { fetchDashboardMetrics } from '../services/api';
+import { useUrlState } from '../hooks/useUrlState';
+
+const VALID_RANGES = new Set(['15m', '1h', '6h', '24h']);
+
+const Dashboard = () => {
+  const [params, patchParams] = useUrlState();
 import { COLORS } from '../theme/colors';
 
 const Dashboard = ({ setActivePage }) => {
   const [metrics, setMetrics] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [chartRange, setChartRange] = useState('1h');
+  const chartRange = VALID_RANGES.has(params.chart_range) ? params.chart_range : '1h';
+  const setChartRange = (range) => patchParams({ chart_range: range });
 
   useEffect(() => {
     let cancelled = false;

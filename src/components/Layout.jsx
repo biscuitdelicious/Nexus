@@ -44,10 +44,13 @@ import {
   VpnKey as VpnKeyIcon,
   Palette as PaletteIcon,
   MenuBook as MenuBookIcon,
-  Logout as LogoutIcon,
+  Login as LoginIcon,
   Circle as CircleIcon
 } from '@mui/icons-material';
 import { fetchDashboardMetrics, fetchLiveFeed } from '../services/api';
+import { useUrlState } from '../hooks/useUrlState';
+
+const VALID_NOTIF_FILTERS = new Set(['ALL', 'INCIDENT', 'ALARM', 'EVENT']);
 import { COLORS } from '../theme/colors';
 
 const headerHeight = 40;
@@ -85,7 +88,9 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
   const [notifLoading, setNotifLoading] = useState(false);
   const [notifError, setNotifError] = useState('');
   const [notifications, setNotifications] = useState([]);
-  const [notifFilter, setNotifFilter] = useState('ALL');
+  const [urlParams, patchUrlParams] = useUrlState();
+  const notifFilter = VALID_NOTIF_FILTERS.has(urlParams.notif_filter) ? urlParams.notif_filter : 'ALL';
+  const setNotifFilter = (val) => patchUrlParams({ notif_filter: val === 'ALL' ? undefined : val });
   const [readIds, setReadIds] = useState(() => loadReadIds());
 
   const [profileAnchorEl, setProfileAnchorEl] = useState(null);
