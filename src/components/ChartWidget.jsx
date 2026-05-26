@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { Paper, Typography, Box, Skeleton, Alert, Button, Menu, MenuItem } from '@mui/material';
+import { Paper, Typography, Box, Skeleton, Alert, Button, Menu, MenuItem, Autocomplete, TextField } from '@mui/material';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { fetchChartDataStatus } from '../services/api';
+import { fetchChartDataStatus, fetchDevices } from '../services/api';
+import { COLORS } from '../theme/colors';
 
 const RANGE_PRESETS = [
   { label: '15m', value: '15m' },
   { label: '1h', value: '1h' },
   { label: '6h', value: '6h' },
   { label: '24h', value: '24h' },
+  { label: '7d', value: '7d'},
 ];
 
 const RANGE_LIMITS = {
@@ -20,13 +22,13 @@ const RANGE_LIMITS = {
 const CustomTooltip = ({ active, payload, label }) => {
   if (active && payload && payload.length) {
     return (
-      <Box sx={{ bgcolor: '#0D0D0D', border: '1px solid #2A2A2A', p: 1.5, borderRadius: 0 }}>
-        <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', mb: 1, letterSpacing: '1px' }}>
+      <Box sx={{ bgcolor: COLORS.surface, border: '1px solid', borderColor: COLORS.border, p: 1.5, borderRadius: 0 }}>
+        <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', marginBottom: 1, letterSpacing: '1px' }}>
           TIME: {label}
         </Typography>
         {payload.map((entry, index) => (
-          <Typography key={index} sx={{ color: entry.color, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700, mb: 0.5 }}>
-            {entry.name}: {entry.value}°C
+          <Typography key={index} sx={{ color: entry.color, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700, marginBottom: 0.5 }}>
+            {seriesName}: {entry.value}{unit}
           </Typography>
         ))}
       </Box>
@@ -35,11 +37,33 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, refreshMs = 3000 } = {}) => {
+
+const ChartWidget = ({ limit = 60, range = '1h', onRangeChange, refreshMs = 8000 } = {}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [rangeAnchor, setRangeAnchor] = useState(null);
+  const [sensors, setSensors] = useState([]);
+  const [sensorId, setSensorId] = useState(1);
+
+  // Load sensor list once for the dropdown
+  useEffect(() => {
+    let cancelled = false;
+    fetchDevices().then((list) => {
+      if (cancelled) return;
+      setSensors(list);
+      if (list.length > 0 && !list.find((s) => s.id === sensorId)) {
+        setSensorId(list[0].id);
+      }
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const selectedSensor = sensors.find((s) => s.id === sensorId);
+  console.log(selectedSensor);
+  const sensorName = selectedSensor?.name || `Sensor ${sensorId}`;
+  const unit = selectedSensor?.unit || '';
+  const seriesLabel = sensorName.toUpperCase();
 
   const currentRange =
     RANGE_PRESETS.find((p) => p.value === range)?.label || String(range || 'all');
@@ -75,7 +99,7 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
   }, [sensorId, effectiveLimit, range, refreshMs]);
 
   if (loading) {
-    return <Skeleton variant="rectangular" height="400px" sx={{ borderRadius: 0, bgcolor: '#141414' }} />;
+    return <Skeleton variant="rectangular" sx={{ borderRadius: 0, bgcolor: COLORS.surface, height: '100%', minHeight: 0 }} />;
   }
 
   return (
@@ -83,21 +107,61 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
       variant="outlined"
       sx={{
         borderRadius: 0,
-        bgcolor: '#141414',
-        borderColor: '#2A2A2A',
-        p: 3,
-        height: '400px',
+        bgcolor: COLORS.surface,
+        borderColor: COLORS.border,
+        p: 1.5,
+        height: '100%',
         display: 'flex',
         flexDirection: 'column'
       }}
     >
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography sx={{ color: '#FFFFFF', fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem' }}>
+
+      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1, flexShrink: 0 }}>
+
+        
+        <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem' }}>
           Thermal Metrics
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
-          <Typography sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', letterSpacing: '1px' }}>
-            UNIT: °C
+          <Autocomplete
+            size="small"
+            options={sensors}
+            getOptionLabel={(s) => s?.name || ''}
+            isOptionEqualToValue={(opt, val) => opt.id === val.id}
+            value={sensors.find((s) => s.id === sensorId) || null}
+            onChange={(_, v) => v && setSensorId(v.id)}
+            disableClearable
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                placeholder="SENSOR"
+                sx={{
+                  '& .MuiInputBase-root': {
+                    bgcolor: COLORS.surface,
+                    borderRadius: 0,
+                    color: COLORS.text,
+                    fontFamily: '"Roboto Mono", monospace',
+                    fontSize: '0.75rem',
+                    py: 0,
+                  },
+                  '& .MuiOutlinedInput-notchedOutline': { borderColor: COLORS.border },
+                  '& .MuiSvgIcon-root': { color: COLORS.textMuted },
+                }}
+              />
+            )}
+            ListboxProps={{
+              sx: {
+                bgcolor: COLORS.surface,
+                border: '1px solid #2A2A2A',
+                color: COLORS.text,
+                fontFamily: '"Roboto Mono", monospace',
+                fontSize: '0.75rem',
+              },
+            }}
+            sx={{ width: 180 }}
+          />
+          <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', letterSpacing: '1px' }}>
+            UNIT: {unit || '—'}
           </Typography>
           <Button
             size="small"
@@ -105,13 +169,13 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
             sx={{
               borderRadius: 0,
               border: '1px solid #2A2A2A',
-              color: '#D4FF00',
+              color: COLORS.info,
               fontFamily: '"Roboto Mono", monospace',
               fontSize: '0.7rem',
               letterSpacing: '1px',
               px: 1.25,
               minWidth: 0,
-              '&:hover': { borderColor: '#444', bgcolor: 'rgba(212,255,0,0.05)' }
+              '&:hover': { borderColor: COLORS.border, bgcolor: 'rgba(88,166,255,0.08)' }
             }}
           >
             RANGE: {currentRange}
@@ -123,7 +187,7 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
             PaperProps={{
               sx: {
                 borderRadius: 0,
-                bgcolor: '#0A0A0A',
+                bgcolor: COLORS.surface,
                 border: '1px solid #2A2A2A',
                 mt: 1,
                 minWidth: 120,
@@ -141,8 +205,8 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
                 sx={{
                   fontFamily: '"Roboto Mono", monospace',
                   fontSize: '0.75rem',
-                  color: p.value === range ? '#D4FF00' : '#EAEAEA',
-                  '&.Mui-selected': { bgcolor: 'rgba(212,255,0,0.08)' },
+                  color: p.value === range ? COLORS.info : COLORS.text,
+                  '&.Mui-selected': { bgcolor: 'rgba(88,166,255,0.12)' },
                   '&:hover': { bgcolor: 'rgba(255,255,255,0.03)' },
                 }}
               >
@@ -159,10 +223,10 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
           variant="outlined"
           sx={{
             borderRadius: 0,
-            bgcolor: '#0D0D0D',
-            borderColor: '#2A2A2A',
-            color: '#FFFFFF',
-            '& .MuiAlert-icon': { color: '#FF003C' },
+            bgcolor: COLORS.surface,
+            borderColor: COLORS.border,
+            color: COLORS.text,
+            '& .MuiAlert-icon': { color: COLORS.critical },
             '& .MuiAlert-message': { width: '100%' },
           }}
           action={
@@ -185,12 +249,12 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
                 })();
               }}
               sx={{
-                color: '#D4FF00',
+                color: COLORS.info,
                 borderRadius: 0,
                 border: '1px solid #2A2A2A',
                 minWidth: 0,
                 px: 1.25,
-                '&:hover': { borderColor: '#444' },
+                '&:hover': { borderColor: COLORS.border },
               }}
             >
               Retry
@@ -200,7 +264,7 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
           <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.80rem' }}>
             Failed to load readings {error?.status ? `(HTTP ${error.status})` : ''}: {error?.message || 'Unknown error'}
           </Typography>
-          <Typography sx={{ mt: 1, color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>
+          <Typography sx={{ mt: 1, color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>
             Check that the API is running and `/readings` is available, then retry.
           </Typography>
         </Alert>
@@ -210,17 +274,14 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
           variant="outlined"
           sx={{
             borderRadius: 0,
-            bgcolor: '#0D0D0D',
-            borderColor: '#2A2A2A',
-            color: '#FFFFFF',
-            '& .MuiAlert-icon': { color: '#D4FF00' },
+            bgcolor: COLORS.surface,
+            borderColor: COLORS.border,
+            color: COLORS.text,
+            '& .MuiAlert-icon': { color: COLORS.info },
           }}
         >
           <Typography sx={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.80rem' }}>
             No readings yet.
-          </Typography>
-          <Typography sx={{ mt: 1, color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>
-            Start `Monitor.py` (or send readings to the API) to see live temperature.
           </Typography>
         </Alert>
       ) : null}
@@ -228,37 +289,37 @@ const ChartWidget = ({ sensorId = 1, limit = 60, range = '1h', onRangeChange, re
       <Box sx={{ flexGrow: 1, minHeight: 0 }}>
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={data} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#2A2A2A" />
+            <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={COLORS.border} />
             <XAxis
               dataKey="time"
-              tick={{ fill: '#888888', fontSize: 11, fontFamily: '"Roboto Mono", monospace' }}
+              tick={{ fill: COLORS.textMuted, fontSize: 10, fontFamily: '"Roboto Mono", monospace' }}
               axisLine={false}
               tickLine={false}
               dy={10}
             />
             <YAxis
-              tick={{ fill: '#888888', fontSize: 11, fontFamily: '"Roboto Mono", monospace' }}
+              tick={{ fill: COLORS.textMuted, fontSize: 11, fontFamily: '"Roboto Mono", monospace' }}
               axisLine={false}
               tickLine={false}
               domain={['dataMin - 5', 'dataMax + 5']}
-              tickFormatter={(val) => `${val}°`}
+              tickFormatter={(val) => `${val}${unit}`}
             />
             <Tooltip
-              content={<CustomTooltip />}
-              cursor={{ stroke: '#444444', strokeWidth: 1, strokeDasharray: '5 5' }}
+              content={<CustomTooltip unit={unit} seriesName={seriesLabel} />}
+              cursor={{ stroke: COLORS.border, strokeWidth: 1, strokeDasharray: '5 5' }}
             />
             <Legend
-              wrapperStyle={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', color: '#888888', paddingTop: '10px' }}
+              wrapperStyle={{ fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', color: COLORS.textMuted, paddingTop: '10px' }}
               iconType="square"
             />
             <Line
               type="monotone"
               dataKey="cpu"
-              name="CPU"
-              stroke="#D4FF00"
+              name={seriesLabel}
+              stroke={COLORS.info}
               strokeWidth={2}
               dot={false}
-              activeDot={{ r: 5, fill: '#D4FF00', stroke: '#141414', strokeWidth: 2 }}
+              activeDot={{ r: 5, fill: COLORS.info, stroke: COLORS.surface, strokeWidth: 2 }}
             />
            
           </LineChart>

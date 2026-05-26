@@ -14,19 +14,20 @@ import {
   TableRow,
   Typography,
 } from '@mui/material';
+import { COLORS } from '../theme/colors';
 
 const getLevelStyle = (level) => {
-  if (!level) return { color: '#FFFFFF', borderColor: '#2A2A2A' };
+  if (!level) return { color: COLORS.text, borderColor: COLORS.border };
 
   switch (level.toLowerCase()) {
     case 'alarm':
-      return { color: '#FF003C', borderColor: '#FF003C' };
+      return { color: COLORS.critical, borderColor: COLORS.critical };
     case 'incident':
-      return { color: '#FFA500', borderColor: '#FFA500' };
+      return { color: COLORS.warn, borderColor: COLORS.warn };
     case 'event':
-      return { color: '#888888', borderColor: '#888888' };
+      return { color: COLORS.textMuted, borderColor: COLORS.textMuted };
     default:
-      return { color: '#FFFFFF', borderColor: '#2A2A2A' };
+      return { color: COLORS.text, borderColor: COLORS.border };
   }
 };
 
@@ -65,13 +66,13 @@ const LogsTable = ({ entries = [] }) => {
   }, [allowedEntries, levelFilter]);
 
   return (
-    <Box sx={{ width: '100%', minWidth: 0, border: '1px solid #2A2A2A', backgroundColor: '#141414' }}>
-      <Box sx={{ p: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, borderBottom: '1px solid #2A2A2A' }}>
-        <Typography sx={{ flexGrow: 1, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', color: '#FFFFFF' }}>
+    <Box sx={{ width: '100%', minWidth: 0, border: `1px solid ${COLORS.border}`, backgroundColor: COLORS.surface }}>
+      <Box sx={{ p: 2, display: 'flex', flexWrap: 'wrap', alignItems: 'center', gap: 2, borderBottom: `1px solid ${COLORS.border}` }}>
+        <Typography sx={{ flexGrow: 1, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', color: COLORS.text }}>
           System Logs
         </Typography>
         <FormControl size="small" sx={{ minWidth: 160 }}>
-          <InputLabel id="logs-level-filter" sx={{ color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+          <InputLabel id="logs-level-filter" sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
             Filter Level
           </InputLabel>
           <Select
@@ -80,21 +81,21 @@ const LogsTable = ({ entries = [] }) => {
             value={levelFilter}
             onChange={(e) => setLevelFilter(e.target.value)}
             sx={{
-              color: '#FFFFFF',
+              color: COLORS.text,
               borderRadius: 0,
               fontFamily: '"Roboto Mono", monospace',
               fontSize: '0.85rem',
               '& .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#2A2A2A',
+                borderColor: COLORS.border,
                 borderRadius: 0
               },
               '&:hover .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#888888',
+                borderColor: COLORS.textMuted,
               },
               '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-                borderColor: '#D4FF00',
+                borderColor: COLORS.info,
               },
-              '& .MuiSvgIcon-root': { color: '#888888' }
+              '& .MuiSvgIcon-root': { color: COLORS.textMuted }
             }}
           >
             {levels.map((lvl) => (
@@ -112,17 +113,17 @@ const LogsTable = ({ entries = [] }) => {
           background: 'transparent',
           boxShadow: 'none',
           '&::-webkit-scrollbar': { width: '8px', height: '8px' },
-          '&::-webkit-scrollbar-thumb': { backgroundColor: '#2A2A2A' },
-          '&::-webkit-scrollbar-track': { background: '#0D0D0D', borderLeft: '1px solid #2A2A2A' },
+          '&::-webkit-scrollbar-thumb': { backgroundColor: COLORS.border },
+          '&::-webkit-scrollbar-track': { background: COLORS.surface, borderLeft: `1px solid ${COLORS.border}` },
         }}
       >
         <Table size="medium" stickyHeader sx={{ borderCollapse: 'collapse' }}>
           <TableHead>
             <TableRow>
-              <TableCell sx={{ backgroundColor: '#0D0D0D', color: '#888888', borderBottom: '1px solid #2A2A2A', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px', pl: 3 }}>Time</TableCell>
-              <TableCell sx={{ backgroundColor: '#0D0D0D', color: '#888888', borderBottom: '1px solid #2A2A2A', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Level</TableCell>
-              <TableCell sx={{ backgroundColor: '#0D0D0D', color: '#888888', borderBottom: '1px solid #2A2A2A', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Source</TableCell>
-              <TableCell sx={{ backgroundColor: '#0D0D0D', color: '#888888', borderBottom: '1px solid #2A2A2A', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Message</TableCell>
+              <TableCell sx={{ backgroundColor: COLORS.surface, color: COLORS.textMuted, borderBottom: `1px solid ${COLORS.border}`, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px', pl: 3 }}>Time</TableCell>
+              <TableCell sx={{ backgroundColor: COLORS.surface, color: COLORS.textMuted, borderBottom: `1px solid ${COLORS.border}`, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Level</TableCell>
+              <TableCell sx={{ backgroundColor: COLORS.surface, color: COLORS.textMuted, borderBottom: `1px solid ${COLORS.border}`, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Source</TableCell>
+              <TableCell sx={{ backgroundColor: COLORS.surface, color: COLORS.textMuted, borderBottom: `1px solid ${COLORS.border}`, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, textTransform: 'uppercase', fontSize: '0.75rem', letterSpacing: '1px' }}>Message</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -133,17 +134,17 @@ const LogsTable = ({ entries = [] }) => {
                 <TableRow
                   key={row.id}
                   sx={{
-                    background: '#141414',
+                    background: COLORS.surface,
                     transition: 'none',
                     '&:hover': {
-                      background: 'rgba(212, 255, 0, 0.02)',
+                      background: 'rgba(88, 166, 255, 0.06)',
                     },
                     '& td': {
-                      borderBottom: '1px solid #2A2A2A',
+                      borderBottom: `1px solid ${COLORS.border}`,
                     }
                   }}
                 >
-                  <TableCell sx={{ pl: 3, color: '#888888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
+                  <TableCell sx={{ pl: 3, color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', whiteSpace: 'nowrap' }}>
                     {formatTs(row.ts)}
                   </TableCell>
                   <TableCell>
@@ -163,10 +164,10 @@ const LogsTable = ({ entries = [] }) => {
                       }}
                     />
                   </TableCell>
-                  <TableCell sx={{ fontFamily: '"Roboto Mono", monospace', color: '#D4FF00', fontSize: '0.85rem' }}>
+                  <TableCell sx={{ fontFamily: '"Roboto Mono", monospace', color: COLORS.info, fontSize: '0.85rem' }}>
                     {row.source}
                   </TableCell>
-                  <TableCell sx={{ color: '#FFFFFF', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem' }}>
+                  <TableCell sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem' }}>
                     {row.message}
                   </TableCell>
                 </TableRow>

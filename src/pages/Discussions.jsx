@@ -12,6 +12,7 @@ import ForumIcon from '@mui/icons-material/Forum';
 import { useUrlState } from '../hooks/useUrlState';
 
 const idToSlug = (id) => String(id).replace(/^#/, '');
+import { COLORS } from '../theme/colors';
 
 const mockIncidents = [
   {
@@ -121,18 +122,18 @@ const Discussions = () => {
                   justifyContent: 'center',
                   p: 1.5,
                   borderRadius: 0,
-                  background: '#141414',
-                  border: '1px solid #2A2A2A',
+                  background: COLORS.surface,
+                  border: `1px solid ${COLORS.border}`,
                 }}
               >
-                <ForumIcon sx={{ color: '#D4FF00', fontSize: { xs: 24, sm: 28 } }} />
+                <ForumIcon sx={{ color: COLORS.info, fontSize: { xs: 24, sm: 28 } }} />
               </Box>
 
               <Box>
                 <Typography
                   variant="h4"
                   sx={{
-                    color: '#FFFFFF',
+                    color: COLORS.text,
                     fontFamily: '"Georgia", serif',
                     fontStyle: 'italic',
                     fontWeight: 'normal',
@@ -147,8 +148,8 @@ const Discussions = () => {
             <Button
               variant="contained"
               sx={{
-                bgcolor: '#D4FF00', color: '#000', borderRadius: 0, fontFamily: '"Roboto Mono", monospace', fontWeight: 700,
-                '&:hover': { bgcolor: '#b8de00' }
+                bgcolor: COLORS.info, color: COLORS.bg, borderRadius: 0, fontFamily: '"Roboto Mono", monospace', fontWeight: 700,
+                '&:hover': { bgcolor: COLORS.info }
               }}
             >
               New Topic
@@ -161,7 +162,7 @@ const Discussions = () => {
               mb: 4,
               ml: { xs: 0, sm: 8.5 },
               mt: { xs: 1, sm: 0 },
-              color: '#888888',
+              color: COLORS.textMuted,
               fontFamily: '"Roboto Mono", monospace',
               fontSize: { xs: '0.75rem', sm: '0.85rem' },
               textTransform: 'uppercase',
@@ -172,7 +173,7 @@ const Discussions = () => {
             Centralized forum for investigating and documenting system alarms.
           </Typography>
 
-          <Paper variant="outlined" sx={{ bgcolor: '#141414', borderColor: '#2A2A2A', borderRadius: 0, mt: 4 }}>
+          <Paper variant="outlined" sx={{ bgcolor: COLORS.surface, borderColor: COLORS.border, borderRadius: 0, mt: 4 }}>
             <List disablePadding>
               {incidentsList.map((inc, index) => (
                 <React.Fragment key={inc.id}>
@@ -186,27 +187,27 @@ const Discussions = () => {
                       }}
                     >
                       <Box sx={{ display: 'flex', width: '100%', gap: 3, alignItems: 'center' }}>
-                        {inc.status === 'OPEN' ? <ErrorIcon sx={{ color: '#FF003C' }} /> : <CheckCircleIcon sx={{ color: '#D4FF00' }} />}
+                        {inc.status === 'OPEN' ? <ErrorIcon sx={{ color: COLORS.critical }} /> : <CheckCircleIcon sx={{ color: COLORS.info }} />}
 
                         <Box sx={{ flexGrow: 1 }}>
-                          <Typography sx={{ color: '#FFF', fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '1rem', mb: 0.5 }}>
-                            {inc.title} <Typography component="span" sx={{ color: '#888', fontSize: '0.9rem' }}>{inc.id}</Typography>
+                          <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '1rem', mb: 0.5 }}>
+                            {inc.title} <Typography component="span" sx={{ color: COLORS.textMuted, fontSize: '0.9rem' }}>{inc.id}</Typography>
                           </Typography>
-                          <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>
-                            Opened by <Box component="span" sx={{ color: '#D4FF00' }}>{inc.author}</Box> {inc.createdAt} on {inc.device}
+                          <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>
+                            Opened by <Box component="span" sx={{ color: COLORS.info }}>{inc.author}</Box> {inc.createdAt} on {inc.device}
                           </Typography>
                         </Box>
 
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                          <ForumIcon sx={{ color: '#555', fontSize: 18 }} />
-                          <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700 }}>
+                          <ForumIcon sx={{ color: COLORS.border, fontSize: 18 }} />
+                          <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700 }}>
                             {inc.comments.length}
                           </Typography>
                         </Box>
                       </Box>
                     </ListItemButton>
                   </ListItem>
-                  {index < incidentsList.length - 1 && <Divider sx={{ borderColor: '#2A2A2A' }} />}
+                  {index < incidentsList.length - 1 && <Divider sx={{ borderColor: COLORS.border }} />}
                 </React.Fragment>
               ))}
             </List>
@@ -222,8 +223,8 @@ const Discussions = () => {
 
         <Button
           startIcon={<ArrowBackIcon />}
-          onClick={closeIncident}
-          sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', mb: 3, '&:hover': { color: '#D4FF00', bgcolor: 'transparent' } }}
+          onClick={() => setSelectedIncident(null)}
+          sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', mb: 3, '&:hover': { color: COLORS.info, bgcolor: 'transparent' } }}
         >
           Back to Discussions
         </Button>
@@ -236,25 +237,25 @@ const Discussions = () => {
               justifyContent: 'center',
               p: 1.5,
               borderRadius: 0,
-              background: '#141414',
-              border: '1px solid #2A2A2A',
+              background: COLORS.surface,
+              border: `1px solid ${COLORS.border}`,
             }}
           >
-            <ForumIcon sx={{ color: '#D4FF00', fontSize: { xs: 24, sm: 28 } }} />
+            <ForumIcon sx={{ color: COLORS.info, fontSize: { xs: 24, sm: 28 } }} />
           </Box>
 
           <Box>
             <Typography
               variant="h4"
               sx={{
-                color: '#FFFFFF',
+                color: COLORS.text,
                 fontFamily: '"Georgia", serif',
                 fontStyle: 'italic',
                 fontWeight: 'normal',
                 fontSize: { xs: '1.5rem', sm: '2.125rem' }
               }}
             >
-              {selectedIncident.title} <Typography component="span" variant="h4" sx={{ color: '#888', fontStyle: 'normal' }}>{selectedIncident.id}</Typography>
+              {selectedIncident.title} <Typography component="span" variant="h4" sx={{ color: COLORS.textMuted, fontStyle: 'normal' }}>{selectedIncident.id}</Typography>
             </Typography>
           </Box>
         </Box>
@@ -266,36 +267,36 @@ const Discussions = () => {
             sx={{
               borderRadius: 0,
               bgcolor: selectedIncident.status === 'OPEN' ? 'rgba(255, 0, 60, 0.1)' : 'rgba(212, 255, 0, 0.1)',
-              color: selectedIncident.status === 'OPEN' ? '#FF003C' : '#D4FF00',
-              border: `1px solid ${selectedIncident.status === 'OPEN' ? '#FF003C' : '#D4FF00'}`,
+              color: selectedIncident.status === 'OPEN' ? COLORS.critical : COLORS.info,
+              border: `1px solid ${selectedIncident.status === 'OPEN' ? COLORS.critical : COLORS.info}`,
               fontFamily: '"Roboto Mono", monospace',
               fontWeight: 700,
               letterSpacing: '1px'
             }}
           />
-          <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem' }}>
-            <Box component="span" sx={{ color: '#D4FF00', fontWeight: 700 }}>{selectedIncident.author}</Box> triggered this {selectedIncident.createdAt} · {selectedIncident.comments.length} comments
+          <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem' }}>
+            <Box component="span" sx={{ color: COLORS.info, fontWeight: 700 }}>{selectedIncident.author}</Box> triggered this {selectedIncident.createdAt} · {selectedIncident.comments.length} comments
           </Typography>
         </Box>
 
-        <Divider sx={{ borderColor: '#2A2A2A', mb: 4 }} />
+        <Divider sx={{ borderColor: COLORS.border, mb: 4 }} />
 
         <Grid container spacing={4}>
           <Grid item xs={12} md={9}>
 
             <Box sx={{ display: 'flex', gap: 2, mb: 4 }}>
-              <Avatar sx={{ bgcolor: '#141414', border: '1px solid #2A2A2A', color: '#FF003C', borderRadius: 0, width: 40, height: 40 }}>
+              <Avatar sx={{ bgcolor: COLORS.surface, border: `1px solid ${COLORS.border}`, color: COLORS.critical, borderRadius: 0, width: 40, height: 40 }}>
                 <TimelineIcon />
               </Avatar>
-              <Paper sx={{ flexGrow: 1, bgcolor: '#141414', border: '1px solid #2A2A2A', borderRadius: 0 }}>
-                <Box sx={{ p: 1.5, borderBottom: '1px solid #2A2A2A', bgcolor: 'rgba(255,255,255,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>
-                    <Box component="span" sx={{ color: '#FFF', fontWeight: 700 }}>{selectedIncident.author}</Box> reported {selectedIncident.createdAt}
+              <Paper sx={{ flexGrow: 1, bgcolor: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 0 }}>
+                <Box sx={{ p: 1.5, borderBottom: `1px solid ${COLORS.border}`, bgcolor: 'rgba(255,255,255,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>
+                    <Box component="span" sx={{ color: COLORS.text, fontWeight: 700 }}>{selectedIncident.author}</Box> reported {selectedIncident.createdAt}
                   </Typography>
-                  <Chip label="AUTHOR" size="small" sx={{ borderRadius: 0, bgcolor: 'transparent', color: '#888', border: '1px solid #2A2A2A', fontSize: '0.65rem' }} />
+                  <Chip label="AUTHOR" size="small" sx={{ borderRadius: 0, bgcolor: 'transparent', color: COLORS.textMuted, border: `1px solid ${COLORS.border}`, fontSize: '0.65rem' }} />
                 </Box>
                 <Box sx={{ p: 3 }}>
-                  <Typography sx={{ color: '#EAEAEA', fontFamily: '"Roboto Mono", monospace', fontSize: '0.9rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
+                  <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.9rem', lineHeight: 1.6, whiteSpace: 'pre-wrap' }}>
                     {selectedIncident.description}
                   </Typography>
                 </Box>
@@ -305,26 +306,26 @@ const Discussions = () => {
             {selectedIncident.comments.map((comment) => (
               comment.isSystem ? (
                 <Box key={comment.id} sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4, pl: 2, position: 'relative' }}>
-                  <Box sx={{ position: 'absolute', left: 22, top: -30, bottom: -10, width: '2px', bgcolor: '#2A2A2A', zIndex: 0 }} />
-                  <SettingsIcon sx={{ color: '#888', fontSize: 20, zIndex: 1, bgcolor: '#0A0A0A' }} />
-                  <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>
-                    {comment.text} <Box component="span" sx={{ color: '#555', fontSize: '0.7rem' }}>— {comment.time}</Box>
+                  <Box sx={{ position: 'absolute', left: 22, top: -30, bottom: -10, width: '2px', bgcolor: COLORS.border, zIndex: 0 }} />
+                  <SettingsIcon sx={{ color: COLORS.textMuted, fontSize: 20, zIndex: 1, bgcolor: COLORS.surface }} />
+                  <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>
+                    {comment.text} <Box component="span" sx={{ color: COLORS.border, fontSize: '0.7rem' }}>— {comment.time}</Box>
                   </Typography>
                 </Box>
               ) : (
                 <Box key={comment.id} sx={{ display: 'flex', gap: 2, mb: 4, position: 'relative' }}>
-                  <Box sx={{ position: 'absolute', left: 20, top: -30, bottom: -20, width: '2px', bgcolor: '#2A2A2A', zIndex: 0 }} />
-                  <Avatar sx={{ bgcolor: '#141414', border: '1px solid #D4FF00', color: '#D4FF00', borderRadius: 0, width: 40, height: 40, zIndex: 1 }}>
+                  <Box sx={{ position: 'absolute', left: 20, top: -30, bottom: -20, width: '2px', bgcolor: COLORS.border, zIndex: 0 }} />
+                  <Avatar sx={{ bgcolor: COLORS.surface, border: `1px solid ${COLORS.info}`, color: COLORS.info, borderRadius: 0, width: 40, height: 40, zIndex: 1 }}>
                     {comment.author.substring(0, 2).toUpperCase()}
                   </Avatar>
-                  <Paper sx={{ flexGrow: 1, bgcolor: '#141414', border: '1px solid #2A2A2A', borderRadius: 0, zIndex: 1 }}>
-                    <Box sx={{ p: 1.5, borderBottom: '1px solid #2A2A2A', bgcolor: 'rgba(255,255,255,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>
-                        <Box component="span" sx={{ color: '#FFF', fontWeight: 700 }}>{comment.author}</Box> commented {comment.time}
+                  <Paper sx={{ flexGrow: 1, bgcolor: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 0, zIndex: 1 }}>
+                    <Box sx={{ p: 1.5, borderBottom: `1px solid ${COLORS.border}`, bgcolor: 'rgba(255,255,255,0.02)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>
+                        <Box component="span" sx={{ color: COLORS.text, fontWeight: 700 }}>{comment.author}</Box> commented {comment.time}
                       </Typography>
                     </Box>
                     <Box sx={{ p: 2 }}>
-                      <Typography sx={{ color: '#EAEAEA', fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', lineHeight: 1.5 }}>
+                      <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', lineHeight: 1.5 }}>
                         {comment.text}
                       </Typography>
                     </Box>
@@ -333,13 +334,13 @@ const Discussions = () => {
               )
             ))}
 
-            <Divider sx={{ borderColor: '#2A2A2A', mb: 4 }} />
+            <Divider sx={{ borderColor: COLORS.border, mb: 4 }} />
 
             <Box sx={{ display: 'flex', gap: 2 }}>
-              <Avatar sx={{ bgcolor: '#D4FF00', color: '#000', borderRadius: 0, width: 40, height: 40 }}>ME</Avatar>
-              <Paper sx={{ flexGrow: 1, bgcolor: '#141414', border: '1px solid #D4FF00', borderRadius: 0, overflow: 'hidden' }}>
-                <Box sx={{ p: 1, borderBottom: '1px solid #2A2A2A', bgcolor: 'rgba(212, 255, 0, 0.05)' }}>
-                  <Typography sx={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', ml: 1 }}>Write a response...</Typography>
+              <Avatar sx={{ bgcolor: COLORS.info, color: COLORS.bg, borderRadius: 0, width: 40, height: 40 }}>ME</Avatar>
+              <Paper sx={{ flexGrow: 1, bgcolor: COLORS.surface, border: `1px solid ${COLORS.info}`, borderRadius: 0, overflow: 'hidden' }}>
+                <Box sx={{ p: 1, borderBottom: `1px solid ${COLORS.border}`, bgcolor: 'rgba(212, 255, 0, 0.05)' }}>
+                  <Typography sx={{ color: COLORS.info, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', ml: 1 }}>Write a response...</Typography>
                 </Box>
                 <TextField
                   fullWidth
@@ -351,14 +352,14 @@ const Discussions = () => {
                   onChange={(e) => setNewComment(e.target.value)}
                   InputProps={{
                     disableUnderline: true,
-                    sx: { color: '#FFF', p: 2, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem' }
+                    sx: { color: COLORS.text, p: 2, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem' }
                   }}
                 />
-                <Box sx={{ p: 1.5, bgcolor: '#0D0D0D', borderTop: '1px solid #2A2A2A', display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
+                <Box sx={{ p: 1.5, bgcolor: COLORS.surface, borderTop: `1px solid ${COLORS.border}`, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
                   <Button
                     onClick={handleToggleStatus}
                     sx={{
-                      color: selectedIncident.status === 'OPEN' ? '#FF003C' : '#D4FF00',
+                      color: selectedIncident.status === 'OPEN' ? COLORS.critical : COLORS.info,
                       borderRadius: 0,
                       fontFamily: '"Roboto Mono", monospace',
                       '&:hover': { bgcolor: 'rgba(255,255,255,0.05)' }
@@ -371,13 +372,13 @@ const Discussions = () => {
                     onClick={handleAddComment}
                     disabled={!newComment.trim()}
                     sx={{
-                      bgcolor: '#D4FF00',
-                      color: '#000',
+                      bgcolor: COLORS.info,
+                      color: COLORS.bg,
                       borderRadius: 0,
                       fontFamily: '"Roboto Mono", monospace',
                       fontWeight: 700,
-                      '&:hover': { bgcolor: '#b8de00' },
-                      '&.Mui-disabled': { bgcolor: '#2A2A2A', color: '#555' }
+                      '&:hover': { bgcolor: COLORS.info },
+                      '&.Mui-disabled': { bgcolor: COLORS.border, color: COLORS.border }
                     }}
                   >
                     Comment
@@ -391,36 +392,36 @@ const Discussions = () => {
           <Grid item xs={12} md={3}>
 
             <Box sx={{ mb: 3 }}>
-              <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, mb: 1 }}>
+              <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, mb: 1 }}>
                 ON-CALL ENGINEERS
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Avatar sx={{ width: 24, height: 24, bgcolor: '#141414', border: '1px solid #D4FF00', color: '#D4FF00', fontSize: '0.7rem', borderRadius: 0 }}>MI</Avatar>
-                <Typography sx={{ color: '#D4FF00', fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>mihai.admin</Typography>
+                <Avatar sx={{ width: 24, height: 24, bgcolor: COLORS.surface, border: `1px solid ${COLORS.info}`, color: COLORS.info, fontSize: '0.7rem', borderRadius: 0 }}>MI</Avatar>
+                <Typography sx={{ color: COLORS.info, fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem' }}>mihai.admin</Typography>
               </Box>
             </Box>
 
-            <Divider sx={{ borderColor: '#2A2A2A', mb: 3 }} />
+            <Divider sx={{ borderColor: COLORS.border, mb: 3 }} />
 
             <Box sx={{ mb: 3 }}>
-              <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, mb: 1 }}>
+              <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, mb: 1 }}>
                 SEVERITY / LABELS
               </Typography>
               <Box sx={{ display: 'flex', gap: 1, flexWrap: 'wrap' }}>
-                <Chip label="CRITICAL" size="small" sx={{ bgcolor: 'rgba(255,0,60,0.1)', color: '#FF003C', border: '1px solid #FF003C', borderRadius: 0, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem' }} />
-                <Chip label="hardware" size="small" sx={{ bgcolor: '#141414', color: '#888', border: '1px solid #2A2A2A', borderRadius: 0, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem' }} />
-                <Chip label="database" size="small" sx={{ bgcolor: '#141414', color: '#888', border: '1px solid #2A2A2A', borderRadius: 0, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem' }} />
+                <Chip label="CRITICAL" size="small" sx={{ bgcolor: 'rgba(255,0,60,0.1)', color: COLORS.critical, border: `1px solid ${COLORS.critical}`, borderRadius: 0, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem' }} />
+                <Chip label="hardware" size="small" sx={{ bgcolor: COLORS.surface, color: COLORS.textMuted, border: `1px solid ${COLORS.border}`, borderRadius: 0, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem' }} />
+                <Chip label="database" size="small" sx={{ bgcolor: COLORS.surface, color: COLORS.textMuted, border: `1px solid ${COLORS.border}`, borderRadius: 0, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem' }} />
               </Box>
             </Box>
 
-            <Divider sx={{ borderColor: '#2A2A2A', mb: 3 }} />
+            <Divider sx={{ borderColor: COLORS.border, mb: 3 }} />
 
             <Box sx={{ mb: 3 }}>
-              <Typography sx={{ color: '#888', fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, mb: 1 }}>
+              <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, mb: 1 }}>
                 AFFECTED COMPONENT
               </Typography>
-              <Typography sx={{ color: '#EAEAEA', fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 1 }}>
-                <Box component="span" sx={{ width: 8, height: 8, bgcolor: '#FF003C', display: 'inline-block' }} />
+              <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem', display: 'flex', alignItems: 'center', gap: 1 }}>
+                <Box component="span" sx={{ width: 8, height: 8, bgcolor: COLORS.critical, display: 'inline-block' }} />
                 {selectedIncident.device}
               </Typography>
             </Box>

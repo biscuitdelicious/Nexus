@@ -5,6 +5,7 @@ import QueryStatsIcon from '@mui/icons-material/QueryStats';
 import MetricsCards from '../components/MetricsCards';
 import LogsTable from '../components/LogsTable';
 import { fetchObservabilityMetrics, fetchLiveFeed } from '../services/api';
+import { COLORS } from '../theme/colors';
 
 const Observability = () => {
   const [metrics, setMetrics] = useState([]);
@@ -41,18 +42,18 @@ const Observability = () => {
               justifyContent: 'center',
               p: 1.5,
               borderRadius: 0,
-              background: '#141414',
+              background: COLORS.surface,
               border: '1px solid #2A2A2A',
             }}
           >
-            <QueryStatsIcon sx={{ color: '#D4FF00', fontSize: { xs: 24, sm: 28 } }} />
+            <QueryStatsIcon sx={{ color: COLORS.info, fontSize: { xs: 24, sm: 28 } }} />
           </Box>
 
           <Box>
             <Typography
               variant="h4"
               sx={{
-                color: '#FFFFFF',
+                color: COLORS.text,
                 fontFamily: '"Georgia", serif',
                 fontStyle: 'italic',
                 fontWeight: 'normal',
@@ -70,7 +71,7 @@ const Observability = () => {
             mb: 4,
             ml: { xs: 0, sm: 8.5 },
             mt: { xs: 1, sm: 0 },
-            color: '#888888',
+            color: COLORS.textMuted,
             fontFamily: '"Roboto Mono", monospace',
             fontSize: { xs: '0.75rem', sm: '0.85rem' },
             textTransform: 'uppercase',
@@ -87,7 +88,7 @@ const Observability = () => {
 
         <Box sx={{ animation: 'fadeInUp 0.8s ease-out', width: '100%' }}>
           {loading ? (
-            <Skeleton variant="rectangular" height={300} sx={{ bgcolor: '#141414', borderRadius: 0, width: '100%' }} />
+            <Skeleton variant="rectangular" height={300} sx={{ bgcolor: COLORS.surface, borderRadius: 0, width: '100%' }} />
           ) : (
             <LogsTable entries={logs} />
           )}

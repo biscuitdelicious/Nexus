@@ -23,6 +23,7 @@ import {
   sendChatMessage,
   resetChatSession
 } from '../services/chatApi';
+import { COLORS } from '../theme/colors';
 
 const TYPEWRITER_DELAY_MS = 35;
 
@@ -261,17 +262,17 @@ const Chatbot = () => {
                 justifyContent: 'center',
                 p: 1.5,
                 borderRadius: 0,
-                background: '#141414',
-                border: '1px solid #2A2A2A'
+                background: COLORS.surface,
+                border: `1px solid ${COLORS.border}`
               }}
             >
-              <SmartToyIcon sx={{ color: '#D4FF00', fontSize: 28 }} />
+              <SmartToyIcon sx={{ color: COLORS.info, fontSize: 28 }} />
             </Box>
             <Box>
               <Typography
                 variant="h4"
                 sx={{
-                  color: '#FFFFFF',
+                  color: COLORS.text,
                   fontFamily: '"Georgia", serif',
                   fontStyle: 'italic',
                   fontWeight: 'normal'
@@ -281,7 +282,7 @@ const Chatbot = () => {
               </Typography>
               <Typography
                 sx={{
-                  color: '#888888',
+                  color: COLORS.textMuted,
                   fontFamily: '"Roboto Mono", monospace',
                   fontSize: '0.75rem',
                   textTransform: 'uppercase',
@@ -300,11 +301,11 @@ const Chatbot = () => {
                 disabled={isSending}
                 sx={{
                   borderRadius: 0,
-                  border: '1px solid #2A2A2A',
-                  color: '#888',
+                  border: `1px solid ${COLORS.border}`,
+                  color: COLORS.textMuted,
                   width: 44,
                   height: 44,
-                  '&:hover': { color: '#D4FF00', borderColor: '#D4FF00', bgcolor: 'rgba(212,255,0,0.05)' }
+                  '&:hover': { color: COLORS.info, borderColor: COLORS.info, bgcolor: 'rgba(212,255,0,0.05)' }
                 }}
               >
                 <RestartAltIcon fontSize="small" />
@@ -320,8 +321,8 @@ const Chatbot = () => {
             flexGrow: 1,
             display: 'flex',
             flexDirection: 'column',
-            bgcolor: '#0A0A0A',
-            border: '1px solid #2A2A2A',
+            bgcolor: COLORS.surface,
+            border: `1px solid ${COLORS.border}`,
             borderRadius: 0,
             overflow: 'hidden',
             minHeight: 0
@@ -331,8 +332,8 @@ const Chatbot = () => {
             sx={{
               px: 2.5,
               py: 1.5,
-              bgcolor: '#141414',
-              borderBottom: '1px solid #2A2A2A',
+              bgcolor: COLORS.surface,
+              borderBottom: `1px solid ${COLORS.border}`,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between'
@@ -343,14 +344,14 @@ const Chatbot = () => {
                 sx={{
                   width: 8,
                   height: 8,
-                  bgcolor: '#D4FF00',
-                  boxShadow: '0 0 8px #D4FF00',
+                  bgcolor: COLORS.info,
+                  boxShadow: `0 0 8px ${COLORS.info}`,
                   animation: 'pulse 2s infinite'
                 }}
               />
               <Typography
                 sx={{
-                  color: '#fff',
+                  color: COLORS.text,
                   fontFamily: '"Roboto Mono", monospace',
                   fontSize: '0.75rem',
                   fontWeight: 700,
@@ -361,7 +362,7 @@ const Chatbot = () => {
               </Typography>
               <Typography
                 sx={{
-                  color: '#D4FF00',
+                  color: COLORS.info,
                   fontFamily: '"Roboto Mono", monospace',
                   fontSize: '0.65rem',
                   letterSpacing: '2px'
@@ -372,7 +373,7 @@ const Chatbot = () => {
             </Box>
             <Typography
               sx={{
-                color: '#666',
+                color: COLORS.textMuted,
                 fontFamily: '"Roboto Mono", monospace',
                 fontSize: '0.65rem',
                 letterSpacing: '1px',
@@ -395,8 +396,8 @@ const Chatbot = () => {
               gap: 2.5,
               minHeight: 0,
               '&::-webkit-scrollbar': { width: '6px' },
-              '&::-webkit-scrollbar-thumb': { bgcolor: '#2A2A2A' },
-              '&::-webkit-scrollbar-thumb:hover': { bgcolor: '#D4FF00' }
+              '&::-webkit-scrollbar-thumb': { bgcolor: COLORS.border },
+              '&::-webkit-scrollbar-thumb:hover': { bgcolor: COLORS.info }
             }}
           >
             {chatHistory.map((msg, idx) => (
@@ -414,9 +415,9 @@ const Chatbot = () => {
                     width: 32,
                     height: 32,
                     borderRadius: 0,
-                    bgcolor: msg.isBot ? '#141414' : '#D4FF00',
-                    border: msg.isBot ? '1px solid #2A2A2A' : 'none',
-                    color: msg.isBot ? '#D4FF00' : '#000'
+                    bgcolor: msg.isBot ? COLORS.surface : COLORS.info,
+                    border: msg.isBot ? `1px solid ${COLORS.border}` : 'none',
+                    color: msg.isBot ? COLORS.info : COLORS.bg
                   }}
                 >
                   {msg.isBot ? (
@@ -438,7 +439,7 @@ const Chatbot = () => {
                   >
                     <Typography
                       sx={{
-                        color: msg.isBot ? '#D4FF00' : '#888',
+                        color: msg.isBot ? COLORS.info : COLORS.textMuted,
                         fontFamily: '"Roboto Mono", monospace',
                         fontSize: '0.65rem',
                         letterSpacing: '1.5px',
@@ -449,7 +450,7 @@ const Chatbot = () => {
                     </Typography>
                     <Typography
                       sx={{
-                        color: '#555',
+                        color: COLORS.border,
                         fontFamily: '"Roboto Mono", monospace',
                         fontSize: '0.6rem'
                       }}
@@ -472,7 +473,7 @@ const Chatbot = () => {
                           fontFamily: '"Roboto Mono", monospace',
                           whiteSpace: 'pre-wrap',
                           wordBreak: 'break-word',
-                          color: '#EAEAEA'
+                          color: COLORS.text
                         }}
                       >
                         {msg.tokens ? msg.tokens.slice(0, msg.revealed).join('') : msg.text}
@@ -484,7 +485,7 @@ const Chatbot = () => {
                               width: '8px',
                               height: '1em',
                               ml: '2px',
-                              bgcolor: '#D4FF00',
+                              bgcolor: COLORS.info,
                               verticalAlign: 'text-bottom',
                               animation: 'cursorBlink 1s steps(2) infinite'
                             }}
@@ -497,8 +498,8 @@ const Chatbot = () => {
                       elevation={0}
                       sx={{
                         p: 1.75,
-                        bgcolor: '#D4FF00',
-                        color: '#000',
+                        bgcolor: COLORS.info,
+                        color: COLORS.bg,
                         borderRadius: 0,
                         border: 'none'
                       }}
@@ -527,18 +528,18 @@ const Chatbot = () => {
                     width: 32,
                     height: 32,
                     borderRadius: 0,
-                    bgcolor: '#141414',
-                    border: '1px solid #2A2A2A',
-                    color: '#D4FF00'
+                    bgcolor: COLORS.surface,
+                    border: `1px solid ${COLORS.border}`,
+                    color: COLORS.info
                   }}
                 >
                   <SmartToyIcon sx={{ fontSize: '1rem' }} />
                 </Avatar>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-                  <CircularProgress size={12} sx={{ color: '#D4FF00' }} />
+                  <CircularProgress size={12} sx={{ color: COLORS.info }} />
                   <Typography
                     sx={{
-                      color: '#888',
+                      color: COLORS.textMuted,
                       fontFamily: '"Roboto Mono", monospace',
                       fontSize: '0.75rem',
                       letterSpacing: '1px'
@@ -556,8 +557,8 @@ const Chatbot = () => {
               px: { xs: 2, md: 3 },
               pt: 1.5,
               pb: 1,
-              borderTop: '1px solid #2A2A2A',
-              bgcolor: '#0A0A0A',
+              borderTop: `1px solid ${COLORS.border}`,
+              bgcolor: COLORS.surface,
               display: 'flex',
               flexWrap: 'wrap',
               gap: 1,
@@ -565,10 +566,10 @@ const Chatbot = () => {
             }}
           >
             <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5, mr: 1 }}>
-              <BoltIcon sx={{ color: '#D4FF00', fontSize: 14 }} />
+              <BoltIcon sx={{ color: COLORS.info, fontSize: 14 }} />
               <Typography
                 sx={{
-                  color: '#666',
+                  color: COLORS.textMuted,
                   fontFamily: '"Roboto Mono", monospace',
                   fontSize: '0.6rem',
                   letterSpacing: '1.5px'
@@ -587,16 +588,16 @@ const Chatbot = () => {
                   sx={{
                     borderRadius: 0,
                     bgcolor: 'transparent',
-                    color: '#888',
-                    border: '1px solid #2A2A2A',
+                    color: COLORS.textMuted,
+                    border: `1px solid ${COLORS.border}`,
                     fontFamily: '"Roboto Mono", monospace',
                     fontSize: '0.65rem',
                     letterSpacing: '1px',
                     height: 24,
                     '&:hover': {
                       bgcolor: 'rgba(212,255,0,0.05)',
-                      color: '#D4FF00',
-                      borderColor: '#D4FF00'
+                      color: COLORS.info,
+                      borderColor: COLORS.info
                     }
                   }}
                 />
@@ -609,25 +610,25 @@ const Chatbot = () => {
               sx={{
                 px: { xs: 2, md: 3 },
                 pb: 0.75,
-                bgcolor: '#0A0A0A',
+                bgcolor: COLORS.surface,
                 display: 'flex',
                 alignItems: 'center',
                 gap: 1
               }}
             >
-              <KeyboardReturnIcon sx={{ color: '#D4FF00', fontSize: 14, transform: 'rotate(180deg)' }} />
+              <KeyboardReturnIcon sx={{ color: COLORS.info, fontSize: 14, transform: 'rotate(180deg)' }} />
               <Typography
                 sx={{
-                  color: '#666',
+                  color: COLORS.textMuted,
                   fontFamily: '"Roboto Mono", monospace',
                   fontSize: '0.65rem',
                   letterSpacing: '1px'
                 }}
               >
-                <Box component="span" sx={{ color: '#D4FF00' }}>TAB</Box>
+                <Box component="span" sx={{ color: COLORS.info }}>TAB</Box>
                 {' to autocomplete: '}
-                <Box component="span" sx={{ color: '#aaa' }}>{message}</Box>
-                <Box component="span" sx={{ color: '#D4FF00' }}>{ghostSuggestion}</Box>
+                <Box component="span" sx={{ color: COLORS.textMuted }}>{message}</Box>
+                <Box component="span" sx={{ color: COLORS.info }}>{ghostSuggestion}</Box>
               </Typography>
             </Box>
           )}
@@ -635,8 +636,8 @@ const Chatbot = () => {
           <Box
             sx={{
               p: 2,
-              bgcolor: '#141414',
-              borderTop: '1px solid #2A2A2A',
+              bgcolor: COLORS.surface,
+              borderTop: `1px solid ${COLORS.border}`,
               display: 'flex',
               gap: 1.5,
               alignItems: 'flex-end'
@@ -657,14 +658,14 @@ const Chatbot = () => {
                 InputProps={{
                   disableUnderline: true,
                   sx: {
-                    color: '#D4FF00',
+                    color: COLORS.info,
                     fontSize: '0.9rem',
                     fontFamily: '"Roboto Mono", monospace',
-                    bgcolor: '#0A0A0A',
+                    bgcolor: COLORS.surface,
                     p: '10px 14px',
                     borderRadius: 0,
-                    border: '1px solid #2A2A2A',
-                    '&:focus-within': { borderColor: '#D4FF00' }
+                    border: `1px solid ${COLORS.border}`,
+                    '&:focus-within': { borderColor: COLORS.info }
                   }
                 }}
               />
@@ -685,7 +686,7 @@ const Chatbot = () => {
                   }}
                 >
                   {message}
-                  <Box component="span" sx={{ color: '#555' }}>{ghostSuggestion}</Box>
+                  <Box component="span" sx={{ color: COLORS.border }}>{ghostSuggestion}</Box>
                 </Box>
               )}
             </Box>
@@ -693,13 +694,13 @@ const Chatbot = () => {
               onClick={handleSend}
               disabled={isSending || !message.trim()}
               sx={{
-                bgcolor: '#D4FF00',
-                color: '#000',
+                bgcolor: COLORS.info,
+                color: COLORS.bg,
                 borderRadius: 0,
                 width: 48,
                 height: 48,
-                '&:hover': { bgcolor: '#b8de00' },
-                '&.Mui-disabled': { bgcolor: '#2A2A2A', color: '#555' }
+                '&:hover': { bgcolor: COLORS.info },
+                '&.Mui-disabled': { bgcolor: COLORS.border, color: COLORS.border }
               }}
             >
               <SendIcon sx={{ fontSize: '1.2rem' }} />
