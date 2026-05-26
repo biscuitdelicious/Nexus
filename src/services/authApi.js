@@ -1,17 +1,17 @@
 import { getChatApiBaseUrl } from './chatApi';
 
-export const loginUser = async (email, password) => {
-  const res = await fetch(`${getChatApiBaseUrl()}/login`, {
+const postJson = async (path, body) => {
+  const res = await fetch(`${getChatApiBaseUrl()}${path}`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password })
+    body: JSON.stringify(body)
   });
 
   if (!res.ok) {
     let detail = `HTTP ${res.status}`;
     try {
-      const body = await res.json();
-      if (body?.detail) detail = body.detail;
+      const data = await res.json();
+      if (data?.detail) detail = data.detail;
     } catch {}
     throw new Error(detail);
   }
@@ -19,3 +19,13 @@ export const loginUser = async (email, password) => {
   return res.json();
 };
 
+export const loginUser = (email, password) =>
+  postJson('/login', { email, password });
+
+export const signupUser = (email, password, firstName, lastName = '') =>
+  postJson('/signup', {
+    email,
+    password,
+    first_name: firstName,
+    last_name: lastName
+  });

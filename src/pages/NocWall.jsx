@@ -58,12 +58,12 @@ const NocWall = ({ setActivePage }) => {
             <GridViewIcon sx={{ color: COLORS.info, fontSize: 28 }} />
           </Box>
           <Typography variant="h4" sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontWeight: 'normal' }}>
-            Command Center
+            NOC Wall
           </Typography>
         </Box>
 
         <Typography sx={{ mb: 4, ml: 8.5, color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-          Drag & drop to rearrange active monitoring feeds.
+          Drag the panels to rearrange.
         </Typography>
 
         <Box

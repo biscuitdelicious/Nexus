@@ -60,7 +60,7 @@ const Observability = () => {
                 fontSize: { xs: '1.5rem', sm: '2.125rem' }
               }}
             >
-              Metrics & Logs
+              Observability
             </Typography>
           </Box>
         </Box>
@@ -79,7 +79,7 @@ const Observability = () => {
             wordWrap: 'break-word'
           }}
         >
-          System telemetry, active KPIs, and the tail of recent events.
+          Live metrics and the latest log entries.
         </Typography>
 
         <Box sx={{ mb: 4, width: '100%' }}>

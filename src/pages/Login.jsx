@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import {
-  Box, Typography, Paper, TextField, Button, Divider, Fade, IconButton, InputAdornment, Checkbox, FormControlLabel, Alert
+  Box, Typography, Paper, TextField, Button, Fade, IconButton, InputAdornment, Alert
 } from '@mui/material';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import PersonIcon from '@mui/icons-material/Person';
@@ -243,47 +243,6 @@ const Login = ({ onLogin }) => {
               InputLabelProps={{ shrink: true }}
               sx={fieldSx}
             />
-
-            {!isSignup && (
-            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mt: -1 }}>
-              <FormControlLabel
-                control={
-                  <Checkbox
-                    size="small"
-                    sx={{
-                      color: '#444',
-                      borderRadius: 0,
-                      '&.Mui-checked': { color: '#D4FF00' }
-                    }}
-                  />
-                }
-                label="Remember me"
-                sx={{
-                  '& .MuiFormControlLabel-label': {
-                    color: '#888',
-                    fontFamily: '"Roboto Mono", monospace',
-                    fontSize: '0.7rem',
-                    letterSpacing: '1px',
-                    textTransform: 'uppercase'
-                  }
-                }}
-              />
-              <Typography
-                component="a"
-                sx={{
-                  color: '#666',
-                  fontFamily: '"Roboto Mono", monospace',
-                  fontSize: '0.7rem',
-                  letterSpacing: '1px',
-                  textTransform: 'uppercase',
-                  cursor: 'pointer',
-                  '&:hover': { color: '#D4FF00' }
-                }}
-              >
-                Forgot password?
-              </Typography>
-            </Box>
-            )}
 
             {error && (
               <Alert

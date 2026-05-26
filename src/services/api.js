@@ -1,6 +1,23 @@
 import { COLORS } from '../theme/colors';
+import { getChatApiBaseUrl } from './chatApi';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+
+/**
+ * Read the currently logged-in user from sessionStorage.
+ * Returns the parsed user object, or null if nobody is logged in.
+ */
+export const getCurrentUser = () => {
+  try {
+    const raw = sessionStorage.getItem('nexus_user');
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+/** Returns the user_id of the logged-in user, or null. */
+export const getCurrentUserId = () => getCurrentUser()?.user_id ?? null;
 
 const handleResponse = async (response) => {
   if (!response.ok) {
@@ -138,7 +155,7 @@ export const createSensor = async ({ name, sensorNo, locationId, unit, lowerLimi
       SensorNo: sensorNo,
       LocationID: Number(locationId),
       Unit: unit,
-      UpdatedUserID: 1, // TODO: Make it so it's updated based on the logged user
+      UpdatedUserID: getCurrentUserId() ?? 1, // logged-in user; fallback admin (1)
       LowerLimit: lowerLimit !== '' && lowerLimit != null ? Number(lowerLimit) : null,
       UpperLimit: upperLimit !== '' && upperLimit != null ? Number(upperLimit) : null,
     };
@@ -360,26 +377,52 @@ export const fetchDashboardMetrics = async () => {
       { id: 3, title: 'TOTAL EVENTS', value: hasAnyEvents ? String(tickets.length) : 'No events' },
       { id: 4, title: 'SENSOR ID', value: 'SN-001' },
     ];
-  } catch {
+  } catch (err) {
+    console.error('fetchDashboardMetrics failed', err);
     return [
-      { id: 1, title: 'CPU TEMP', value: 'No readings' },
-      { id: 2, title: 'OPEN TICKETS', value: 'No events' },
-      { id: 3, title: 'TOTAL EVENTS', value: 'No events' },
-      { id: 4, title: 'SENSOR ID', value: 'SN-001' },
+      { id: 1, title: 'CPU TEMP', value: 'N/A' },
+      { id: 2, title: 'OPEN TICKETS', value: 'N/A' },
+      { id: 3, title: 'TOTAL EVENTS', value: 'N/A' },
+      { id: 4, title: 'SENSOR ID', value: 'N/A' },
     ];
   }
 };
 
-// TODO: work on making this data real from BE
-export const fetchResolutionData = async () => [
-  { day: 'Mon', time: 120 },
-  { day: 'Tue', time: 85 },
-  { day: 'Wed', time: 100 },
-];
+// Real backend (Python chat_api on port 8002)
+export const fetchResolutionData = async () => {
+  try {
+    const res = await fetch(`${getChatApiBaseUrl()}/metrics/resolution`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) {
+      return [{ day: 'N/A', time: 0 }];
+    }
+    return data;
+  } catch (err) {
+    console.error('fetchResolutionData failed', err);
+    return [{ day: 'N/A', time: 0 }];
+  }
+};
 
-export const fetchObservabilityMetrics = async () => [
-  { id: 1, label: 'UPTIME', value: '0h 53 m', sublabel: 'Last 30 days' },
-  { id: 2, label: 'ERROR RATE', value: '<1%', sublabel: 'vs 0.15% avg' },
-];
+export const fetchObservabilityMetrics = async () => {
+  try {
+    const res = await fetch(`${getChatApiBaseUrl()}/metrics/observability`);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (!Array.isArray(data) || data.length === 0) {
+      return [
+        { id: 1, label: 'UPTIME', value: 'N/A', sublabel: 'No data' },
+        { id: 2, label: 'ERROR RATE', value: 'N/A', sublabel: 'No data' },
+      ];
+    }
+    return data;
+  } catch (err) {
+    console.error('fetchObservabilityMetrics failed', err);
+    return [
+      { id: 1, label: 'UPTIME', value: 'OFFLINE', sublabel: 'Backend down' },
+      { id: 2, label: 'ERROR RATE', value: 'N/A', sublabel: 'Backend down' },
+    ];
+  }
+};
 
 

@@ -47,7 +47,7 @@ const AlarmFrequencyChart = () => {
       }
     };
     loadData();
-    const id = setInterval(loadData, 15000);
+    const id = setInterval(loadData, 60000);
     return () => {
       cancelled = true;
       clearInterval(id);

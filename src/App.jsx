@@ -11,6 +11,7 @@ import Chatbot from './pages/Chatbot.jsx';
 import Discussions from './pages/Discussions.jsx';
 import Login from './pages/Login.jsx';
 import ChatPopup from './components/ChatPopup';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { getChatApiBaseUrl } from './services/chatApi';
 import { useUrlState } from './hooks/useUrlState';
 
@@ -80,7 +81,9 @@ function App() {
   return (
     <ThemeProvider theme={glassTheme}>
       <Layout activePage={activePage} setActivePage={setActivePage} onLogout={handleLogout} user={user}>
-        {page}
+        <ErrorBoundary scope={activePage} key={activePage}>
+          {page}
+        </ErrorBoundary>
       </Layout>
       {activePage !== 'Chatbot' && (
         <ChatPopup

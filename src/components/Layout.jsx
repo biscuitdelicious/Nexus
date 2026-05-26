@@ -50,9 +50,9 @@ import {
 } from '@mui/icons-material';
 import { fetchDashboardMetrics, fetchLiveFeed } from '../services/api';
 import { useUrlState } from '../hooks/useUrlState';
+import { COLORS } from '../theme/colors';
 
 const VALID_NOTIF_FILTERS = new Set(['ALL', 'INCIDENT', 'ALARM', 'EVENT']);
-import { COLORS } from '../theme/colors';
 
 const headerHeight = 40;
 
@@ -148,7 +148,7 @@ const Layout = ({ children, activePage, setActivePage, onLogout, user, sharedDat
     };
 
     loadNotifications();
-    timer = setInterval(loadNotifications, 15000);
+    timer = setInterval(loadNotifications, 60000);
     return () => {
       mounted = false;
       if (timer) clearInterval(timer);
@@ -453,7 +453,7 @@ const Layout = ({ children, activePage, setActivePage, onLogout, user, sharedDat
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <TerminalIcon sx={{ color: COLORS.textMuted, fontSize: 18 }} />
                 <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.85rem', letterSpacing: '1px' }}>
-                  GLOBAL_TELEMETRY
+                  System Stats
                 </Typography>
               </Box>
 
