@@ -68,7 +68,7 @@ const formatClockLabel = (iso) => {
     const d = new Date(iso);
     if (Number.isNaN(d.getTime())) return '';
     const hh = String(d.getHours()).padStart(2, '0');
-    const mxm = String(d.getMinutes()).padStart(2, '0');
+    const mm = String(d.getMinutes()).padStart(2, '0');
     const ss = String(d.getSeconds()).padStart(2, '0');
     return `${hh}:${mm}:${ss}`;
   } catch {
@@ -221,12 +221,36 @@ export const acknowledgeTicket = async (ticketId) => {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'acknowledged' }),
     });
-    if (!res.ok) 
+    if (!res.ok)
       throw new Error('ack failed');
     return { success: true, id: ticketId, status: 'ACKNOWLEDGED' };
   } catch (err) {
     console.error('Ack failed', err);
     return { success: false };
+  }
+};
+
+// Resolve every open event. Used by Devices "Clear Alerts".
+// Fetches open events, PATCHes each to resolved. Returns count cleared.
+export const clearAllAlerts = async () => {
+  try {
+    const open = await fetch(`${API_BASE_URL}/events/open`).then(handleResponse).catch(() => []);
+    const ids = (open || []).map((e) => e.EventID).filter((id) => id != null);
+    const results = await Promise.allSettled(
+      ids.map((id) =>
+        fetch(`${API_BASE_URL}/events/${id}`, {
+          method: 'PATCH',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: 'resolved' }),
+        }).then((r) => {
+          if (!r.ok) throw new Error(`HTTP ${r.status}`);
+        })
+      )
+    );
+    const cleared = results.filter((r) => r.status === 'fulfilled').length;
+    return { ok: true, cleared, total: ids.length };
+  } catch (err) {
+    return { ok: false, cleared: 0, message: err?.message || 'Network error' };
   }
 };
 
@@ -301,12 +325,17 @@ export const fetchAlarmFrequency = async ({ range = '1h', limit = 5 } = {}) => {
 };
 
 
-// TODO: make the sensor based on a variable given
-export const fetchChartDataStatus = async ({ sensorId = 2, limit = 60, range = '' } = {}) => {
+// Fetches chart data for one sensor over a range. Uses server-side downsampling
+// (max_points) so payload stays bounded (~maxPoints) no matter how many raw
+// rows the backend holds — scalable to huge datasets.
+export const fetchChartDataStatus = async ({ sensorId = 2, range = '', maxPoints = 300 } = {}) => {
   try {
-    const qs = new URLSearchParams({ sensor_id: String(sensorId), limit: String(limit) });
+    const qs = new URLSearchParams({
+      sensor_id: String(sensorId),
+      max_points: String(maxPoints),
+    });
 
-    if (range) 
+    if (range)
       qs.set('range', range);
 
     const res = await fetch(`${API_BASE_URL}/readings?${qs.toString()}`);

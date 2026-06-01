@@ -13,7 +13,10 @@ import (
 	"time"
 )
 
-// TODO: Find out how to not send all the data(filter by time, sensor id); make it scalable for huge data
+// Scalability note: the read path (GET /readings?sensor_id=&range=&max_points=)
+// downsamples server-side with TimescaleDB time_bucket, so the frontend never
+// pulls all rows — payload stays bounded (~max_points) regardless of table size.
+// See SensorReadingRepository.GetDownsampled.
 
 
 // Sensor describes one simulated metric channel.

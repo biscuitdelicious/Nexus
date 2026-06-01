@@ -188,7 +188,7 @@ const Dashboard = ({ setActivePage }) => {
                 Total Tickets
               </Typography>
               <Box sx={{ flexGrow: 1, minHeight: 0 }}>
-                <SeverityPieChart />
+                <SeverityPieChart onSelect={setActivePage ? () => setActivePage('Tickets') : undefined} />
               </Box>
             </Paper>
           </Grid>
