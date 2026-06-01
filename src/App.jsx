@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
 import glassTheme from './theme';
 import Layout from './components/Layout';
@@ -11,6 +11,7 @@ import Chatbot from './pages/Chatbot.jsx';
 import Discussions from './pages/Discussions.jsx';
 import Login from './pages/Login.jsx';
 import ChatPopup from './components/ChatPopup';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { getChatApiBaseUrl } from './services/chatApi';
 import { useUrlState } from './hooks/useUrlState';
 
@@ -22,12 +23,37 @@ const PAGE_SCOPED_PARAMS = ['incident', 'chart_range'];
 
 function App() {
   const [params, patchParams] = useUrlState();
+  const [user, setUser] = useState(() => {
+    try {
+      const raw = sessionStorage.getItem('nexus_user');
+      return raw ? JSON.parse(raw) : null;
+    } catch { return null; }
+  });
+  const isAuthed = !!user;
   const activePage = VALID_PAGES.has(params.page) ? params.page : 'Dashboard';
-
+ 
   const setActivePage = (page) => {
     const reset = Object.fromEntries(PAGE_SCOPED_PARAMS.map((k) => [k, undefined]));
     patchParams({ page, ...reset });
   };
+
+  const handleLogin = (userData) => {
+    try { sessionStorage.setItem('nexus_user', JSON.stringify(userData)); } catch {}
+    setUser(userData);
+  };
+
+  const handleLogout = () => {
+    try { sessionStorage.removeItem('nexus_user'); } catch {}
+    setUser(null);
+  };
+
+  if (!isAuthed) {
+    return (
+      <ThemeProvider theme={glassTheme}>
+        <Login onLogin={handleLogin} />
+      </ThemeProvider>
+    );
+  }
 
   const page = (() => {
     switch (activePage) {
@@ -54,8 +80,10 @@ function App() {
 
   return (
     <ThemeProvider theme={glassTheme}>
-      <Layout activePage={activePage} setActivePage={setActivePage}>
-        {page}
+      <Layout activePage={activePage} setActivePage={setActivePage} onLogout={handleLogout} user={user}>
+        <ErrorBoundary scope={activePage} key={activePage}>
+          {page}
+        </ErrorBoundary>
       </Layout>
       {activePage !== 'Chatbot' && (
         <ChatPopup

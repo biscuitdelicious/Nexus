@@ -63,7 +63,7 @@ const Devices = () => {
                 fontWeight: 'normal',
               }}
             >
-              Device Management
+              Devices
             </Typography>
           </Box>
         </Box>
@@ -80,7 +80,7 @@ const Devices = () => {
             letterSpacing: '1px'
           }}
         >
-          Provision, monitor, and manage your infrastructure assets.
+          Sensors, locations, and physical units in the network.
         </Typography>
 
         <Grid container spacing={3} sx={{ mb: 4 }}>

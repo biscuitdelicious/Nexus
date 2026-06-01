@@ -45,13 +45,14 @@ import {
   Palette as PaletteIcon,
   MenuBook as MenuBookIcon,
   Login as LoginIcon,
+  Logout as LogoutIcon,
   Circle as CircleIcon
 } from '@mui/icons-material';
 import { fetchDashboardMetrics, fetchLiveFeed } from '../services/api';
 import { useUrlState } from '../hooks/useUrlState';
+import { COLORS } from '../theme/colors';
 
 const VALID_NOTIF_FILTERS = new Set(['ALL', 'INCIDENT', 'ALARM', 'EVENT']);
-import { COLORS } from '../theme/colors';
 
 const headerHeight = 40;
 
@@ -76,7 +77,7 @@ const saveReadIds = (set) => {
   }
 };
 
-const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [], logs: [], loading: true } }) => {
+const Layout = ({ children, activePage, setActivePage, onLogout, user, sharedData = { metrics: [], logs: [], loading: true } }) => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [drawerWidth, setDrawerWidth] = useState(240);
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -147,7 +148,7 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
     };
 
     loadNotifications();
-    timer = setInterval(loadNotifications, 15000);
+    timer = setInterval(loadNotifications, 60000);
     return () => {
       mounted = false;
       if (timer) clearInterval(timer);
@@ -399,7 +400,7 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
               )}
             </ListItemButton>
           </ListItem>
-
+ 
           <ListItem disablePadding>
             <ListItemButton
               selected={activePage === 'Chatbot'}
@@ -452,7 +453,7 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>
                 <TerminalIcon sx={{ color: COLORS.textMuted, fontSize: 18 }} />
                 <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.85rem', letterSpacing: '1px' }}>
-                  GLOBAL_TELEMETRY
+                  System Stats
                 </Typography>
               </Box>
 
@@ -767,7 +768,42 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
               </Box>
             </Popover>
 
-            <Tooltip title="System Profile" placement="bottom">
+            {user?.email && (
+              <Box
+                sx={{
+                  display: { xs: 'none', md: 'flex' },
+                  flexDirection: 'column',
+                  alignItems: 'flex-end',
+                  mr: 1.5,
+                  lineHeight: 1.1
+                }}
+              >
+                <Typography
+                  sx={{
+                    color: '#D4FF00',
+                    fontFamily: '"Roboto Mono", monospace',
+                    fontSize: '0.75rem',
+                    fontWeight: 700,
+                    letterSpacing: '1px'
+                  }}
+                >
+                  {user.email}
+                </Typography>
+                <Typography
+                  sx={{
+                    color: '#666',
+                    fontFamily: '"Roboto Mono", monospace',
+                    fontSize: '0.6rem',
+                    letterSpacing: '1.5px',
+                    textTransform: 'uppercase'
+                  }}
+                >
+                  {user.role || 'operator'}
+                </Typography>
+              </Box>
+            )}
+
+            <Tooltip title={user?.email || 'System Profile'} placement="bottom">
               <Avatar
                 onClick={handleProfileClick}
                 sx={{
@@ -810,21 +846,26 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
               }}
             >
               <Box sx={{ p: 2, borderBottom: `1px solid ${COLORS.border}`, display: 'flex', alignItems: 'center', gap: 2 }}>
-                 <Avatar sx={{ width: 44, height: 44, borderRadius: '8px', bgcolor: 'rgba(212,255,0,0.1)', color: COLORS.accentNeon, border: '1px solid rgba(212,255,0,0.3)' }}>
-                    <PersonIcon />
-                 </Avatar>
-                 <Box>
-                   <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700 }}>
-                     admin
-                   </Typography>
-                   <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.5 }}>
-                     <CircleIcon sx={{ fontSize: 8, color: COLORS.accentNeon, filter: `drop-shadow(0 0 4px ${COLORS.accentNeon})` }} />
-                     <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem' }}>
-                       Root Access
-                     </Typography>
-                   </Box>
-                 </Box>
-              </Box>
+  <Avatar sx={{ width: 44, height: 44, borderRadius: '8px', bgcolor: 'rgba(212,255,0,0.1)', color: COLORS.accentNeon, border: '1px solid rgba(212,255,0,0.3)' }}>
+    <PersonIcon />
+  </Avatar>
+  <Box>
+    <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700 }}>
+      {user ? `${user.first_name || ''} ${user.last_name || ''}`.trim() || user.email : 'Not signed in'}
+    </Typography>
+    {user?.email && (
+      <Typography sx={{ color: COLORS.accentNeon, fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem', mt: 0.25, wordBreak: 'break-all' }}>
+        {user.email}
+      </Typography>
+    )}
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.75, mt: 0.5 }}>
+      <CircleIcon sx={{ fontSize: 8, color: user ? COLORS.accentNeon : '#666', filter: user ? `drop-shadow(0 0 4px ${COLORS.accentNeon})` : 'none' }} />
+      <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
+        {user?.role || 'Guest Session'}
+      </Typography>
+    </Box>
+  </Box>
+</Box>
 
               <List sx={{ p: 1 }}>
                 <ListItem disablePadding>
@@ -849,11 +890,33 @@ const Layout = ({ children, activePage, setActivePage, sharedData = { metrics: [
                 <Divider sx={{ bgcolor: COLORS.border, my: 1 }} />
 
                 <ListItem disablePadding>
-                  <ListItemButton onClick={handleProfileClose} sx={{ borderRadius: '4px', transition: 'all 0.2s', '&:hover': { bgcolor: 'rgba(255,0,60,0.1)', '& .MuiListItemIcon-root, & .MuiTypography-root': { color: COLORS.critical } } }}>
-                    <ListItemIcon sx={{ minWidth: 32, color: COLORS.textMuted, transition: 'color 0.2s' }}><LogoutIcon fontSize="small" /></ListItemIcon>
-                    <ListItemText primary="Logout Session" primaryTypographyProps={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, transition: 'color 0.2s' }} />
-                  </ListItemButton>
-                </ListItem>
+  <ListItemButton
+    onClick={() => { handleProfileClose(); onLogout?.(); }}
+    sx={{
+      borderRadius: '4px',
+      transition: 'all 0.2s',
+      '&:hover': {
+        bgcolor: 'rgba(255,0,60,0.1)',
+        '& .MuiListItemIcon-root, & .MuiTypography-root': { color: COLORS.critical }
+      }
+    }}
+  >
+    <ListItemIcon sx={{ minWidth: 32, color: COLORS.textMuted, transition: 'color 0.2s' }}>
+      <LogoutIcon fontSize="small" />
+    </ListItemIcon>
+    <ListItemText 
+      primary="Logout Session" 
+      primaryTypographyProps={{ 
+        color: COLORS.textMuted, 
+        fontFamily: '"Roboto Mono", monospace', 
+        fontSize: '0.75rem', 
+        fontWeight: 700,
+        letterSpacing: '1.5px',
+        transition: 'color 0.2s' 
+      }} 
+    />
+  </ListItemButton>
+</ListItem>
               </List>
             </Popover>
 

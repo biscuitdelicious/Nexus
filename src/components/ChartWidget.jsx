@@ -19,7 +19,7 @@ const RANGE_LIMITS = {
   '24h': 5000,  // capped to backend max
 };
 
-const CustomTooltip = ({ active, payload, label }) => {
+const CustomTooltip = ({ active, payload, label, unit = '' }) => {
   if (active && payload && payload.length) {
     return (
       <Box sx={{ bgcolor: COLORS.surface, border: '1px solid', borderColor: COLORS.border, p: 1.5, borderRadius: 0 }}>
@@ -28,7 +28,7 @@ const CustomTooltip = ({ active, payload, label }) => {
         </Typography>
         {payload.map((entry, index) => (
           <Typography key={index} sx={{ color: entry.color, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700, marginBottom: 0.5 }}>
-            {seriesName}: {entry.value}{unit}
+            {entry.name || 'VALUE'}: {entry.value}{unit}
           </Typography>
         ))}
       </Box>

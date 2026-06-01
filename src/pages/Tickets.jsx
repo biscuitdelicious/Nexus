@@ -40,7 +40,7 @@ const Tickets = () => {
     };
 
     loadData();
-    const id = setInterval(loadData, 5000);
+    const id = setInterval(loadData, 30000);
     return () => {
       cancelled = true;
       clearInterval(id);
@@ -83,12 +83,12 @@ const Tickets = () => {
             <WarningAmberIcon sx={{ color: COLORS.info, fontSize: 28 }} />
           </Box>
           <Typography variant="h4" sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic' }}>
-            Ticket Management
+            Open Tickets
           </Typography>
         </Box>
 
         <Typography sx={{ mb: 4, ml: 8.5, color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-          Active system alerts requiring operator intervention and acknowledgement.
+          Open alarms waiting to be acknowledged.
         </Typography>
 
         {loading ? (

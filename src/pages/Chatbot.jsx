@@ -289,7 +289,7 @@ const Chatbot = () => {
                   letterSpacing: '1px'
                 }}
               >
-                Conversational AI for telemetry, incidents and database insights.
+                Ask about sensors, incidents, or the database.
               </Typography>
             </Box>
           </Box>

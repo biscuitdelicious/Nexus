@@ -8,14 +8,12 @@ import ResolutionBarChart from '../components/ResolutionBarChart';
 import AlarmFrequencyChart from '../components/AlarmFrequencyChart';
 import { fetchDashboardMetrics } from '../services/api';
 import { useUrlState } from '../hooks/useUrlState';
+import { COLORS } from '../theme/colors';
 
 const VALID_RANGES = new Set(['15m', '1h', '6h', '24h']);
 
-const Dashboard = () => {
-  const [params, patchParams] = useUrlState();
-import { COLORS } from '../theme/colors';
-
 const Dashboard = ({ setActivePage }) => {
+  const [params, patchParams] = useUrlState();
   const [metrics, setMetrics] = useState([]);
   const [loading, setLoading] = useState(true);
   const chartRange = VALID_RANGES.has(params.chart_range) ? params.chart_range : '1h';
@@ -34,7 +32,7 @@ const Dashboard = ({ setActivePage }) => {
       }
     };
     loadData();
-    const id = setInterval(loadData, 5000);
+    const id = setInterval(loadData, 30000);
     return () => {
       cancelled = true;
       clearInterval(id);
@@ -78,7 +76,7 @@ const Dashboard = ({ setActivePage }) => {
               fontWeight: 'normal',
             }}
           >
-            Incident Control Panel
+            Overview
           </Typography>
         </Box>
 
@@ -90,12 +88,19 @@ const Dashboard = ({ setActivePage }) => {
                 </Grid>
               ))
             : metrics.map((metric) => {
-                const clickable = metric.title === 'OPEN TICKETS' && typeof setActivePage === 'function';
+                const CARD_TARGET = {
+                  'CPU TEMP':     'Observability',
+                  'OPEN TICKETS': 'Tickets',
+                  'TOTAL EVENTS': 'Tickets',
+                  'SENSOR ID':    'Devices',
+                };
+                const target = CARD_TARGET[metric.title];
+                const clickable = !!target && typeof setActivePage === 'function';
                 return (
                 <Grid size={{ xs: 12, sm: 6, md: 3 }} key={metric.id}>
                   <Card
                     variant="outlined"
-                    onClick={clickable ? () => setActivePage('Tickets') : undefined}
+                    onClick={clickable ? () => setActivePage(target) : undefined}
                     sx={{
                       borderRadius: 0,
                       bgcolor: COLORS.surface,

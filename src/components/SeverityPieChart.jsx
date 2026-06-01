@@ -37,7 +37,7 @@ const SeverityPieChart = () => {
       }
     };
     loadData();
-    const id = setInterval(loadData, 5000);
+    const id = setInterval(loadData, 30000);
     return () => {
       cancelled = true;
       clearInterval(id);
