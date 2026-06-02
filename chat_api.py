@@ -26,7 +26,7 @@ def _db_connect():
     try:
         return psycopg2.connect(**DB_CONFIG)
     except Exception:
-        fallback = {**DB_CONFIG, "host": "127.0.0.1", "port": 5433}
+        fallback = {**DB_CONFIG, "host": "127.0.0.1", "port": 5434}
         return psycopg2.connect(**fallback)
 
 load_dotenv()

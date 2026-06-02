@@ -10,7 +10,7 @@ import { fetchDashboardMetrics } from '../services/api';
 import { useUrlState } from '../hooks/useUrlState';
 import { COLORS } from '../theme/colors';
 
-const VALID_RANGES = new Set(['15m', '1h', '6h', '24h']);
+const VALID_RANGES = new Set(['15m', '1h', '6h', '24h', '7d']);
 
 const Dashboard = ({ setActivePage }) => {
   const [params, patchParams] = useUrlState();
@@ -51,7 +51,7 @@ const Dashboard = ({ setActivePage }) => {
   };
 
   return (
-    <Fade in={true} timeout={800}>
+    <Fade in={true} timeout={200}>
       <Box sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column', gap: 1, overflow: 'hidden' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
           <Box

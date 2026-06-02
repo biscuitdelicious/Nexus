@@ -76,7 +76,7 @@ const Tickets = () => {
   };
 
   return (
-    <Fade in={true} timeout={800}>
+    <Fade in={true} timeout={200}>
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 1.5, background: COLORS.surface, border: `1px solid ${COLORS.border}` }}>

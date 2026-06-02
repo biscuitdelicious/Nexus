@@ -60,6 +60,7 @@ const SeverityPieChart = () => {
           paddingAngle={3}
           dataKey="value"
           stroke="none"
+          isAnimationActive={false}
         >
           {data.map((entry, index) => (
             <Cell key={`cell-${index}`} fill={entry.color} />

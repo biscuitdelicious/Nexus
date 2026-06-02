@@ -69,14 +69,32 @@ func (h *SensorReadingHandler) GetRecent(w http.ResponseWriter, r *http.Request)
 		return
 	}
 
+	duration := parseRange(r.URL.Query().Get("range"))
+
+	// Preferred path: downsample server-side so the result covers the whole
+	// window at a bounded point count, regardless of how many raw rows exist.
+	if mpStr := r.URL.Query().Get("max_points"); mpStr != "" {
+		maxPoints := 300
+		if v, err := strconv.Atoi(mpStr); err == nil && v > 0 && v <= 2000 {
+			maxPoints = v
+		}
+		rows, err := h.repo.GetDownsampled(uint(sensorID), duration, maxPoints)
+		if err != nil {
+			http.Error(w, "failed to fetch readings", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(rows)
+		return
+	}
+
+	// Legacy path: raw rows capped by limit (kept for backward compatibility).
 	limit := 60
 	if limStr := r.URL.Query().Get("limit"); limStr != "" {
 		if v, err := strconv.Atoi(limStr); err == nil && v > 0 && v <= 5000 {
 			limit = v
 		}
 	}
-
-	duration := parseRange(r.URL.Query().Get("range"))
 
 	rows, err := h.repo.GetRecent(uint(sensorID), limit, duration)
 	if err != nil {

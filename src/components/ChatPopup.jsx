@@ -184,8 +184,7 @@ const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
                               height: '0.95em',
                               ml: '2px',
                               bgcolor: COLORS.info,
-                              verticalAlign: 'text-bottom',
-                              animation: 'cursorBlinkPopup 1s steps(2) infinite'
+                              verticalAlign: 'text-bottom'
                             }}
                           />
                         )}
@@ -280,11 +279,6 @@ const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
         )}
       </Box>
 
-      <style>{`
-        @keyframes cursorBlinkPopup {
-          50% { opacity: 0; }
-        }
-      `}</style>
     </>
   );
 };

@@ -57,7 +57,7 @@ const ResolutionBarChart = () => {
           labelStyle={{ color: COLORS.textMuted, marginBottom: '8px' }}
           formatter={(value) => [`${value} MIN`, 'TIME']}
         />
-        <Bar dataKey="time" fill={COLORS.info} radius={0} />
+        <Bar dataKey="time" fill={COLORS.info} radius={0} isAnimationActive={false} />
       </BarChart>
     </ResponsiveContainer>
   );

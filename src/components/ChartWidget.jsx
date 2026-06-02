@@ -12,12 +12,9 @@ const RANGE_PRESETS = [
   { label: '7d', value: '7d'},
 ];
 
-const RANGE_LIMITS = {
-  '15m': 300,   // ~3s cadence
-  '1h': 1200,
-  '6h': 5000,   // capped to backend max
-  '24h': 5000,  // capped to backend max
-};
+// Target point count the backend downsamples to, for every range. ~300 is plenty
+// for a smooth line at typical widths and keeps the payload bounded.
+const MAX_POINTS = 300;
 
 const CustomTooltip = ({ active, payload, label, unit = '' }) => {
   if (active && payload && payload.length) {
@@ -38,7 +35,7 @@ const CustomTooltip = ({ active, payload, label, unit = '' }) => {
 };
 
 
-const ChartWidget = ({ limit = 60, range = '1h', onRangeChange, refreshMs = 8000 } = {}) => {
+const ChartWidget = ({ range = '1h', onRangeChange, refreshMs = 8000 } = {}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -60,21 +57,19 @@ const ChartWidget = ({ limit = 60, range = '1h', onRangeChange, refreshMs = 8000
   }, []);
 
   const selectedSensor = sensors.find((s) => s.id === sensorId);
-  console.log(selectedSensor);
   const sensorName = selectedSensor?.name || `Sensor ${sensorId}`;
   const unit = selectedSensor?.unit || '';
   const seriesLabel = sensorName.toUpperCase();
 
   const currentRange =
     RANGE_PRESETS.find((p) => p.value === range)?.label || String(range || 'all');
-  const effectiveLimit = RANGE_LIMITS[range] || limit;
 
   useEffect(() => {
     let cancelled = false;
 
     const loadData = async () => {
       try {
-        const res = await fetchChartDataStatus({ sensorId, limit: effectiveLimit, range });
+        const res = await fetchChartDataStatus({ sensorId, range, maxPoints: MAX_POINTS });
         if (cancelled) return;
         if (!res.ok) {
           setError(res);
@@ -96,7 +91,7 @@ const ChartWidget = ({ limit = 60, range = '1h', onRangeChange, refreshMs = 8000
       cancelled = true;
       clearInterval(id);
     };
-  }, [sensorId, effectiveLimit, range, refreshMs]);
+  }, [sensorId, range, refreshMs]);
 
   if (loading) {
     return <Skeleton variant="rectangular" sx={{ borderRadius: 0, bgcolor: COLORS.surface, height: '100%', minHeight: 0 }} />;
@@ -237,7 +232,7 @@ const ChartWidget = ({ limit = 60, range = '1h', onRangeChange, refreshMs = 8000
                 // Trigger immediate reload by resetting loading; effect interval will also keep it fresh.
                 // eslint-disable-next-line no-void
                 void (async () => {
-                  const res = await fetchChartDataStatus({ sensorId, limit: effectiveLimit, range });
+                  const res = await fetchChartDataStatus({ sensorId, range, maxPoints: MAX_POINTS });
                   if (!res.ok) {
                     setError(res);
                     setData([]);
@@ -265,7 +260,7 @@ const ChartWidget = ({ limit = 60, range = '1h', onRangeChange, refreshMs = 8000
             Failed to load readings {error?.status ? `(HTTP ${error.status})` : ''}: {error?.message || 'Unknown error'}
           </Typography>
           <Typography sx={{ mt: 1, color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>
-            Check that the API is running and `/readings` is available, then retry.
+            Check that the API is running and `/readings` is available.
           </Typography>
         </Alert>
       ) : data.length === 0 ? (
@@ -298,11 +293,12 @@ const ChartWidget = ({ limit = 60, range = '1h', onRangeChange, refreshMs = 8000
               dy={10}
             />
             <YAxis
-              tick={{ fill: COLORS.textMuted, fontSize: 11, fontFamily: '"Roboto Mono", monospace' }}
+              tick={{ fill: COLORS.textMuted, fontSize: 10, fontFamily: '"Roboto Mono", monospace' }}
               axisLine={false}
               tickLine={false}
               domain={['dataMin - 5', 'dataMax + 5']}
-              tickFormatter={(val) => `${val}${unit}`}
+              allowDecimals={false}
+              tickFormatter={(val) => `${Math.round(val)}${unit}`}
             />
             <Tooltip
               content={<CustomTooltip unit={unit} seriesName={seriesLabel} />}
@@ -320,6 +316,7 @@ const ChartWidget = ({ limit = 60, range = '1h', onRangeChange, refreshMs = 8000
               strokeWidth={2}
               dot={false}
               activeDot={{ r: 5, fill: COLORS.info, stroke: COLORS.surface, strokeWidth: 2 }}
+              isAnimationActive={false}
             />
            
           </LineChart>

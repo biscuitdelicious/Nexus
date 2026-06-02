@@ -47,6 +47,45 @@ func (r *SensorReadingRepository) GetRecent(sensorID uint, limit int, duration t
 	return rows, nil
 }
 
+// BucketPoint is one downsampled point: the average value over a time bucket.
+type BucketPoint struct {
+	Time  time.Time `json:"time"`
+	Value float64   `json:"value"`
+}
+
+// GetDownsampled returns ~maxPoints averaged points spread across the WHOLE
+// `duration` window, using TimescaleDB time_bucket. Bucket width scales with the
+// range (duration / maxPoints), so the result always covers the full window at a
+// bounded point count — no matter how many raw rows exist.
+func (r *SensorReadingRepository) GetDownsampled(sensorID uint, duration time.Duration, maxPoints int) ([]BucketPoint, error) {
+	if maxPoints <= 0 {
+		maxPoints = 300
+	}
+	if duration <= 0 {
+		duration = time.Hour
+	}
+
+	bucket := duration / time.Duration(maxPoints)
+	if bucket < time.Second {
+		bucket = time.Second
+	}
+	since := time.Now().Add(-duration)
+
+	var rows []BucketPoint
+	err := r.db.Raw(`
+		SELECT time_bucket(make_interval(secs => ?), time) AS time,
+		       avg(value)                                  AS value
+		FROM sensor_readings
+		WHERE sensor_id = ? AND time >= ?
+		GROUP BY 1
+		ORDER BY 1
+	`, bucket.Seconds(), sensorID, since).Scan(&rows).Error
+	if err != nil {
+		return nil, err
+	}
+	return rows, nil
+}
+
 // Returns most recent reading per sensor.
 func (r *SensorReadingRepository) LatestPerSensor() (map[uint]model.SensorReading, error) {
 	var rows []model.SensorReading

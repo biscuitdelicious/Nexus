@@ -37,7 +37,7 @@ const Devices = () => {
   };
 
   return (
-    <Fade in={true} timeout={800}>
+    <Fade in={true} timeout={200}>
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 2 }}>
           <Box

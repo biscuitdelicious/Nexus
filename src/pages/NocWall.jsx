@@ -51,7 +51,7 @@ const NocWall = ({ setActivePage }) => {
   };
 
   return (
-    <Fade in={true} timeout={800}>
+    <Fade in={true} timeout={200}>
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 1.5, background: COLORS.surface, border: `1px solid ${COLORS.border}` }}>
@@ -109,7 +109,7 @@ const NocWall = ({ setActivePage }) => {
               >
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                   <DragIndicatorIcon sx={{ color: COLORS.border, fontSize: 18 }} />
-                  <Box sx={{ width: 8, height: 8, bgcolor: COLORS.critical, borderRadius: '50%', animation: 'pulse 2s infinite' }} />
+                  <Box sx={{ width: 8, height: 8, bgcolor: COLORS.critical, borderRadius: '50%' }} />
                   <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '0.75rem', letterSpacing: '1px' }}>
                     FEED: {panel.title}
                   </Typography>
@@ -132,15 +132,6 @@ const NocWall = ({ setActivePage }) => {
           ))}
         </Box>
 
-        <style>
-          {`
-            @keyframes pulse {
-              0% { opacity: 1; }
-              50% { opacity: 0.3; }
-              100% { opacity: 1; }
-            }
-          `}
-        </style>
       </Box>
     </Fade>
   );
