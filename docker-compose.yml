@@ -11,7 +11,8 @@ services:
       - "${POSTGRES_EXTERNAL_PORT:-5433}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./migrations:/docker-entrypoint-initdb.d:ro
+      # Migrations are applied by the api service on startup via goose
+      # (embedded in the binary), not by postgres initdb.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-nexus}"]
       interval: 60s
@@ -53,14 +54,41 @@ services:
     environment:
       API_BASE_URL: http://api:8080
       INTERVAL_SEC: "3"
+      SERVICE_TOKEN: ${SERVICE_TOKEN}
     depends_on:
       api:
         condition: service_started
     networks:
       - nexus_net
 
+  # TLS reverse proxy (production). Only starts with: docker compose --profile prod up
+  # Terminates HTTPS and proxies to api (+ chat_api on the host). Dev `up` skips it.
+  caddy:
+    image: caddy:2-alpine
+    container_name: ${COMPOSE_PROJECT_NAME:-nexus}-caddy
+    profiles: ["prod"]
+    restart: unless-stopped
+    environment:
+      DOMAIN: ${DOMAIN:-localhost}
+      TLS_EMAIL: ${TLS_EMAIL:-internal}
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    depends_on:
+      - api
+    networks:
+      - nexus_net
+
 volumes:
   postgres_data:
+  caddy_data:
+  caddy_config:
 
 networks:
   nexus_net:

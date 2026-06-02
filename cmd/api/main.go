@@ -7,8 +7,11 @@ import (
 
 	"github.com/biscuitdelicious/Nexus/config"
 	"github.com/biscuitdelicious/Nexus/internal/handler"
+	appmw "github.com/biscuitdelicious/Nexus/internal/middleware"
 	"github.com/biscuitdelicious/Nexus/internal/repository"
+	"github.com/biscuitdelicious/Nexus/migrations"
 	"github.com/go-chi/chi/v5"
+	"github.com/pressly/goose/v3"
 	"github.com/rs/cors"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -29,6 +32,13 @@ func main() {
 
 	log.Println("connected to database")
 
+	// Run DB migrations on startup so the schema is always current, regardless
+	// of whether the postgres volume is fresh or pre-existing. Goose tracks
+	// applied versions in goose_db_version and only runs new ones.
+	if err := runMigrations(db); err != nil {
+		log.Fatalf("failed to run migrations: %v", err)
+	}
+
 	locationRepo := repository.NewLocationRepository(db)
 	sensorRepo := repository.NewSensorRepository(db)
 	userRepo := repository.NewUserRepository(db)
@@ -47,6 +57,9 @@ func main() {
 	sensorReadingHandler := handler.NewSensorReadingHandler(sensorReadingRepo)
 
 	r := chi.NewRouter()
+
+	// Require a valid JWT (or the service token) on every route except /health.
+	r.Use(appmw.Auth(cfg.JWTSecret, cfg.ServiceToken))
 
 	r.Get("/health", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
@@ -96,4 +109,24 @@ func main() {
 	if err := http.ListenAndServe(":"+cfg.ServerPort, c.Handler(r)); err != nil {
 		log.Fatalf("server failed: %v", err)
 	}
+}
+
+// runMigrations applies pending goose migrations embedded in the binary.
+func runMigrations(db *gorm.DB) error {
+	sqlDB, err := db.DB()
+	if err != nil {
+		return err
+	}
+
+	goose.SetBaseFS(migrations.FS)
+	if err := goose.SetDialect("postgres"); err != nil {
+		return err
+	}
+
+	if err := goose.Up(sqlDB, "."); err != nil {
+		return err
+	}
+
+	log.Println("migrations up to date")
+	return nil
 }

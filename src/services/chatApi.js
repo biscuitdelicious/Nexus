@@ -1,3 +1,5 @@
+import { apiFetch } from './auth';
+
 const SESSION_STORAGE_KEY = 'nexus_chat_session_id';
 
 export const getChatSessionId = () => {
@@ -9,7 +11,7 @@ export const getChatSessionId = () => {
 };
 
 export const sendChatMessage = async (apiBaseUrl, prompt, sessionId) => {
-  const res = await fetch(`${apiBaseUrl}/chat`, {
+  const res = await apiFetch(`${apiBaseUrl}/chat`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ prompt, session_id: sessionId })
@@ -19,7 +21,7 @@ export const sendChatMessage = async (apiBaseUrl, prompt, sessionId) => {
 };
 
 export const resetChatSession = async (apiBaseUrl, sessionId) => {
-  const res = await fetch(`${apiBaseUrl}/chat/reset`, {
+  const res = await apiFetch(`${apiBaseUrl}/chat/reset`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ session_id: sessionId })

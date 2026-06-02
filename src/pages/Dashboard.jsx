@@ -10,7 +10,7 @@ import { fetchDashboardMetrics } from '../services/api';
 import { useUrlState } from '../hooks/useUrlState';
 import { COLORS } from '../theme/colors';
 
-const VALID_RANGES = new Set(['15m', '1h', '6h', '24h']);
+const VALID_RANGES = new Set(['15m', '1h', '6h', '24h', '7d', '30d', '365d']);
 
 const Dashboard = ({ setActivePage }) => {
   const [params, patchParams] = useUrlState();

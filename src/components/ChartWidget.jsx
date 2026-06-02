@@ -9,8 +9,34 @@ const RANGE_PRESETS = [
   { label: '1h', value: '1h' },
   { label: '6h', value: '6h' },
   { label: '24h', value: '24h' },
-  { label: '7d', value: '7d'},
+  { label: '7d', value: '7d' },
+  { label: '30d', value: '30d' },
+  { label: '1y', value: '365d' },
 ];
+
+const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+const pad2 = (n) => String(n).padStart(2, '0');
+const DAY_MS = 86400000;
+
+// Adaptive axis label: granularity follows the visible span (Grafana-style).
+//   span <= ~1.5 days  -> HH:MM
+//   span <= ~60 days   -> DD MMM
+//   else               -> MMM YYYY
+const makeAxisFormatter = (spanMs) => {
+  if (spanMs > 60 * DAY_MS) {
+    return (t) => { const d = new Date(t); return `${MONTHS[d.getMonth()]} ${d.getFullYear()}`; };
+  }
+  if (spanMs > 1.5 * DAY_MS) {
+    return (t) => { const d = new Date(t); return `${pad2(d.getDate())} ${MONTHS[d.getMonth()]}`; };
+  }
+  return (t) => { const d = new Date(t); return `${pad2(d.getHours())}:${pad2(d.getMinutes())}`; };
+};
+
+// Tooltip always shows the full date + time.
+const formatFull = (t) => {
+  const d = new Date(t);
+  return `${pad2(d.getDate())} ${MONTHS[d.getMonth()]} ${d.getFullYear()}, ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+};
 
 // Target number of points the chart renders, regardless of range. Backend
 // downsamples to ~this many via time_bucket, so payload stays bounded even for
@@ -22,7 +48,7 @@ const CustomTooltip = ({ active, payload, label, unit = '' }) => {
     return (
       <Box sx={{ bgcolor: COLORS.surface, border: '1px solid', borderColor: COLORS.border, p: 1.5, borderRadius: 0 }}>
         <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', marginBottom: 1, letterSpacing: '1px' }}>
-          TIME: {label}
+          {typeof label === 'number' ? formatFull(label) : label}
         </Typography>
         {payload.map((entry, index) => (
           <Typography key={index} sx={{ color: entry.color, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700, marginBottom: 0.5 }}>
@@ -64,6 +90,10 @@ const ChartWidget = ({ range = '1h', onRangeChange, refreshMs = 8000 } = {}) => 
 
   const currentRange =
     RANGE_PRESETS.find((p) => p.value === range)?.label || String(range || 'all');
+
+  // Span of the loaded data drives axis label granularity (auto-adapts).
+  const spanMs = data.length > 1 ? data[data.length - 1].t - data[0].t : 0;
+  const axisFormatter = makeAxisFormatter(spanMs);
 
   useEffect(() => {
     let cancelled = false;
@@ -293,13 +323,17 @@ const ChartWidget = ({ range = '1h', onRangeChange, refreshMs = 8000 } = {}) => 
             </defs>
             <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={COLORS.border} strokeOpacity={0.5} />
             <XAxis
-              dataKey="time"
+              dataKey="t"
+              type="number"
+              scale="time"
+              domain={['dataMin', 'dataMax']}
+              tickFormatter={axisFormatter}
               tick={{ fill: COLORS.textMuted, fontSize: 10, fontFamily: '"Roboto Mono", monospace' }}
               axisLine={false}
               tickLine={false}
               dy={10}
               interval="preserveStartEnd"
-              minTickGap={48}
+              minTickGap={56}
             />
             <YAxis
               tick={{ fill: COLORS.textMuted, fontSize: 11, fontFamily: '"Roboto Mono", monospace' }}

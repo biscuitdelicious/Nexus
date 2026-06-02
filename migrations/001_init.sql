@@ -1,5 +1,5 @@
+-- +goose Up
 -- Initial schema for Infra Pulse
--- Auto-loaded by the postgres container on first start (mounted to /docker-entrypoint-initdb.d)
 
 CREATE EXTENSION IF NOT EXISTS timescaledb;
 
