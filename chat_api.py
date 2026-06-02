@@ -1,18 +1,25 @@
 import asyncio
 import json
 import os
+import time
 from collections import defaultdict
-from contextlib import closing
+from contextlib import contextmanager
 from typing import Optional
 
 import bcrypt
+import jwt
 import psycopg2
+import psycopg2.pool
 from dotenv import load_dotenv
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel, Field
 
 from chatbot import chat_nexus, memory_store
+
+# Load .env before reading any config from the environment.
+load_dotenv()
 
 DB_CONFIG = {
     "host":     os.getenv("DB_HOST", "localhost"),
@@ -22,14 +29,44 @@ DB_CONFIG = {
     "port":     int(os.getenv("DB_PORT", "5433")),
 }
 
-def _db_connect():
-    try:
-        return psycopg2.connect(**DB_CONFIG)
-    except Exception:
-        fallback = {**DB_CONFIG, "host": "127.0.0.1", "port": 5433}
-        return psycopg2.connect(**fallback)
+# Connection pool: reuse a small set of DB connections instead of opening a
+# fresh psycopg2.connect() on every request. Initialized lazily so the host
+# fallback (5434) can be tried once at startup, not per request.
+_POOL = None
 
-load_dotenv()
+
+def _init_pool():
+    global _POOL
+    candidates = [DB_CONFIG, {**DB_CONFIG, "host": "127.0.0.1", "port": 5434}]
+    last_err = None
+    for cfg in candidates:
+        try:
+            _POOL = psycopg2.pool.ThreadedConnectionPool(1, 10, **cfg)
+            return
+        except Exception as err:  # noqa: BLE001 - try next candidate
+            last_err = err
+    raise last_err
+
+
+@contextmanager
+def db_conn():
+    """Borrow a pooled connection and return it (clean) when done."""
+    global _POOL
+    if _POOL is None:
+        _init_pool()
+    conn = _POOL.getconn()
+    try:
+        yield conn
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        # Clear any open/aborted transaction so the connection is safe to reuse.
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        _POOL.putconn(conn)
 
 app = FastAPI(title="Nexus Chat API", version="1.0.0")
 
@@ -50,6 +87,56 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# =========================================================================
+# Auth: JWT (HS256) issued on login/signup, verified on every request.
+# Machine clients may instead send the shared SERVICE_TOKEN.
+# =========================================================================
+
+JWT_SECRET = os.getenv("JWT_SECRET", "dev-insecure-change-me")
+JWT_ALG = "HS256"
+JWT_TTL_SECONDS = int(os.getenv("JWT_TTL_SECONDS", str(12 * 3600)))
+SERVICE_TOKEN = os.getenv("SERVICE_TOKEN", "")
+
+# Paths reachable without a token (auth itself, health, API docs).
+PUBLIC_PATHS = {"/login", "/signup", "/health", "/docs", "/openapi.json", "/redoc"}
+
+
+def create_token(user_id: int, email: str, role: str) -> str:
+    now = int(time.time())
+    payload = {
+        "sub": str(user_id),
+        "user_id": user_id,
+        "email": email,
+        "role": role,
+        "iat": now,
+        "exp": now + JWT_TTL_SECONDS,
+    }
+    return jwt.encode(payload, JWT_SECRET, algorithm=JWT_ALG)
+
+
+def _token_valid(token: str) -> bool:
+    if SERVICE_TOKEN and token == SERVICE_TOKEN:
+        return True
+    try:
+        jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALG])
+        return True
+    except jwt.PyJWTError:
+        return False
+
+
+@app.middleware("http")
+async def auth_middleware(request: Request, call_next):
+    # CORS preflight carries no auth header; let it through.
+    if request.method == "OPTIONS" or request.url.path in PUBLIC_PATHS:
+        return await call_next(request)
+
+    header = request.headers.get("authorization", "")
+    token = header[7:] if header.lower().startswith("bearer ") else ""
+    if not token or not _token_valid(token):
+        return JSONResponse(status_code=401, content={"detail": "Unauthorized"})
+
+    return await call_next(request)
 
 
 class ChatRequest(BaseModel):
@@ -94,11 +181,12 @@ class LoginResponse(BaseModel):
     role: str
     first_name: str
     last_name: str | None = None
+    token: str
 
 
 @app.post("/login", response_model=LoginResponse)
 def login(request: LoginRequest):
-    with closing(_db_connect()) as conn:
+    with db_conn() as conn:
         with conn.cursor() as curr:
             curr.execute(
                 "SELECT user_id, email, role, first_name, last_name, password_hash "
@@ -123,6 +211,43 @@ def login(request: LoginRequest):
     return LoginResponse(
         user_id=user_id, email=email, role=role,
         first_name=first_name, last_name=last_name,
+        token=create_token(user_id, email, role),
+    )
+
+
+class SignupRequest(BaseModel):
+    email: str = Field(..., min_length=3)
+    # Enforce a minimum password strength server-side (not just in the UI).
+    password: str = Field(..., min_length=8, max_length=128)
+    first_name: str = Field(..., min_length=1)
+    last_name: str | None = None
+
+
+@app.post("/signup", response_model=LoginResponse)
+def signup(request: SignupRequest):
+    email = request.email.lower().strip()
+    password_hash = bcrypt.hashpw(
+        request.password.encode("utf-8"), bcrypt.gensalt()
+    ).decode("utf-8")
+
+    with db_conn() as conn:
+        with conn.cursor() as curr:
+            curr.execute("SELECT user_id FROM users WHERE email = %s", (email,))
+            if curr.fetchone():
+                raise HTTPException(status_code=409, detail="Email already registered")
+
+            curr.execute(
+                "INSERT INTO users (first_name, last_name, email, role, password_hash) "
+                "VALUES (%s, %s, %s, %s, %s) RETURNING user_id",
+                (request.first_name, request.last_name, email, "user", password_hash),
+            )
+            user_id = curr.fetchone()[0]
+            conn.commit()
+
+    return LoginResponse(
+        user_id=user_id, email=email, role="user",
+        first_name=request.first_name, last_name=request.last_name,
+        token=create_token(user_id, email, "user"),
     )
 
 
@@ -187,7 +312,7 @@ def _iso(ts):
 
 @app.get("/discussions", response_model=list[DiscussionSummary])
 def list_discussions():
-    with closing(_db_connect()) as conn:
+    with db_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 "SELECT d.discussion_id, d.title, d.status, d.author_display, "
@@ -213,7 +338,7 @@ def list_discussions():
 
 @app.get("/discussions/{discussion_id}", response_model=DiscussionDetail)
 def get_discussion(discussion_id: int):
-    with closing(_db_connect()) as conn:
+    with db_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 "SELECT discussion_id, title, status, author_display, "
@@ -250,7 +375,7 @@ def get_discussion(discussion_id: int):
 
 @app.post("/discussions", response_model=DiscussionDetail)
 def create_discussion(req: NewDiscussionRequest):
-    with closing(_db_connect()) as conn:
+    with db_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 "INSERT INTO discussions (title, status, author_display, "
@@ -266,7 +391,7 @@ def create_discussion(req: NewDiscussionRequest):
 
 @app.post("/discussions/{discussion_id}/comments", response_model=CommentOut)
 async def add_comment(discussion_id: int, req: NewCommentRequest):
-    with closing(_db_connect()) as conn:
+    with db_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 "INSERT INTO discussion_comments (discussion_id, user_id, "
@@ -299,7 +424,7 @@ async def add_comment(discussion_id: int, req: NewCommentRequest):
 async def change_status(discussion_id: int, req: StatusChangeRequest):
     new_status = req.status.upper()
 
-    with closing(_db_connect()) as conn:
+    with db_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 "UPDATE discussions SET status = %s, updated_at = NOW() "
@@ -396,7 +521,7 @@ def metrics_observability():
        - UPTIME = time since first event in DB (capped 30d)
        - ERROR RATE = critical/incident events in last 24h / total in last 24h
     """
-    with closing(_db_connect()) as conn:
+    with db_conn() as conn:
         with conn.cursor() as cur:
             # Uptime
             cur.execute("SELECT MIN(created_at) FROM events")
@@ -454,7 +579,7 @@ def metrics_resolution():
     """Average minutes-to-resolve per day, last 7 days.
        Uses events.resolved_at - events.created_at for events with status='resolved'.
     """
-    with closing(_db_connect()) as conn:
+    with db_conn() as conn:
         with conn.cursor() as cur:
             cur.execute(
                 "SELECT "
@@ -477,6 +602,11 @@ def metrics_resolution():
 
 @app.websocket("/ws/discussions/{discussion_id}")
 async def ws_discussion(websocket: WebSocket, discussion_id: int):
+    # Browsers can't set headers on WebSocket; token comes as ?token= query param.
+    token = websocket.query_params.get("token", "")
+    if not token or not _token_valid(token):
+        await websocket.close(code=1008)  # policy violation
+        return
     await manager.connect(discussion_id, websocket)
     try:
         await websocket.send_text(json.dumps({"type": "hello",

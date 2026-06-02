@@ -1,0 +1,41 @@
+# Production TLS reverse proxy for Nexus.
+#
+# Caddy terminates HTTPS (automatic certs) and routes:
+#   /chat-api/*  -> chat_api  (FastAPI, auth/discussions/chat)   [strip prefix]
+#   everything else -> api    (Go REST API)
+#
+# Local/dev over HTTPS:  set DOMAIN=localhost  -> Caddy uses its internal CA.
+# Production:            set DOMAIN=nexus.example.com and TLS_EMAIL=you@example.com
+#                        -> Caddy obtains a real Let's Encrypt certificate.
+#
+# Frontend: build it (`npm run build`) with
+#   VITE_API_BASE_URL=https://$DOMAIN
+#   VITE_CHAT_API_BASE_URL=https://$DOMAIN/chat-api
+# and serve the dist/ — either from a static host or by adding a file_server here.
+
+{
+	email {$TLS_EMAIL}
+}
+
+{$DOMAIN:localhost} {
+	# Use Caddy's internal CA when running locally (no public domain).
+	tls {$TLS_EMAIL:internal}
+
+	# chat_api (FastAPI). Runs as a host process in dev; in a full container
+	# deployment point this at the chat_api service instead.
+	handle_path /chat-api/* {
+		reverse_proxy host.docker.internal:8002
+	}
+
+	# WebSocket for live discussions (Caddy proxies upgrades automatically).
+	handle /ws/* {
+		reverse_proxy host.docker.internal:8002
+	}
+
+	# Everything else -> Go API.
+	handle {
+		reverse_proxy api:8080
+	}
+
+	encode gzip
+}

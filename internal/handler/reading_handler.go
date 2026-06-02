@@ -3,6 +3,8 @@ package handler
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/biscuitdelicious/Nexus/internal/repository"
@@ -51,10 +53,17 @@ func (h *ReadingHandler) GetSummary(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(summary)
 }
 
-// parseRange converts a query param like "1h", "30m", "24h" into a time.Duration.
-// Defaults to 1 hour if missing or invalid.
+// parseRange converts a query param like "1h", "30m", "24h", "7d" into a
+// time.Duration. Defaults to 1 hour if missing or invalid. Go's ParseDuration
+// has no day unit, so "<n>d" is handled explicitly.
 func parseRange(raw string) time.Duration {
 	if raw == "" {
+		return time.Hour
+	}
+	if strings.HasSuffix(raw, "d") {
+		if days, err := strconv.Atoi(strings.TrimSuffix(raw, "d")); err == nil && days > 0 {
+			return time.Duration(days) * 24 * time.Hour
+		}
 		return time.Hour
 	}
 	d, err := time.ParseDuration(raw)

@@ -1,4 +1,5 @@
 import { getChatApiBaseUrl } from './chatApi';
+import { apiFetch, withTokenParam } from './auth';
 
 /**
  * REST + WebSocket client for the Discussions module.
@@ -31,10 +32,10 @@ const json = async (res) => {
 };
 
 export const fetchDiscussions = () =>
-  fetch(`${getChatApiBaseUrl()}/discussions`).then(json);
+  apiFetch(`${getChatApiBaseUrl()}/discussions`).then(json);
 
 export const fetchDiscussionDetail = (id) =>
-  fetch(`${getChatApiBaseUrl()}/discussions/${id}`).then(json);
+  apiFetch(`${getChatApiBaseUrl()}/discussions/${id}`).then(json);
 
 const getCurrentUserId = () => {
   try {
@@ -44,14 +45,14 @@ const getCurrentUserId = () => {
 };
 
 export const createDiscussion = (payload) =>
-  fetch(`${getChatApiBaseUrl()}/discussions`, {
+  apiFetch(`${getChatApiBaseUrl()}/discussions`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ ...payload, user_id: getCurrentUserId() })
   }).then(json);
 
 export const postComment = (discussionId, authorDisplay, message) =>
-  fetch(`${getChatApiBaseUrl()}/discussions/${discussionId}/comments`, {
+  apiFetch(`${getChatApiBaseUrl()}/discussions/${discussionId}/comments`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -62,7 +63,7 @@ export const postComment = (discussionId, authorDisplay, message) =>
   }).then(json);
 
 export const changeDiscussionStatus = (discussionId, status, authorDisplay) =>
-  fetch(`${getChatApiBaseUrl()}/discussions/${discussionId}/status`, {
+  apiFetch(`${getChatApiBaseUrl()}/discussions/${discussionId}/status`, {
     method: 'PATCH',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
@@ -80,7 +81,7 @@ export const changeDiscussionStatus = (discussionId, status, authorDisplay) =>
  * @returns {() => void} unsubscribe function
  */
 export const subscribeToDiscussion = (discussionId, onEvent) => {
-  const wsUrl = `${getWsBaseUrl()}/ws/discussions/${discussionId}`;
+  const wsUrl = withTokenParam(`${getWsBaseUrl()}/ws/discussions/${discussionId}`);
   const state = { closed: false, ws: null, retryMs: 1000, pingTimer: null };
 
   const open = () => {

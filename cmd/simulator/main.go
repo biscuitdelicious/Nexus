@@ -13,7 +13,10 @@ import (
 	"time"
 )
 
-// TODO: Find out how to not send all the data(filter by time, sensor id); make it scalable for huge data
+// Scalability note: the read path (GET /readings?sensor_id=&range=&max_points=)
+// downsamples server-side with TimescaleDB time_bucket, so the frontend never
+// pulls all rows — payload stays bounded (~max_points) regardless of table size.
+// See SensorReadingRepository.GetDownsampled.
 
 
 // Sensor describes one simulated metric channel.
@@ -37,6 +40,7 @@ type readingPayload struct {
 func main() {
 	apiURL := getenv("API_BASE_URL", "http://localhost:8080")
 	intervalSec := getenvInt("INTERVAL_SEC", 5)
+	serviceToken := os.Getenv("SERVICE_TOKEN")
 	host, _ := os.Hostname()
 
 	sensors := []*Sensor{
@@ -59,7 +63,7 @@ func main() {
 	for range ticker.C {
 		for _, s := range sensors {
 			s.current = step(s, dt, rng)
-			if err := post(apiURL, s, host); err != nil {
+			if err := post(apiURL, s, host, serviceToken); err != nil {
 				log.Printf("post sensor %d (%s) failed: %v", s.ID, s.Name, err)
 				continue
 			}
@@ -82,13 +86,21 @@ func step(s *Sensor, dt float64, rng *rand.Rand) float64 {
 	return next
 }
 
-func post(apiURL string, s *Sensor, host string) error {
+func post(apiURL string, s *Sensor, host, serviceToken string) error {
 	body, _ := json.Marshal(readingPayload{
 		SensorID: s.ID,
 		Value:    s.current,
 		Host:     host,
 	})
-	resp, err := http.Post(apiURL+"/readings", "application/json", bytes.NewReader(body))
+	req, err := http.NewRequest(http.MethodPost, apiURL+"/readings", bytes.NewReader(body))
+	if err != nil {
+		return err
+	}
+	req.Header.Set("Content-Type", "application/json")
+	if serviceToken != "" {
+		req.Header.Set("Authorization", "Bearer "+serviceToken)
+	}
+	resp, err := http.DefaultClient.Do(req)
 	if err != nil {
 		return err
 	}

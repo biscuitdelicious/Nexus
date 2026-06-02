@@ -1,3 +1,4 @@
+-- +goose Up
 -- Forum-style threads tied to infra incidents (optional link to events alarm row).
 
 CREATE TABLE IF NOT EXISTS discussions (

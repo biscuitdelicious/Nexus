@@ -41,3 +41,14 @@ dist-ssr
 *.sln
 *.sw?
 
+# Python
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+venv/
+
+# Generated artifacts
+vite-log.txt
+Nexus_Session_FullReport.pdf
+
