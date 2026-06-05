@@ -230,6 +230,22 @@ export const acknowledgeTicket = async (ticketId) => {
   }
 };
 
+// Clears all active alerts: DELETE /events removes every non-resolved event.
+// Used by the Devices "Clear Alerts" button.
+export const clearAllAlerts = async () => {
+  try {
+    const res = await fetch(`${API_BASE_URL}/events`, { method: 'DELETE' });
+    if (!res.ok) {
+      const msg = await res.text().catch(() => '');
+      return { ok: false, message: msg || `HTTP ${res.status}` };
+    }
+    const data = await res.json().catch(() => ({}));
+    return { ok: true, deleted: data.deleted ?? 0 };
+  } catch (err) {
+    return { ok: false, message: err?.message || 'Network error' };
+  }
+};
+
 export const fetchLiveFeed = async () => {
   try {
     const res = await fetch(`${API_BASE_URL}/events`);

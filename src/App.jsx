@@ -47,6 +47,7 @@ function App() {
     setUser(null);
   };
 
+// TODO: implement this in BE
   if (!isAuthed) {
     return (
       <ThemeProvider theme={glassTheme}>

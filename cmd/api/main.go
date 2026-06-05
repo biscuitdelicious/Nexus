@@ -73,6 +73,7 @@ func main() {
 	r.Get("/events/frequency", eventHandler.Frequency)
 	r.Get("/events/{id}", eventHandler.GetByID)
 	r.Post("/events", eventHandler.Create)
+	r.Delete("/events", eventHandler.ClearAlerts)
 	r.Patch("/events/{id}", eventHandler.UpdateStatus)
 	r.Post("/events/{id}/snooze", eventHandler.Snooze)
 

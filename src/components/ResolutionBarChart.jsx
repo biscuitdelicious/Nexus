@@ -40,6 +40,8 @@ const ResolutionBarChart = () => {
           tick={{ fill: COLORS.textMuted, fontSize: 12, fontFamily: '"Roboto Mono", monospace' }}
           axisLine={false}
           tickLine={false}
+          allowDecimals={false}
+          tickFormatter={(val) => `${Math.round(val)}`}
         />
         <Tooltip
           cursor={{ fill: 'rgba(88, 166, 255, 0.08)' }}
@@ -55,7 +57,7 @@ const ResolutionBarChart = () => {
           }}
           itemStyle={{ color: COLORS.info, fontWeight: 700 }}
           labelStyle={{ color: COLORS.textMuted, marginBottom: '8px' }}
-          formatter={(value) => [`${value} MIN`, 'TIME']}
+          formatter={(value) => [`${Number(value).toFixed(2)} MIN`, 'TIME']}
         />
         <Bar dataKey="time" fill={COLORS.info} radius={0} isAnimationActive={false} />
       </BarChart>

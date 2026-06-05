@@ -3,7 +3,7 @@ import { Box, Typography, Fade, Grid, Paper, Button, Skeleton } from '@mui/mater
 import DnsIcon from '@mui/icons-material/Dns';
 import DeviceList from '../components/DeviceList';
 import AddDeviceModal from '../components/AddDeviceModal';
-import { fetchDevices } from '../services/api';
+import { fetchDevices, clearAllAlerts } from '../services/api';
 import { COLORS } from '../theme/colors';
 
 const Devices = () => {
@@ -11,6 +11,7 @@ const Devices = () => {
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [clearing, setClearing] = useState(false);
 
   useEffect(() => {
     const loadStats = async () => {
@@ -34,6 +35,20 @@ const Devices = () => {
 
   const handleCreated = () => {
     setRefreshKey((k) => k + 1);
+  };
+
+  // Deletes all active (non-resolved) alerts, then refreshes the device stats.
+  const handleClearAlerts = async () => {
+    if (clearing) return;
+    if (!window.confirm('Delete all active alerts? Resolved history is kept.')) return;
+    setClearing(true);
+    const res = await clearAllAlerts();
+    setClearing(false);
+    if (res.ok) {
+      setRefreshKey((k) => k + 1);
+    } else {
+      alert('Clear alerts failed: ' + (res.message || 'unknown'));
+    }
   };
 
   return (
@@ -191,8 +206,8 @@ const Devices = () => {
                   <Button variant="outlined" fullWidth sx={{ borderRadius: 0, borderColor: COLORS.border, color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { borderColor: COLORS.textMuted, bgcolor: 'transparent' } }}>
                     Scan Network
                   </Button>
-                  <Button variant="outlined" fullWidth sx={{ borderRadius: 0, borderColor: COLORS.critical, color: COLORS.critical, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { borderColor: COLORS.critical, bgcolor: 'rgba(255, 0, 60, 0.05)' } }}>
-                    Clear Alerts
+                  <Button onClick={handleClearAlerts} disabled={clearing || stats.issues === 0} variant="outlined" fullWidth sx={{ borderRadius: 0, borderColor: COLORS.critical, color: COLORS.critical, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { borderColor: COLORS.critical, bgcolor: 'rgba(255, 0, 60, 0.05)' } }}>
+                    {clearing ? 'Clearing...' : 'Clear Alerts'}
                   </Button>
                 </Box>
               </Box>

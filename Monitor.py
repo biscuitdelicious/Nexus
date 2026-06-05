@@ -17,8 +17,6 @@ try:
 except ImportError:
     pass
 
-# ─── Configuratie ─────────────────────────────────────────────────────────────
-
 email_expeditor  = "victor05florea@gmail.com"
 parola_aplicatie = os.getenv("GMAIL_PASSWORD")
 
@@ -26,14 +24,12 @@ mod_testare      = True
 email_test       = "victor05florea@gmail.com"
 emailuri_nokia   = ["nokia-support@nokia.ro", "nokia-staff@nokia.ro"]
 
-prag_critic      = float(os.getenv("PRAG_CRITIC", "80.0"))
-secunde_pauza    = int(os.getenv("SECUNDE_PAUZA", "600"))
-interval_citire  = int(os.getenv("INTERVAL_CITIRE", "3"))
+prag_critic      = float(os.getenv("PRAG_CRITIC"))
+secunde_pauza    = int(os.getenv("SECUNDE_PAUZA"))
+interval_citire  = int(os.getenv("INTERVAL_CITIRE"))
 lhm_port         = int(os.getenv("LHM_PORT", "8085"))
-senzor_nume      = os.getenv("SENSOR_NAME", "cpu_temp")
-
-# ID-ul senzorului din tabela `sensors` (vezi 001_init.sql: SN-001 = CPU Monitor)
-sensor_id_api    = int(os.getenv("SENSOR_ID", "1"))
+senzor_nume      = os.getenv("SENSOR_NAME")
+sensor_id_api    = int(os.getenv("SENSOR_ID"))
 
 # URL-ul backend-ului Go (containerul infrapulse-api)
 api_base         = os.getenv("API_BASE_URL", "http://localhost:8080").rstrip("/")
@@ -41,6 +37,9 @@ readings_url     = f"{api_base}/readings"
 webhook_url      = os.getenv("GRAFANA_WEBHOOK_URL", f"{api_base}/webhook/grafana")
 api_activ        = os.getenv("API_ENABLED", "true").lower() == "true"
 webhook_activ    = os.getenv("WEBHOOK_ENABLED", "true").lower() == "true"
+# TEMP_ENABLED=false -> nu mai citeste temperatura; ruleaza DOAR poll-ul de
+# evenimente + email (util ca sa vezi clar cand se trimite email).
+temp_activ       = os.getenv("TEMP_ENABLED", "true").lower() == "true"
 
 sistem           = platform.system()
 
@@ -233,19 +232,87 @@ def executa_notificare(temp, motiv):
     except Exception as e:
         print(f"[{time.strftime('%H:%M:%S')}] Eroare trimitere email: {e}")
 
+
+
+# --- Notificare pentru evenimente create din webhook (ORICE sursa) ---
+# Orice POST catre /webhook/grafana creeaza un eveniment in DB. Verificam periodic
+# evenimentele noi (prin API-ul Go) si trimitem email pentru fiecare. Astfel
+# notificarea se declanseaza din POST-uri, nu doar din temperatura locala.
+
+def email_eveniment(ev):
+    """Trimite un email pentru un eveniment nou (din webhook / orice sursa)."""
+    destinatari = [email_test] if mod_testare else emailuri_nokia
+    sev = str(ev.get("Severity", "?")).upper()
+    mesaj = ev.get("Message", "(fara mesaj)")
+    sid = ev.get("SensorID", "?")
+    eid = ev.get("EventID", "?")
+    try:
+        sursa = f"SN-{int(sid):03d}"
+    except (TypeError, ValueError):
+        sursa = str(sid)
+
+    msg = MIMEMultipart()
+    msg["From"] = email_expeditor
+    msg["To"] = ", ".join(destinatari)
+    msg["Subject"] = f"Alarma Nexus [{sev}] {sursa} (event #{eid})"
+    body = (f"Eveniment nou.\n\n"
+            f"Severitate: {sev}\nSenzor: {sursa}\nMesaj: {mesaj}\n"
+            f"Event ID: {eid}\nCreat la: {ev.get('CreatedAt', '')}")
+    msg.attach(MIMEText(body, "plain"))
+
+    if not parola_aplicatie:
+        print(f"[{time.strftime('%H:%M:%S')}] GMAIL_PASSWORD lipsa; skip email eveniment.")
+        return
+    try:
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(email_expeditor, parola_aplicatie)
+            server.sendmail(email_expeditor, destinatari, msg.as_string())
+        print(f"[{time.strftime('%H:%M:%S')}] Email eveniment #{eid} [{sev}] -> {destinatari}")
+    except Exception as e:
+        print(f"[{time.strftime('%H:%M:%S')}] Eroare email eveniment: {e}")
+
+
+def ia_evenimente(after_id=-1):
+    """Cere /events de la API; returneaza evenimentele cu EventID > after_id, crescator.
+    Echivalent cu: SELECT * FROM events WHERE event_id > after_id ORDER BY event_id."""
+    try:
+        with urllib.request.urlopen(f"{api_base}/events", timeout=5) as resp:
+            data = json.loads(resp.read().decode("utf-8"))
+    except Exception as e:
+        print(f"[{time.strftime('%H:%M:%S')}] Eroare citire /events: {e}")
+        return []
+    if not isinstance(data, list):
+        return []
+    noi = [e for e in data if (e.get("EventID") or 0) > after_id]
+    return sorted(noi, key=lambda e: e.get("EventID") or 0)
+
 # ─── Main ─────────────────────────────────────────────────────────────────────
 
 if __name__ == "__main__":
-    print(f"[INFO] Monitor pornit pe {sistem}. Prag critic: {prag_critic}°C")
+    # print(f"[INFO] Monitor pornit pe {sistem}. Prag critic: {prag_critic}°C")
     print(f"[INFO] API backend: {api_base} (readings=on:{api_activ}, webhook=on:{webhook_activ})")
-    print(f"[INFO] Sensor ID: {sensor_id_api}  |  interval: {interval_citire}s")
+    # print(f"[INFO] Sensor ID: {sensor_id_api}  |  interval: {interval_citire}s")
 
     incident_activ       = False
     timp_start_incident  = 0
     numar_incidente      = 0
     timp_start_fereastra = 0
 
+    # Pornim de la ultimul eveniment existent ca sa nu trimitem email pe istoricul vechi.
+    ultim_event_id = max((e.get("EventID") or 0) for e in ia_evenimente(-1)) if ia_evenimente(-1) else 0
+    # print(f"[INFO] Pornesc de la event_id={ultim_event_id}; verific evenimente noi din webhook.")
+
     while True:
+        # Verifica evenimente noi create din ORICE webhook POST si trimite email.
+        for _ev in ia_evenimente(ultim_event_id):
+            email_eveniment(_ev)
+            ultim_event_id = max(ultim_event_id, _ev.get("EventID") or 0)
+
+        # Daca temperatura e dezactivata, doar verifica evenimente + email, apoi asteapta.
+        if not temp_activ:
+            time.sleep(interval_citire)
+            continue
+
         temperatura = obtine_temperatura()
 
         if numar_incidente > 0 and (time.time() - timp_start_fereastra > 100):
@@ -274,7 +341,7 @@ if __name__ == "__main__":
 
                 if durata >= 10:
                     print(f"[{time.strftime('%H:%M:%S')}] ALARMA: Incident > 10s!")
-                    executa_notificare(temperatura, "Incident persistent > 10 secunde")
+                    # email trimis acum din poll-ul de evenimente (email_eveniment)
                     trimite_alerta_grafana(
                         temperatura,
                         severity="critical",
@@ -287,7 +354,7 @@ if __name__ == "__main__":
 
                 elif numar_incidente >= 3:
                     print(f"[{time.strftime('%H:%M:%S')}] ALARMA: 3 incidente recurente!")
-                    executa_notificare(temperatura, "3 incidente recurente in 100 secunde")
+                    # email trimis acum din poll-ul de evenimente (email_eveniment)
                     trimite_alerta_grafana(
                         temperatura,
                         severity="critical",

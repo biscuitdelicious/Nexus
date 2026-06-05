@@ -25,7 +25,7 @@ const CustomTooltip = ({ active, payload, label, unit = '' }) => {
         </Typography>
         {payload.map((entry, index) => (
           <Typography key={index} sx={{ color: entry.color, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700, marginBottom: 0.5 }}>
-            {entry.name || 'VALUE'}: {entry.value}{unit}
+            {entry.name || 'VALUE'}: {Number(entry.value).toFixed(2)}{unit}
           </Typography>
         ))}
       </Box>
@@ -35,7 +35,7 @@ const CustomTooltip = ({ active, payload, label, unit = '' }) => {
 };
 
 
-const ChartWidget = ({ range = '1h', onRangeChange, refreshMs = 8000 } = {}) => {
+const ChartWidget = ({ range = '1h', onRangeChange, onSensorChange, refreshMs = 8000 } = {}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -60,6 +60,14 @@ const ChartWidget = ({ range = '1h', onRangeChange, refreshMs = 8000 } = {}) => 
   const sensorName = selectedSensor?.name || `Sensor ${sensorId}`;
   const unit = selectedSensor?.unit || '';
   const seriesLabel = sensorName.toUpperCase();
+
+  // Tell the parent (Dashboard) which sensor is selected, so its SENSOR ID card
+  // stays in sync. Runs after render whenever the selection or the list changes.
+  useEffect(() => {
+    if (selectedSensor && typeof onSensorChange === 'function') {
+      onSensorChange(selectedSensor);
+    }
+  }, [sensorId, sensors, onSensorChange]);
 
   const currentRange =
     RANGE_PRESETS.find((p) => p.value === range)?.label || String(range || 'all');

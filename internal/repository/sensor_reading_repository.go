@@ -18,8 +18,7 @@ func (r *SensorReadingRepository) Create(reading *model.SensorReading) error {
 	return r.db.Create(reading).Error
 }
 
-// Latest N readings for a sensor, optionally limited to last `duration`.
-// Returns rows oldest → newest (good for charts).
+// Latest N readings for a sensor, optionally limited to last duration. Returns rows oldest → newest (good for charts).
 func (r *SensorReadingRepository) GetRecent(sensorID uint, limit int, duration time.Duration) ([]model.SensorReading, error) {
 	var rows []model.SensorReading
 	if limit <= 0 {
@@ -53,10 +52,7 @@ type BucketPoint struct {
 	Value float64   `json:"value"`
 }
 
-// GetDownsampled returns ~maxPoints averaged points spread across the WHOLE
-// `duration` window, using TimescaleDB time_bucket. Bucket width scales with the
-// range (duration / maxPoints), so the result always covers the full window at a
-// bounded point count — no matter how many raw rows exist.
+// GetDownsampled returns ~maxPoints averaged points spread across the whole `duration` window, using TimescaleDB time_bucket internal func
 func (r *SensorReadingRepository) GetDownsampled(sensorID uint, duration time.Duration, maxPoints int) ([]BucketPoint, error) {
 	if maxPoints <= 0 {
 		maxPoints = 300

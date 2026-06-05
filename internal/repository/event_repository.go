@@ -96,6 +96,13 @@ func (r *EventRepository) FrequencyBySource(d time.Duration, limit int) ([]Frequ
 	return rows, err
 }
 
+// DeleteActiveAlerts removes all non-resolved events (the live alerts shown on
+// the dashboard). Resolved events stay as history. Returns rows deleted.
+func (r *EventRepository) DeleteActiveAlerts() (int64, error) {
+	res := r.db.Where("status <> ?", "resolved").Delete(&model.Event{})
+	return res.RowsAffected, res.Error
+}
+
 // Avoids duplicate events
 func (r *EventRepository) FindOpenBySensor(sensorID uint, severity string) (*model.Event, error) {
 	var event model.Event
