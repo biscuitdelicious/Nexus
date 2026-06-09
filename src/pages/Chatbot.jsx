@@ -251,7 +251,7 @@ const Chatbot = () => {
   };
 
   return (
-    <Fade in timeout={600}>
+    <Fade in timeout={200}>
       <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 140px)' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1, gap: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -345,8 +345,7 @@ const Chatbot = () => {
                   width: 8,
                   height: 8,
                   bgcolor: COLORS.info,
-                  boxShadow: `0 0 8px ${COLORS.info}`,
-                  animation: 'pulse 2s infinite'
+                  boxShadow: `0 0 8px ${COLORS.info}`
                 }}
               />
               <Typography
@@ -486,8 +485,7 @@ const Chatbot = () => {
                               height: '1em',
                               ml: '2px',
                               bgcolor: COLORS.info,
-                              verticalAlign: 'text-bottom',
-                              animation: 'cursorBlink 1s steps(2) infinite'
+                              verticalAlign: 'text-bottom'
                             }}
                           />
                         )}
@@ -707,16 +705,6 @@ const Chatbot = () => {
             </IconButton>
           </Box>
         </Paper>
-
-        <style>{`
-          @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-          }
-          @keyframes cursorBlink {
-            50% { opacity: 0; }
-          }
-        `}</style>
       </Box>
     </Fade>
   );

@@ -60,6 +60,7 @@ func parseRange(raw string) time.Duration {
 	if raw == "" {
 		return time.Hour
 	}
+	// Go's ParseDuration has no day unit, so handle "<n>d" explicitly.
 	if strings.HasSuffix(raw, "d") {
 		if days, err := strconv.Atoi(strings.TrimSuffix(raw, "d")); err == nil && days > 0 {
 			return time.Duration(days) * 24 * time.Hour

@@ -185,7 +185,7 @@ const Discussions = () => {
   // ===================== LIST VIEW =====================
   if (!incidentId) {
     return (
-      <Fade in={true} timeout={800}>
+      <Fade in={true} timeout={200}>
         <Box sx={{ width: '100%', overflowX: 'hidden' }}>
 
           <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: { xs: 2, sm: 1 } }}>
@@ -364,7 +364,7 @@ const Discussions = () => {
   const inc = selectedDetail;
 
   return (
-    <Fade in={true} timeout={800}>
+    <Fade in={true} timeout={200}>
       <Box sx={{ width: '100%', overflowX: 'hidden', pb: 5 }}>
 
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 3 }}>

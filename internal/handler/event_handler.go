@@ -58,6 +58,19 @@ func (h *EventHandler) GetOpen(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(events)
 }
 
+// ClearAlerts handles DELETE /events — removes all active (non-resolved) alerts.
+// Powers the Devices page "Clear Alerts" button.
+func (h *EventHandler) ClearAlerts(w http.ResponseWriter, r *http.Request) {
+	deleted, err := h.repo.DeleteActiveAlerts()
+	if err != nil {
+		http.Error(w, "failed to clear alerts", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(map[string]int64{"deleted": deleted})
+}
+
 // UpdateStatus handles PATCH /events/{id}
 // Body: { "status": "acknowledged" } or { "status": "resolved" }
 func (h *EventHandler) UpdateStatus(w http.ResponseWriter, r *http.Request) {

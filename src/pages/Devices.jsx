@@ -47,20 +47,22 @@ const Devices = () => {
     setRefreshKey((k) => k + 1);
   };
 
-  // Resolve every open event via backend, then refresh.
+  // Deletes all active (non-resolved) alerts, then refreshes the device stats.
   const handleClearAlerts = async () => {
+    if (clearing) return;
+    if (!window.confirm('Delete all active alerts? Resolved history is kept.')) return;
     setClearing(true);
     const res = await clearAllAlerts();
     setClearing(false);
     if (res.ok) {
       setRefreshKey((k) => k + 1);
     } else {
-      console.error('Clear alerts failed:', res.message);
+      alert('Clear alerts failed: ' + (res.message || 'unknown'));
     }
   };
 
   return (
-    <Fade in={true} timeout={800}>
+    <Fade in={true} timeout={200}>
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 2 }}>
           <Box

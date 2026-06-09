@@ -106,7 +106,7 @@ const AlarmFrequencyChart = () => {
             tickLine={false}
           />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(248, 81, 73, 0.08)' }} />
-          <Bar dataKey="count" radius={[0, 2, 2, 0]} barSize={18}>
+          <Bar dataKey="count" radius={[0, 2, 2, 0]} barSize={18} isAnimationActive={false}>
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={index === 0 ? COLORS.critical : COLORS.warn} />
             ))}

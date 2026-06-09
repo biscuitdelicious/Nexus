@@ -101,7 +101,7 @@ const Login = ({ onLogin }) => {
   };
 
   return (
-    <Fade in timeout={600}>
+    <Fade in timeout={200}>
       <Box
         sx={{
           display: 'flex',
@@ -167,7 +167,7 @@ const Login = ({ onLogin }) => {
                   fullWidth
                   variant="standard"
                   label="First name"
-                  placeholder="John"
+                  placeholder="Andrei"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   InputProps={{
@@ -185,7 +185,7 @@ const Login = ({ onLogin }) => {
                   fullWidth
                   variant="standard"
                   label="Last name"
-                  placeholder="Doe"
+                  placeholder="Mihalache"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   InputProps={{ disableUnderline: true }}

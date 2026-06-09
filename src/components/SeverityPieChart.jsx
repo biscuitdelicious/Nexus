@@ -49,82 +49,46 @@ const SeverityPieChart = ({ onSelect }) => {
   }
 
   const total = data.reduce((sum, d) => sum + (d.value || 0), 0);
+  const empty = total === 0;
   const clickable = typeof onSelect === 'function';
-  const handleSelect = () => { if (clickable) onSelect(); };
+
+  // When empty, draw one full muted ring so it's a real donut, not dead pixels.
+  const chartData = empty ? [{ name: 'NONE', value: 1, color: COLORS.border }] : data;
 
   return (
     <Box
-      onClick={handleSelect}
-      role={clickable ? 'button' : undefined}
-      title={clickable ? 'View all tickets' : undefined}
-      sx={{
-        height: '100%',
-        display: 'flex',
-        flexDirection: 'column',
-        cursor: clickable ? 'pointer' : 'default',
-        '&:hover .pie-cta': clickable ? { color: COLORS.info } : {},
-      }}
+      onClick={clickable ? onSelect : undefined}
+      title={clickable ? 'View tickets' : undefined}
+      sx={{ position: 'relative', width: '100%', height: '100%', cursor: clickable ? 'pointer' : 'default' }}
     >
-      {/* Donut + center total */}
-      <Box sx={{ position: 'relative', flexGrow: 1, minHeight: 0 }}>
-        {total === 0 ? (
-          <Box sx={{ height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.8rem', letterSpacing: '1px' }}>
-              NO TICKETS
-            </Typography>
-          </Box>
-        ) : (
-          <>
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={data}
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={60}
-                  outerRadius={85}
-                  paddingAngle={3}
-                  dataKey="value"
-                  stroke="none"
-                  onClick={handleSelect}
-                >
-                  {data.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={entry.color} cursor={clickable ? 'pointer' : 'default'} />
-                  ))}
-                </Pie>
-                <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
-              </PieChart>
-            </ResponsiveContainer>
+      <ResponsiveContainer width="100%" height="100%">
+        <PieChart>
+          <Pie
+            data={chartData}
+            cx="50%"
+            cy="50%"
+            innerRadius={60}
+            outerRadius={85}
+            paddingAngle={empty ? 0 : 3}
+            dataKey="value"
+            stroke="none"
+            isAnimationActive={false}
+          >
+            {chartData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.color} cursor={clickable ? 'pointer' : 'default'} />
+            ))}
+          </Pie>
+          {!empty && <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />}
+        </PieChart>
+      </ResponsiveContainer>
 
-            {/* Center label */}
-            <Box sx={{ position: 'absolute', inset: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-              <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, fontSize: '1.8rem', lineHeight: 1 }}>
-                {total}
-              </Typography>
-              <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.6rem', letterSpacing: '1.5px' }}>
-                TOTAL
-              </Typography>
-            </Box>
-          </>
-        )}
-      </Box>
-
-      {/* Legend */}
-      <Box sx={{ display: 'flex', justifyContent: 'center', gap: 1.5, flexWrap: 'wrap', mt: 0.5, flexShrink: 0 }}>
-        {data.map((entry) => (
-          <Box key={entry.name} sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-            <Box sx={{ width: 8, height: 8, bgcolor: entry.color, flexShrink: 0 }} />
-            <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.6rem', letterSpacing: '0.5px' }}>
-              {entry.name} {entry.value}
-            </Typography>
-          </Box>
-        ))}
-      </Box>
-
-      {clickable && (
-        <Typography className="pie-cta" sx={{ textAlign: 'center', color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.6rem', letterSpacing: '1px', mt: 0.5, flexShrink: 0, transition: 'color 0.15s' }}>
-          VIEW TICKETS →
-        </Typography>
+      {/* Center label: "NO TICKETS" only on the empty placeholder ring. */}
+      {empty && (
+        <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+          <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem', letterSpacing: '1px' }}>
+            NO TICKETS
+          </Typography>
+        </Box>
       )}
     </Box>
   );

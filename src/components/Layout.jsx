@@ -447,7 +447,7 @@ const Layout = ({ children, activePage, setActivePage, onLogout, user, sharedDat
       </Box>
 
       {showExtendedPanel && (
-        <Fade in={true} timeout={400}>
+        <Fade in={true} timeout={200}>
           <Box sx={{ flexGrow: 1, borderLeft: `1px solid ${COLORS.border}`, backgroundColor: COLORS.surface, p: 3, display: 'flex', flexDirection: 'column', gap: 4, overflowY: 'auto', minWidth: 150 }}>
             <Box>
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 2 }}>

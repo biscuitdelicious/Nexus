@@ -1,16 +1,3 @@
-"""Create a new user in the Nexus DB.
-
-Usage:
-    python create_user.py <email> <password> <first_name> [last_name] [role]
-
-Examples:
-    python create_user.py john@example.com secret123 John Doe user
-    python create_user.py jane@example.com secret123 Jane
-
-Defaults:
-    last_name = ""
-    role      = "user"
-"""
 import os
 import sys
 from contextlib import closing
