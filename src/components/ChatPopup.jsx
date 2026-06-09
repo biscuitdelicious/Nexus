@@ -29,7 +29,7 @@ const buildBotMessage = (text, { stream = true } = {}) => {
 const initialBotMessage = () =>
   buildBotMessage('How can I help you?', { stream: true });
 
-const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8001', onExpand }) => {
+const ChatPopup = ({ apiBaseUrl = 'http://127.0.0.1:8002', onExpand }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState('');
   const [isSending, setIsSending] = useState(false);

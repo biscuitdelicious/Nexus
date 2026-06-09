@@ -53,8 +53,9 @@ func (h *ReadingHandler) GetSummary(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(summary)
 }
 
-// parseRange converts a query param like "1h", "30m", "24h" into a time.Duration.
-// Defaults to 1 hour if missing or invalid.
+// parseRange converts a query param like "1h", "30m", "24h", "7d" into a
+// time.Duration. Defaults to 1 hour if missing or invalid. Go's ParseDuration
+// has no day unit, so "<n>d" is handled explicitly.
 func parseRange(raw string) time.Duration {
 	if raw == "" {
 		return time.Hour

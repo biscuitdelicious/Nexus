@@ -11,6 +11,8 @@ const Devices = () => {
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [lastScan, setLastScan] = useState(null);
+  const [scanning, setScanning] = useState(false);
   const [clearing, setClearing] = useState(false);
 
   useEffect(() => {
@@ -23,10 +25,12 @@ const Devices = () => {
         const healthPercentage = total > 0 ? Math.round((healthy / total) * 100) : 0;
 
         setStats({ total, healthy, issues, healthPercentage });
+        setLastScan(new Date());
       } catch (error) {
         console.error(error);
       } finally {
         setLoading(false);
+        setScanning(false);
       }
     };
 
@@ -34,6 +38,12 @@ const Devices = () => {
   }, [refreshKey]);
 
   const handleCreated = () => {
+    setRefreshKey((k) => k + 1);
+  };
+
+  // Re-scan = re-fetch sensors + derived status from backend.
+  const handleScan = () => {
+    setScanning(true);
     setRefreshKey((k) => k + 1);
   };
 
@@ -203,8 +213,8 @@ const Devices = () => {
                   <Button onClick={() => setAddOpen(true)} variant="contained" fullWidth sx={{ borderRadius: 0, bgcolor: COLORS.info, color: COLORS.bg, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { bgcolor: COLORS.info } }}>
                     Add New Device
                   </Button>
-                  <Button variant="outlined" fullWidth sx={{ borderRadius: 0, borderColor: COLORS.border, color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { borderColor: COLORS.textMuted, bgcolor: 'transparent' } }}>
-                    Scan Network
+                  <Button onClick={handleScan} disabled={scanning} variant="outlined" fullWidth sx={{ borderRadius: 0, borderColor: COLORS.border, color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { borderColor: COLORS.textMuted, bgcolor: 'transparent' } }}>
+                    {scanning ? 'Scanning...' : 'Scan Network'}
                   </Button>
                   <Button onClick={handleClearAlerts} disabled={clearing || stats.issues === 0} variant="outlined" fullWidth sx={{ borderRadius: 0, borderColor: COLORS.critical, color: COLORS.critical, fontFamily: '"Roboto Mono", monospace', fontWeight: 700, letterSpacing: '1px', '&:hover': { borderColor: COLORS.critical, bgcolor: 'rgba(255, 0, 60, 0.05)' } }}>
                     {clearing ? 'Clearing...' : 'Clear Alerts'}
@@ -217,7 +227,7 @@ const Devices = () => {
                   Last Scan:
                 </Typography>
                 <Typography sx={{ color: COLORS.info, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}>
-                  TODAY {new Date().toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}
+                  {lastScan ? `TODAY ${lastScan.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}` : '—'}
                 </Typography>
               </Box>
             </Paper>

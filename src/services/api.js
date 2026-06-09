@@ -1,5 +1,6 @@
 import { COLORS } from '../theme/colors';
 import { getChatApiBaseUrl } from './chatApi';
+import { apiFetch } from './auth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
 
@@ -26,6 +27,40 @@ const handleResponse = async (response) => {
     throw new Error(`Server error: ${response.status}`);
   }
   return response.json();
+};
+
+// Lightweight read cache: dedupes identical GETs fired close together by the
+// many independent pollers (dashboard, tickets, charts, notifications) and
+// serves a short-TTL cached body. Cuts redundant requests + DB hits.
+const _readCache = new Map();   // url -> { ts, data }
+const _inflight = new Map();    // url -> Promise
+
+const cachedGetJSON = async (url, ttlMs = 4000) => {
+  const now = Date.now();
+  const hit = _readCache.get(url);
+  if (hit && now - hit.ts < ttlMs) return hit.data;
+  if (_inflight.has(url)) return _inflight.get(url);
+
+  const p = apiFetch(url)
+    .then(handleResponse)
+    .then((data) => {
+      _readCache.set(url, { ts: Date.now(), data });
+      _inflight.delete(url);
+      return data;
+    })
+    .catch((err) => {
+      _inflight.delete(url);
+      throw err;
+    });
+
+  _inflight.set(url, p);
+  return p;
+};
+
+// Drop cached reads after a mutation so the next poll sees fresh data.
+const invalidateReadCache = () => {
+  _readCache.clear();
+  _inflight.clear();
 };
 
 // Map backend severity -> UI label used by existing components.
@@ -92,8 +127,8 @@ const severityToDeviceStatus = (uiSeverity) => {
 export const fetchDevices = async () => {
   try {
     const [sensorsRes, eventsRes] = await Promise.all([
-      fetch(`${API_BASE_URL}/sensors`).then(handleResponse).catch(() => []),
-      fetch(`${API_BASE_URL}/events/open`).then(handleResponse).catch(() => []),
+      cachedGetJSON(`${API_BASE_URL}/sensors`).catch(() => []),
+      cachedGetJSON(`${API_BASE_URL}/events/open`).catch(() => []),
     ]);
 
     const pending = (eventsRes || []).filter((e) => {
@@ -136,7 +171,7 @@ export const fetchDevices = async () => {
 
 export const fetchLocations = async () => {
   try {
-    const res = await fetch(`${API_BASE_URL}/locations`);
+    const res = await apiFetch(`${API_BASE_URL}/locations`);
     const parsed = await handleResponse(res);
     return (parsed || []).map((loc) => ({
       id: loc.LocationID,
@@ -159,7 +194,7 @@ export const createSensor = async ({ name, sensorNo, locationId, unit, lowerLimi
       LowerLimit: lowerLimit !== '' && lowerLimit != null ? Number(lowerLimit) : null,
       UpperLimit: upperLimit !== '' && upperLimit != null ? Number(upperLimit) : null,
     };
-    const res = await fetch(`${API_BASE_URL}/sensors`, {
+    const res = await apiFetch(`${API_BASE_URL}/sensors`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
@@ -169,6 +204,7 @@ export const createSensor = async ({ name, sensorNo, locationId, unit, lowerLimi
       return { ok: false, message: msg || `HTTP ${res.status}` };
     }
     const created = await res.json();
+    invalidateReadCache();
     return { ok: true, sensor: created };
   } catch (err) {
     return { ok: false, message: err?.message || 'Network error' };
@@ -178,8 +214,7 @@ export const createSensor = async ({ name, sensorNo, locationId, unit, lowerLimi
 
 export const fetchTickets = async () => {
   try {
-    const res = await fetch(`${API_BASE_URL}/events/open`);
-    const parsed = await handleResponse(res);
+    const parsed = await cachedGetJSON(`${API_BASE_URL}/events/open`);
     return (parsed || []).map((event) => ({
       id: event.EventID ?? `TK-${Math.random().toString(36).slice(2, 8)}`,
       ts: formatTimestamp(event.CreatedAt),
@@ -198,7 +233,7 @@ export const fetchTickets = async () => {
 // Snoozed events dissapear from the open tickets till the timer expires
 export const snoozeTicket = async (ticketId, duration) => {
   try {
-    const res = await fetch(`${API_BASE_URL}/events/${ticketId}/snooze`, {
+    const res = await apiFetch(`${API_BASE_URL}/events/${ticketId}/snooze`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ duration }),
@@ -208,6 +243,7 @@ export const snoozeTicket = async (ticketId, duration) => {
       return { ok: false, message: msg || `HTTP ${res.status}` };
     }
     const data = await res.json();
+    invalidateReadCache();
     return { ok: true, ...data };
   } catch (err) {
     return { ok: false, message: err?.message || 'Network error' };
@@ -216,13 +252,14 @@ export const snoozeTicket = async (ticketId, duration) => {
 
 export const acknowledgeTicket = async (ticketId) => {
   try {
-    const res = await fetch(`${API_BASE_URL}/events/${ticketId}`, {
+    const res = await apiFetch(`${API_BASE_URL}/events/${ticketId}`, {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ status: 'acknowledged' }),
     });
-    if (!res.ok) 
+    if (!res.ok)
       throw new Error('ack failed');
+    invalidateReadCache();
     return { success: true, id: ticketId, status: 'ACKNOWLEDGED' };
   } catch (err) {
     console.error('Ack failed', err);
@@ -234,12 +271,13 @@ export const acknowledgeTicket = async (ticketId) => {
 // Used by the Devices "Clear Alerts" button.
 export const clearAllAlerts = async () => {
   try {
-    const res = await fetch(`${API_BASE_URL}/events`, { method: 'DELETE' });
+    const res = await apiFetch(`${API_BASE_URL}/events`, { method: 'DELETE' });
     if (!res.ok) {
       const msg = await res.text().catch(() => '');
       return { ok: false, message: msg || `HTTP ${res.status}` };
     }
     const data = await res.json().catch(() => ({}));
+    invalidateReadCache();
     return { ok: true, deleted: data.deleted ?? 0 };
   } catch (err) {
     return { ok: false, message: err?.message || 'Network error' };
@@ -248,8 +286,7 @@ export const clearAllAlerts = async () => {
 
 export const fetchLiveFeed = async () => {
   try {
-    const res = await fetch(`${API_BASE_URL}/events`);
-    const parsed = await handleResponse(res);
+    const parsed = await cachedGetJSON(`${API_BASE_URL}/events`);
     return (parsed || []).map((event) => ({
       id: event.EventID,
       ts: formatTimestamp(event.CreatedAt),
@@ -264,14 +301,14 @@ export const fetchLiveFeed = async () => {
 };
 
 
-// Returns chart points `[{ time: 'HH:MM:SS', cpu: 67.5 }, ...]` for ChartWidget
+// Returns chart points for ChartWidget
 export const fetchChartData = async ({ sensorId = 1, limit = 60, range = '' } = {}) => {
   try {
     const qs = new URLSearchParams({ sensor_id: String(sensorId), limit: String(limit) });
     if (range) 
       qs.set('range', range);
 
-    const res = await fetch(`${API_BASE_URL}/readings?${qs.toString()}`);
+    const res = await apiFetch(`${API_BASE_URL}/readings?${qs.toString()}`);
     const parsed = await handleResponse(res);
 
     if (!Array.isArray(parsed)) 
@@ -289,7 +326,7 @@ export const fetchChartData = async ({ sensorId = 1, limit = 60, range = '' } = 
 
 export const fetchLatestReadings = async () => {
   try {
-    const res = await fetch(`${API_BASE_URL}/readings/latest`);
+    const res = await apiFetch(`${API_BASE_URL}/readings/latest`);
     const parsed = await handleResponse(res);
 
     return Array.isArray(parsed) ? parsed : [];
@@ -304,7 +341,7 @@ export const fetchLatestReadings = async () => {
 export const fetchAlarmFrequency = async ({ range = '1h', limit = 5 } = {}) => {
   try {
     const qs = new URLSearchParams({ range, limit: String(limit) });
-    const res = await fetch(`${API_BASE_URL}/events/frequency?${qs.toString()}`);
+    const res = await apiFetch(`${API_BASE_URL}/events/frequency?${qs.toString()}`);
     const rows = await handleResponse(res);
     if (!Array.isArray(rows)) return [];
     const data = rows.map((r) => ({ name: r.source, count: Number(r.count) }));
@@ -317,9 +354,9 @@ export const fetchAlarmFrequency = async ({ range = '1h', limit = 5 } = {}) => {
 };
 
 
-// Fetch chart points for one sensor over a range. Uses server-side downsampling
-// (max_points) so the response always covers the full window at a bounded point
-// count, no matter how many raw rows exist.
+// Fetches chart data for one sensor over a range. Uses server-side downsampling
+// (max_points) so payload stays bounded (~maxPoints) no matter how many raw
+// rows the backend holds — scalable to huge datasets.
 export const fetchChartDataStatus = async ({ sensorId = 2, range = '', maxPoints = 300 } = {}) => {
   try {
     const qs = new URLSearchParams({
@@ -330,11 +367,13 @@ export const fetchChartDataStatus = async ({ sensorId = 2, range = '', maxPoints
     if (range)
       qs.set('range', range);
 
-    const res = await fetch(`${API_BASE_URL}/readings?${qs.toString()}`);
+    const res = await apiFetch(`${API_BASE_URL}/readings?${qs.toString()}`);
 
     if (!res.ok) {
       const msg = await res.text().catch(() => '');
-      return { ok: false, status: res.status, message: msg || res.statusText || 'Request failed', data: [] };
+      return { 
+        ok: false, status: res.status, message: msg || res.statusText || 'Request failed', data: [] 
+      };
     }
 
     const parsed = await res.json();
@@ -344,7 +383,7 @@ export const fetchChartDataStatus = async ({ sensorId = 2, range = '', maxPoints
       status: 200,
       message: '',
       data: parsed.map((row) => ({
-        time: formatClockLabel(row.time ?? row.Time),
+        t: Date.parse(row.time ?? row.Time),
         cpu: Number(row.value ?? row.Value ?? 0),
       })),
     };
@@ -356,8 +395,7 @@ export const fetchChartDataStatus = async ({ sensorId = 2, range = '', maxPoints
 // Counts open+all events grouped by severity for SeverityPieChart.
 export const fetchSeverityData = async () => {
   try {
-    const res = await fetch(`${API_BASE_URL}/events`);
-    const parsed = await handleResponse(res);
+    const parsed = await cachedGetJSON(`${API_BASE_URL}/events`);
     const counts = { ALARM: 0, INCIDENT: 0, EVENT: 0 };
     (parsed || []).forEach((e) => {
       const key = severityToUi(e.Severity || e.severity);
@@ -412,7 +450,7 @@ export const fetchDashboardMetrics = async () => {
 // Real backend (Python chat_api on port 8002)
 export const fetchResolutionData = async () => {
   try {
-    const res = await fetch(`${getChatApiBaseUrl()}/metrics/resolution`);
+    const res = await apiFetch(`${getChatApiBaseUrl()}/metrics/resolution`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (!Array.isArray(data) || data.length === 0) {
@@ -427,7 +465,7 @@ export const fetchResolutionData = async () => {
 
 export const fetchObservabilityMetrics = async () => {
   try {
-    const res = await fetch(`${getChatApiBaseUrl()}/metrics/observability`);
+    const res = await apiFetch(`${getChatApiBaseUrl()}/metrics/observability`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const data = await res.json();
     if (!Array.isArray(data) || data.length === 0) {

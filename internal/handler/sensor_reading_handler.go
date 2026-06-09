@@ -71,8 +71,8 @@ func (h *SensorReadingHandler) GetRecent(w http.ResponseWriter, r *http.Request)
 
 	duration := parseRange(r.URL.Query().Get("range"))
 
-	// Preferred path: downsample server-side so the result covers the whole
-	// window at a bounded point count, regardless of how many raw rows exist.
+	// Scalable path: when max_points is set, downsample server-side with
+	// time_bucket so the payload stays bounded regardless of raw row count.
 	if mpStr := r.URL.Query().Get("max_points"); mpStr != "" {
 		maxPoints := 300
 		if v, err := strconv.Atoi(mpStr); err == nil && v > 0 && v <= 2000 {

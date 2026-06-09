@@ -16,21 +16,16 @@ DB_CONFIG = {
     "database":     os.getenv("DB_NAME", "nexus"),
     "user":         os.getenv("DB_USER", "postgres"),
     "password":     os.getenv("DB_PASSWORD", "postgres"),
-    "port":     int(os.getenv("DB_PORT", "5432")),
+    "port":     int(os.getenv("DB_PORT")),
 }
 
 
 def _db_candidates():
     yield DB_CONFIG
-    legacy = {
-        "host": "127.0.0.1",
-        "database": "nexus",
-        "user": "postgres",
-        "password": "postgres",
-        "port": 5433,
-    }
-    if legacy != DB_CONFIG:
-        yield legacy
+    for port in (5434, 5433):
+        alt = {**DB_CONFIG, "host": "127.0.0.1", "password": "postgres", "port": port}
+        if alt != DB_CONFIG:
+            yield alt
 
 
 def _connect():

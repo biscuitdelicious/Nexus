@@ -28,7 +28,7 @@ const ResolutionBarChart = () => {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+      <BarChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={COLORS.border} />
         <XAxis
           dataKey="day"
@@ -37,10 +37,11 @@ const ResolutionBarChart = () => {
           tickLine={false}
         />
         <YAxis
-          tick={{ fill: COLORS.textMuted, fontSize: 12, fontFamily: '"Roboto Mono", monospace' }}
+          tick={{ fill: COLORS.textMuted, fontSize: 9, fontFamily: '"Roboto Mono", monospace' }}
           axisLine={false}
           tickLine={false}
           allowDecimals={false}
+          width={56}
           tickFormatter={(val) => `${Math.round(val)}`}
         />
         <Tooltip

@@ -1,3 +1,4 @@
+-- +goose Up
 -- Time-series table for raw sensor readings (temperature, etc.)
 -- One row per sample. Hypertable partitioned by time.
 

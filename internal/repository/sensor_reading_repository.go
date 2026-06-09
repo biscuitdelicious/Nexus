@@ -46,13 +46,16 @@ func (r *SensorReadingRepository) GetRecent(sensorID uint, limit int, duration t
 	return rows, nil
 }
 
-// BucketPoint is one downsampled point: the average value over a time bucket.
+// BucketPoint is one downsampled time-series point (avg value per time bucket).
 type BucketPoint struct {
 	Time  time.Time `json:"time"`
 	Value float64   `json:"value"`
 }
 
-// GetDownsampled returns ~maxPoints averaged points spread across the whole `duration` window, using TimescaleDB time_bucket internal func
+// GetDownsampled returns at most ~maxPoints points for a sensor over the last
+// `duration`, using TimescaleDB time_bucket aggregation. Bucket width scales
+// with the range (duration / maxPoints), so payload size stays bounded no
+// matter how many raw rows exist. This is what makes huge ranges scalable.
 func (r *SensorReadingRepository) GetDownsampled(sensorID uint, duration time.Duration, maxPoints int) ([]BucketPoint, error) {
 	if maxPoints <= 0 {
 		maxPoints = 300
