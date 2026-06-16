@@ -20,6 +20,23 @@ export const clearAuth = () => {
   } catch { /* ignore */ }
 };
 
+export const getCurrentUser = () => {
+  try {
+    const raw = sessionStorage.getItem(USER_KEY);
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+};
+
+export const setStoredUser = (user) => {
+  try {
+    if (user) sessionStorage.setItem(USER_KEY, JSON.stringify(user));
+  } catch { /* ignore */ }
+};
+
+export const getCurrentUserId = () => getCurrentUser()?.user_id ?? null;
+
 // Drop-in replacement for fetch that attaches the Bearer token and, on a 401,
 // clears the session and signals the app to bounce back to login.
 export const apiFetch = async (url, options = {}) => {

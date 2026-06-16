@@ -1,13 +1,13 @@
 import React, { useState, useEffect, lazy, Suspense } from 'react';
 import { ThemeProvider } from '@mui/material/styles';
-import { Box, CircularProgress } from '@mui/material';
+import { Box, CircularProgress, CssBaseline } from '@mui/material';
 import glassTheme from './theme';
 import Layout from './components/Layout';
 import Login from './pages/Login.jsx';
 import ChatPopup from './components/ChatPopup';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import { getChatApiBaseUrl } from './services/chatApi';
-import { setToken, clearAuth } from './services/auth';
+import { setToken, clearAuth, setStoredUser, getCurrentUser } from './services/auth';
 import { useUrlState } from './hooks/useUrlState';
 
 // Lazy-load pages so the heavy chart bundle (recharts) isn't in the initial
@@ -34,12 +34,7 @@ const PAGE_SCOPED_PARAMS = ['incident', 'chart_range'];
 
 function App() {
   const [params, patchParams] = useUrlState();
-  const [user, setUser] = useState(() => {
-    try {
-      const raw = sessionStorage.getItem('nexus_user');
-      return raw ? JSON.parse(raw) : null;
-    } catch { return null; }
-  });
+  const [user, setUser] = useState(() => getCurrentUser());
   const isAuthed = !!user;
   const activePage = VALID_PAGES.has(params.page) ? params.page : 'Dashboard';
  
@@ -49,7 +44,7 @@ function App() {
   };
 
   const handleLogin = (userData) => {
-    try { sessionStorage.setItem('nexus_user', JSON.stringify(userData)); } catch {}
+    setStoredUser(userData);
     if (userData?.token) setToken(userData.token);
     setUser(userData);
   };
@@ -69,6 +64,7 @@ function App() {
   if (!isAuthed) {
     return (
       <ThemeProvider theme={glassTheme}>
+        <CssBaseline />
         <Login onLogin={handleLogin} />
       </ThemeProvider>
     );
@@ -99,6 +95,7 @@ function App() {
 
   return (
     <ThemeProvider theme={glassTheme}>
+      <CssBaseline />
       <Layout activePage={activePage} setActivePage={setActivePage} onLogout={handleLogout} user={user}>
         <ErrorBoundary scope={activePage} key={activePage}>
           <Suspense fallback={<PageLoader />}>

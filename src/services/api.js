@@ -1,24 +1,10 @@
 import { COLORS } from '../theme/colors';
 import { getChatApiBaseUrl } from './chatApi';
-import { apiFetch } from './auth';
+import { apiFetch, getCurrentUser, getCurrentUserId } from './auth';
+import { API_BASE_URL, USE_MOCK_API } from './apiConfig';
+import * as mock from './mockApi';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
-
-/**
- * Read the currently logged-in user from sessionStorage.
- * Returns the parsed user object, or null if nobody is logged in.
- */
-export const getCurrentUser = () => {
-  try {
-    const raw = sessionStorage.getItem('nexus_user');
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-};
-
-/** Returns the user_id of the logged-in user, or null. */
-export const getCurrentUserId = () => getCurrentUser()?.user_id ?? null;
+export { getCurrentUser, getCurrentUserId, USE_MOCK_API };
 
 const handleResponse = async (response) => {
   if (!response.ok) {
@@ -125,6 +111,7 @@ const severityToDeviceStatus = (uiSeverity) => {
 
 
 export const fetchDevices = async () => {
+  if (USE_MOCK_API) return mock.fetchDevices();
   try {
     const [sensorsRes, eventsRes] = await Promise.all([
       cachedGetJSON(`${API_BASE_URL}/sensors`).catch(() => []),
@@ -170,6 +157,7 @@ export const fetchDevices = async () => {
 };
 
 export const fetchLocations = async () => {
+  if (USE_MOCK_API) return mock.fetchLocations();
   try {
     const res = await apiFetch(`${API_BASE_URL}/locations`);
     const parsed = await handleResponse(res);
@@ -184,6 +172,7 @@ export const fetchLocations = async () => {
 };
 
 export const createSensor = async ({ name, sensorNo, locationId, unit, lowerLimit, upperLimit }) => {
+  if (USE_MOCK_API) return mock.createSensor({ name, sensorNo, locationId, unit, lowerLimit, upperLimit });
   try {
     const body = {
       Name: name,
@@ -213,6 +202,7 @@ export const createSensor = async ({ name, sensorNo, locationId, unit, lowerLimi
 
 
 export const fetchTickets = async () => {
+  if (USE_MOCK_API) return mock.fetchTickets();
   try {
     const parsed = await cachedGetJSON(`${API_BASE_URL}/events/open`);
     return (parsed || []).map((event) => ({
@@ -232,6 +222,7 @@ export const fetchTickets = async () => {
 
 // Snoozed events dissapear from the open tickets till the timer expires
 export const snoozeTicket = async (ticketId, duration) => {
+  if (USE_MOCK_API) return mock.snoozeTicket(ticketId, duration);
   try {
     const res = await apiFetch(`${API_BASE_URL}/events/${ticketId}/snooze`, {
       method: 'POST',
@@ -251,6 +242,7 @@ export const snoozeTicket = async (ticketId, duration) => {
 };
 
 export const acknowledgeTicket = async (ticketId) => {
+  if (USE_MOCK_API) return mock.acknowledgeTicket(ticketId);
   try {
     const res = await apiFetch(`${API_BASE_URL}/events/${ticketId}`, {
       method: 'PATCH',
@@ -270,6 +262,7 @@ export const acknowledgeTicket = async (ticketId) => {
 // Resolve every open event. Used by Devices "Clear Alerts".
 // Fetches open events, PATCHes each to resolved. Returns count cleared.
 export const clearAllAlerts = async () => {
+  if (USE_MOCK_API) return mock.clearAllAlerts();
   try {
     const open = await apiFetch(`${API_BASE_URL}/events/open`).then(handleResponse).catch(() => []);
     const ids = (open || []).map((e) => e.EventID).filter((id) => id != null);
@@ -293,6 +286,7 @@ export const clearAllAlerts = async () => {
 };
 
 export const fetchLiveFeed = async () => {
+  if (USE_MOCK_API) return mock.fetchLiveFeed();
   try {
     const parsed = await cachedGetJSON(`${API_BASE_URL}/events`);
     return (parsed || []).map((event) => ({
@@ -311,6 +305,7 @@ export const fetchLiveFeed = async () => {
 
 // Returns chart points for ChartWidget
 export const fetchChartData = async ({ sensorId = 1, limit = 60, range = '' } = {}) => {
+  if (USE_MOCK_API) return mock.fetchChartData({ sensorId, limit, range });
   try {
     const qs = new URLSearchParams({ sensor_id: String(sensorId), limit: String(limit) });
     if (range) 
@@ -333,6 +328,7 @@ export const fetchChartData = async ({ sensorId = 1, limit = 60, range = '' } = 
 
 
 export const fetchLatestReadings = async () => {
+  if (USE_MOCK_API) return mock.fetchLatestReadings();
   try {
     const res = await apiFetch(`${API_BASE_URL}/readings/latest`);
     const parsed = await handleResponse(res);
@@ -347,6 +343,7 @@ export const fetchLatestReadings = async () => {
 // Top-N sensors by alarm count in window. Backend aggregates.
 // range: Go duration string ('30m' | '1h' | '6h' | '24h' | '168h').
 export const fetchAlarmFrequency = async ({ range = '1h', limit = 5 } = {}) => {
+  if (USE_MOCK_API) return mock.fetchAlarmFrequency({ range, limit });
   try {
     const qs = new URLSearchParams({ range, limit: String(limit) });
     const res = await apiFetch(`${API_BASE_URL}/events/frequency?${qs.toString()}`);
@@ -366,6 +363,7 @@ export const fetchAlarmFrequency = async ({ range = '1h', limit = 5 } = {}) => {
 // (max_points) so payload stays bounded (~maxPoints) no matter how many raw
 // rows the backend holds — scalable to huge datasets.
 export const fetchChartDataStatus = async ({ sensorId = 2, range = '', maxPoints = 300 } = {}) => {
+  if (USE_MOCK_API) return mock.fetchChartDataStatus({ sensorId, range, maxPoints });
   try {
     const qs = new URLSearchParams({
       sensor_id: String(sensorId),
@@ -402,6 +400,7 @@ export const fetchChartDataStatus = async ({ sensorId = 2, range = '', maxPoints
 
 // Counts open+all events grouped by severity for SeverityPieChart.
 export const fetchSeverityData = async () => {
+  if (USE_MOCK_API) return mock.fetchSeverityData();
   try {
     const parsed = await cachedGetJSON(`${API_BASE_URL}/events`);
     const counts = { ALARM: 0, INCIDENT: 0, EVENT: 0 };
@@ -425,6 +424,7 @@ export const fetchSeverityData = async () => {
 
 // Latest reading-based quick stats for the top cards on Dashboard.
 export const fetchDashboardMetrics = async () => {
+  if (USE_MOCK_API) return mock.fetchDashboardMetrics();
   try {
     const [chartRes, tickets] = await Promise.all([
       fetchChartDataStatus({ sensorId: 1, limit: 5 }),
@@ -457,6 +457,7 @@ export const fetchDashboardMetrics = async () => {
 
 // Real backend (Python chat_api on port 8002)
 export const fetchResolutionData = async () => {
+  if (USE_MOCK_API) return mock.fetchResolutionData();
   try {
     const res = await apiFetch(`${getChatApiBaseUrl()}/metrics/resolution`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -472,6 +473,7 @@ export const fetchResolutionData = async () => {
 };
 
 export const fetchObservabilityMetrics = async () => {
+  if (USE_MOCK_API) return mock.fetchObservabilityMetrics();
   try {
     const res = await apiFetch(`${getChatApiBaseUrl()}/metrics/observability`);
     if (!res.ok) throw new Error(`HTTP ${res.status}`);

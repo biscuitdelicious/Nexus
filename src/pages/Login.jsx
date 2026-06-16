@@ -9,6 +9,7 @@ import VisibilityOffIcon from '@mui/icons-material/VisibilityOff';
 import VpnKeyIcon from '@mui/icons-material/VpnKey';
 import TerminalIcon from '@mui/icons-material/Terminal';
 import { loginUser, signupUser } from '../services/authApi';
+import { USE_MOCK_API } from '../services/apiConfig';
 
 const Login = ({ onLogin }) => {
   const [mode, setMode] = useState('login');
@@ -36,6 +37,15 @@ const Login = ({ onLogin }) => {
     setInfo('');
     if (!email || !password) {
       setError('Email and password required');
+      return;
+    }
+    if (!isSignup && USE_MOCK_API) {
+      onLogin?.({
+        email: email.trim(),
+        user_id: 1,
+        demo: true,
+        first_name: email.trim().split('@')[0] || 'Operator',
+      });
       return;
     }
     if (isSignup) {
