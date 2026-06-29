@@ -46,7 +46,7 @@ OPENAI_API_KEY=sk-introdu-cheia-ta-aici
 POSTGRES_USER=postgres
 POSTGRES_PASSWORD=postgres
 POSTGRES_DB=nexus
-POSTGRES_EXTERNAL_PORT=5433
+POSTGRES_EXTERNAL_PORT=5434
 ```
 
 ---
@@ -86,7 +86,7 @@ npm run dev
 ## 📍 Endpoint-uri uzuale
 
 - API: `http://localhost:8080`
-- PostgreSQL: `localhost:5433`
+- PostgreSQL: `localhost:5434`
 
 ---
 

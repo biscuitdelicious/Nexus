@@ -30,7 +30,7 @@ const MetricsCards = ({ metrics, loading }) => (
               }
             }}
           >
-            <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.70rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 1 }}>
+            <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.70rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 1 }}>
               {m.label}
             </Typography>
             <Typography variant="h4" sx={{ color: COLORS.info, fontFamily: '"Roboto Mono", monospace', fontWeight: 700 }}>
@@ -38,7 +38,7 @@ const MetricsCards = ({ metrics, loading }) => (
             </Typography>
             {m.sublabel ? (
               <Box sx={{ mt: 1 }}>
-                <Typography sx={{ color: COLORS.border, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase' }}>
+                <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase' }}>
                   {m.sublabel}
                 </Typography>
               </Box>

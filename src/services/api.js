@@ -2,7 +2,8 @@ import { COLORS } from '../theme/colors';
 import { getChatApiBaseUrl } from './chatApi';
 import { apiFetch } from './auth';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 /**
  * Read the currently logged-in user from sessionStorage.
@@ -10,7 +11,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080
  */
 export const getCurrentUser = () => {
   try {
-    const raw = sessionStorage.getItem('nexus_user');
+    const raw = localStorage.getItem('nexus_user');
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -267,28 +268,20 @@ export const acknowledgeTicket = async (ticketId) => {
   }
 };
 
-// Resolve every open event. Used by Devices "Clear Alerts".
-// Fetches open events, PATCHes each to resolved. Returns count cleared.
+// Clears all active alerts: DELETE /events removes every non-resolved event.
+// Used by the Devices "Clear Alerts" button.
 export const clearAllAlerts = async () => {
   try {
-    const open = await apiFetch(`${API_BASE_URL}/events/open`).then(handleResponse).catch(() => []);
-    const ids = (open || []).map((e) => e.EventID).filter((id) => id != null);
-    const results = await Promise.allSettled(
-      ids.map((id) =>
-        apiFetch(`${API_BASE_URL}/events/${id}`, {
-          method: 'PATCH',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ status: 'resolved' }),
-        }).then((r) => {
-          if (!r.ok) throw new Error(`HTTP ${r.status}`);
-        })
-      )
-    );
-    const cleared = results.filter((r) => r.status === 'fulfilled').length;
+    const res = await apiFetch(`${API_BASE_URL}/events`, { method: 'DELETE' });
+    if (!res.ok) {
+      const msg = await res.text().catch(() => '');
+      return { ok: false, message: msg || `HTTP ${res.status}` };
+    }
+    const data = await res.json().catch(() => ({}));
     invalidateReadCache();
-    return { ok: true, cleared, total: ids.length };
+    return { ok: true, deleted: data.deleted ?? 0 };
   } catch (err) {
-    return { ok: false, cleared: 0, message: err?.message || 'Network error' };
+    return { ok: false, message: err?.message || 'Network error' };
   }
 };
 
@@ -391,8 +384,8 @@ export const fetchChartDataStatus = async ({ sensorId = 2, range = '', maxPoints
       status: 200,
       message: '',
       data: parsed.map((row) => ({
-        t: Date.parse(row.Time),
-        cpu: Number(row.Value ?? 0),
+        t: Date.parse(row.time ?? row.Time),
+        cpu: Number(row.value ?? row.Value ?? 0),
       })),
     };
   } catch (err) {
@@ -414,12 +407,8 @@ export const fetchSeverityData = async () => {
       { name: 'INCIDENT', value: counts.INCIDENT || 0, color: COLORS.warn },
       { name: 'EVENT',    value: counts.EVENT || 0,    color: COLORS.textMuted },
     ];
-  } catch {
-    return [
-      { name: 'ALARM',    value: 0, color: COLORS.critical },
-      { name: 'INCIDENT', value: 0, color: COLORS.warn },
-      { name: 'EVENT',    value: 0, color: COLORS.textMuted },
-    ];
+  } catch (err) {
+    console.log(err);
   }
 };
 

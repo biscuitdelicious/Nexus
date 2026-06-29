@@ -1,0 +1,16 @@
+# Python API (chat_api): auth, discussions + WebSocket, metrics, chatbot.
+FROM python:3.13-slim
+
+WORKDIR /app
+
+# Install dependencies first so this layer is cached when only code changes.
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# App code (the three Python modules the server imports).
+COPY chat_api.py chatbot.py nexus_mcp.py ./
+
+EXPOSE 8002
+
+# 0.0.0.0 so the container port is reachable from the host.
+CMD ["uvicorn", "chat_api:app", "--host", "0.0.0.0", "--port", "8002"]

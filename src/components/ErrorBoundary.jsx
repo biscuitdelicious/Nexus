@@ -1,20 +1,5 @@
 import React from 'react';
 
-/**
- * Catches React render errors anywhere in the tree below.
- * Shows a fallback UI with the error and a Reset button
- * instead of letting the whole app go blank.
- *
- * Usage:
- *   <ErrorBoundary>
- *     <App />
- *   </ErrorBoundary>
- *
- * Or per-page:
- *   <ErrorBoundary scope="Dashboard">
- *     <Dashboard />
- *   </ErrorBoundary>
- */
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -41,7 +26,7 @@ class ErrorBoundary extends React.Component {
   };
 
   hardReload = () => {
-    try { sessionStorage.removeItem('nexus_user'); } catch {}
+    try { localStorage.removeItem('nexus_user'); } catch {}
     window.location.href = '/';
   };
 

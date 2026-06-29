@@ -6,6 +6,7 @@ import SecurityIcon from '@mui/icons-material/Security';
 import DnsIcon from '@mui/icons-material/Dns';
 import { fetchDevices } from '../services/api';
 import { COLORS } from '../theme/colors';
+import {refreshTime} from '../pages/Dashboard';
 
 const getIcon = (type) => {
   switch (type) {
@@ -26,7 +27,7 @@ const getStatusStyle = (status) => {
   }
 };
 
-const DeviceList = ({ showOnlyIssues = false, refreshMs = 5000 }) => {
+const DeviceList = ({ showOnlyIssues = false, refreshMs = refreshTime }) => {
   const [devices, setDevices] = useState([]);
   const [loading, setLoading] = useState(true);
 

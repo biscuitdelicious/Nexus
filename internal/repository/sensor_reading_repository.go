@@ -18,8 +18,7 @@ func (r *SensorReadingRepository) Create(reading *model.SensorReading) error {
 	return r.db.Create(reading).Error
 }
 
-// Latest N readings for a sensor, optionally limited to last `duration`.
-// Returns rows oldest → newest (good for charts).
+// Latest N readings for a sensor, optionally limited to last duration. Returns rows oldest → newest (good for charts).
 func (r *SensorReadingRepository) GetRecent(sensorID uint, limit int, duration time.Duration) ([]model.SensorReading, error) {
 	var rows []model.SensorReading
 	if limit <= 0 {

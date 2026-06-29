@@ -251,9 +251,39 @@ def signup(request: SignupRequest):
     )
 
 
-# =========================================================================
-# Discussions: REST + WebSocket for real-time comments
-# =========================================================================
+class SignupRequest(BaseModel):
+    email: str = Field(..., min_length=3)
+    password: str = Field(..., min_length=6, max_length=128)
+    first_name: str = Field(..., min_length=1)
+    last_name: str | None = None
+
+
+@app.post("/signup", response_model=LoginResponse)
+def signup(request: SignupRequest):
+    email = request.email.lower().strip()
+    password_hash = bcrypt.hashpw(
+        request.password.encode("utf-8"), bcrypt.gensalt()
+    ).decode("utf-8")
+
+    with db_conn() as conn:
+        with conn.cursor() as curr:
+            curr.execute("SELECT user_id FROM users WHERE email = %s", (email,))
+            if curr.fetchone():
+                raise HTTPException(status_code=409, detail="Email already registered")
+
+            curr.execute(
+                "INSERT INTO users (first_name, last_name, email, role, password_hash) "
+                "VALUES (%s, %s, %s, %s, %s) RETURNING user_id",
+                (request.first_name, request.last_name, email, "user", password_hash),
+            )
+            user_id = curr.fetchone()[0]
+            conn.commit()
+
+    return LoginResponse(
+        user_id=user_id, email=email, role="user",
+        first_name=request.first_name, last_name=request.last_name,
+    )
+
 
 class DiscussionSummary(BaseModel):
     discussion_id: int
@@ -464,8 +494,6 @@ async def change_status(discussion_id: int, req: StatusChangeRequest):
     return {"discussion_id": discussion_id, "status": new_status}
 
 
-# ---- WebSocket connection manager ----------------------------------------
-
 class _WSManager:
     def __init__(self):
         self.subs: dict[int, set[WebSocket]] = defaultdict(set)
@@ -498,10 +526,6 @@ class _WSManager:
 
 manager = _WSManager()
 
-
-# =========================================================================
-# Metrics: computed from events table (replaces frontend mocks)
-# =========================================================================
 
 class ObservabilityMetric(BaseModel):
     id: int

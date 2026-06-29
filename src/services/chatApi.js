@@ -31,4 +31,4 @@ export const resetChatSession = async (apiBaseUrl, sessionId) => {
 };
 
 export const getChatApiBaseUrl = () =>
-  import.meta.env.VITE_CHAT_API_BASE_URL || '/chat-api';
+  import.meta.env.VITE_CHAT_API_BASE_URL;

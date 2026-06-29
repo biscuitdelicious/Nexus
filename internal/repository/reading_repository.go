@@ -16,7 +16,7 @@ func NewReadingRepository(db *gorm.DB) *ReadingRepository {
 }
 
 // GetBySensor returns readings for one sensor within the last `duration`.
-// Optionally filter by metric name. Pass empty string to get all metrics.
+// Optionally filter by metric name, pass empty string to get all the metrics
 func (r *ReadingRepository) GetBySensor(sensorID uint, duration time.Duration, metric string) ([]model.Reading, error) {
 	var readings []model.Reading
 	since := time.Now().Add(-duration)
@@ -30,15 +30,14 @@ func (r *ReadingRepository) GetBySensor(sensorID uint, duration time.Duration, m
 	return readings, result.Error
 }
 
-// MetricSummary is a single metric + its latest value.
+// MetricSummary is a single metric + its latest value
 type MetricSummary struct {
 	Metric string    `json:"metric"`
 	Value  float64   `json:"value"`
 	Time   time.Time `json:"time"`
 }
 
-// LatestPerMetric returns the most recent reading for each metric across all sensors.
-// Used by the dashboard cards — "CPU_LOAD: 87%" etc.
+// Returns the last value for metrics. 
 func (r *ReadingRepository) LatestPerMetric() ([]MetricSummary, error) {
 	var summaries []MetricSummary
 

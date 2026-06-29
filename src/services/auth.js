@@ -6,17 +6,17 @@ const TOKEN_KEY = 'nexus_token';
 const USER_KEY = 'nexus_user';
 
 export const getToken = () => {
-  try { return sessionStorage.getItem(TOKEN_KEY); } catch { return null; }
+  try { return localStorage.getItem(TOKEN_KEY); } catch { return null; }
 };
 
 export const setToken = (token) => {
-  try { if (token) sessionStorage.setItem(TOKEN_KEY, token); } catch { /* ignore */ }
+  try { if (token) localStorage.setItem(TOKEN_KEY, token); } catch { /* ignore */ }
 };
 
 export const clearAuth = () => {
   try {
-    sessionStorage.removeItem(TOKEN_KEY);
-    sessionStorage.removeItem(USER_KEY);
+    localStorage.removeItem(TOKEN_KEY);
+    localStorage.removeItem(USER_KEY);
   } catch { /* ignore */ }
 };
 

@@ -49,7 +49,7 @@ const PROMPT_LIBRARY = [
   { label: 'LATEST READING', prompt: 'Show me the latest sensor reading for sensor 1.' },
   { label: 'AVG TEMP 24H', prompt: 'What is the average temperature in the last 24 hours?' },
   { label: 'AVG TEMP 1H', prompt: 'What is the average temperature in the last hour?' },
-  { label: 'RECENT ALARMS', prompt: 'List the 5 most recent alarms.' },
+  { label: 'RECENT ALARMS', prompt: 'List the 5 most recent events.' },
   { label: 'TOP DEVICES', prompt: 'Top 5 devices with the most incidents.' },
   { label: 'OPEN INCIDENTS', prompt: 'How many active incidents are there right now?' },
   { label: 'CRITICAL 24H', prompt: 'How many critical incidents occurred in the last 24 hours?' },
@@ -251,7 +251,7 @@ const Chatbot = () => {
   };
 
   return (
-    <Fade in timeout={600}>
+    <Fade in timeout={200}>
       <Box sx={{ display: 'flex', flexDirection: 'column', height: 'calc(100vh - 140px)' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', mb: 1, gap: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
@@ -274,7 +274,7 @@ const Chatbot = () => {
                 sx={{
                   color: COLORS.text,
                   fontFamily: '"Georgia", serif',
-                  fontStyle: 'italic',
+                  // fontStyle: 'italic',
                   fontWeight: 'normal'
                 }}
               >
@@ -289,7 +289,7 @@ const Chatbot = () => {
                   letterSpacing: '1px'
                 }}
               >
-                Ask about sensors, incidents, or the database.
+                Ask about sensors, incidents, or the database
               </Typography>
             </Box>
           </Box>
@@ -345,8 +345,7 @@ const Chatbot = () => {
                   width: 8,
                   height: 8,
                   bgcolor: COLORS.info,
-                  boxShadow: `0 0 8px ${COLORS.info}`,
-                  animation: 'pulse 2s infinite'
+                  boxShadow: `0 0 8px ${COLORS.info}`
                 }}
               />
               <Typography
@@ -486,8 +485,7 @@ const Chatbot = () => {
                               height: '1em',
                               ml: '2px',
                               bgcolor: COLORS.info,
-                              verticalAlign: 'text-bottom',
-                              animation: 'cursorBlink 1s steps(2) infinite'
+                              verticalAlign: 'text-bottom'
                             }}
                           />
                         )}
@@ -707,16 +705,6 @@ const Chatbot = () => {
             </IconButton>
           </Box>
         </Paper>
-
-        <style>{`
-          @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.4; }
-          }
-          @keyframes cursorBlink {
-            50% { opacity: 0; }
-          }
-        `}</style>
       </Box>
     </Fade>
   );

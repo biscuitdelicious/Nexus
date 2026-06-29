@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Skeleton } from '@mui/material';
 import { fetchResolutionData } from '../services/api';
 import { COLORS } from '../theme/colors';
+import {refreshTime} from '../pages/Dashboard';
 
 const ResolutionBarChart = () => {
   const [data, setData] = useState([]);
@@ -20,6 +21,10 @@ const ResolutionBarChart = () => {
       }
     };
     loadData();
+    const id = setInterval(loadData, refreshTime);
+    return () => {
+      clearInterval(id);
+    }
   }, []);
 
   if (loading) {
@@ -28,7 +33,7 @@ const ResolutionBarChart = () => {
 
   return (
     <ResponsiveContainer width="100%" height="100%">
-      <BarChart data={data} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+      <BarChart data={data} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
         <CartesianGrid strokeDasharray="3 3" vertical={false} stroke={COLORS.border} />
         <XAxis
           dataKey="day"
@@ -37,9 +42,12 @@ const ResolutionBarChart = () => {
           tickLine={false}
         />
         <YAxis
-          tick={{ fill: COLORS.textMuted, fontSize: 12, fontFamily: '"Roboto Mono", monospace' }}
+          tick={{ fill: COLORS.textMuted, fontSize: 9, fontFamily: '"Roboto Mono", monospace' }}
           axisLine={false}
           tickLine={false}
+          allowDecimals={false}
+          width={56}
+          tickFormatter={(val) => `${Math.round(val)}`}
         />
         <Tooltip
           cursor={{ fill: 'rgba(88, 166, 255, 0.08)' }}
@@ -55,9 +63,9 @@ const ResolutionBarChart = () => {
           }}
           itemStyle={{ color: COLORS.info, fontWeight: 700 }}
           labelStyle={{ color: COLORS.textMuted, marginBottom: '8px' }}
-          formatter={(value) => [`${value} MIN`, 'TIME']}
+          formatter={(value) => [`${Number(value).toFixed(2)} MIN`, 'TIME']}
         />
-        <Bar dataKey="time" fill={COLORS.info} radius={0} />
+        <Bar dataKey="time" fill={COLORS.info} radius={0} isAnimationActive={false} />
       </BarChart>
     </ResponsiveContainer>
   );

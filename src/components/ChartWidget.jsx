@@ -52,7 +52,7 @@ const CustomTooltip = ({ active, payload, label, unit = '' }) => {
         </Typography>
         {payload.map((entry, index) => (
           <Typography key={index} sx={{ color: entry.color, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', fontWeight: 700, marginBottom: 0.5 }}>
-            {entry.name || 'VALUE'}: {entry.value}{unit}
+            {entry.name || 'VALUE'}: {Number(entry.value).toFixed(2)}{unit}
           </Typography>
         ))}
       </Box>
@@ -62,7 +62,7 @@ const CustomTooltip = ({ active, payload, label, unit = '' }) => {
 };
 
 
-const ChartWidget = ({ range = '1h', onRangeChange, refreshMs = 8000 } = {}) => {
+const ChartWidget = ({ range = '1h', onRangeChange, onSensorChange, refreshMs = 5000 } = {}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -87,6 +87,14 @@ const ChartWidget = ({ range = '1h', onRangeChange, refreshMs = 8000 } = {}) => 
   const sensorName = selectedSensor?.name || `Sensor ${sensorId}`;
   const unit = selectedSensor?.unit || '';
   const seriesLabel = sensorName.toUpperCase();
+
+  // Tell the parent (Dashboard) which sensor is selected, so its SENSOR ID card
+  // stays in sync. Runs after render whenever the selection or the list changes.
+  useEffect(() => {
+    if (selectedSensor && typeof onSensorChange === 'function') {
+      onSensorChange(selectedSensor);
+    }
+  }, [sensorId, sensors, onSensorChange]);
 
   const currentRange =
     RANGE_PRESETS.find((p) => p.value === range)?.label || String(range || 'all');
@@ -145,7 +153,11 @@ const ChartWidget = ({ range = '1h', onRangeChange, refreshMs = 8000 } = {}) => 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1, flexShrink: 0 }}>
 
         
-        <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem' }}>
+        <Typography sx={{ 
+          color: COLORS.text, 
+          fontFamily: '"Georgia", serif', 
+          // fontStyle: 'italic', 
+          fontSize: '1.25rem' }}>
           Thermal Metrics
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>
@@ -291,7 +303,7 @@ const ChartWidget = ({ range = '1h', onRangeChange, refreshMs = 8000 } = {}) => 
             Failed to load readings {error?.status ? `(HTTP ${error.status})` : ''}: {error?.message || 'Unknown error'}
           </Typography>
           <Typography sx={{ mt: 1, color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>
-            Check that the API is running and `/readings` is available, then retry.
+            Check that the API is running and `/readings` is available.
           </Typography>
         </Alert>
       ) : data.length === 0 ? (
@@ -336,11 +348,12 @@ const ChartWidget = ({ range = '1h', onRangeChange, refreshMs = 8000 } = {}) => 
               minTickGap={56}
             />
             <YAxis
-              tick={{ fill: COLORS.textMuted, fontSize: 11, fontFamily: '"Roboto Mono", monospace' }}
+              tick={{ fill: COLORS.textMuted, fontSize: 10, fontFamily: '"Roboto Mono", monospace' }}
               axisLine={false}
               tickLine={false}
               width={56}
               domain={['dataMin - 5', 'dataMax + 5']}
+              allowDecimals={false}
               tickFormatter={(val) => `${Math.round(val)}${unit}`}
             />
             <Tooltip

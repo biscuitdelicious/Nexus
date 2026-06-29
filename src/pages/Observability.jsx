@@ -32,7 +32,7 @@ const Observability = () => {
   }, []);
 
   return (
-    <Fade in={true} timeout={800}>
+    <Fade in={true} timeout={200}>
       <Box sx={{ width: '100%', overflowX: 'hidden' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 1 }, gap: 2 }}>
           <Box
@@ -79,14 +79,14 @@ const Observability = () => {
             wordWrap: 'break-word'
           }}
         >
-          Live metrics and the latest log entries.
+          Live metrics and the latest log entries
         </Typography>
 
         <Box sx={{ mb: 4, width: '100%' }}>
           <MetricsCards metrics={metrics} loading={loading} />
         </Box>
 
-        <Box sx={{ animation: 'fadeInUp 0.8s ease-out', width: '100%' }}>
+        <Box sx={{ width: '100%' }}>
           {loading ? (
             <Skeleton variant="rectangular" height={300} sx={{ bgcolor: COLORS.surface, borderRadius: 0, width: '100%' }} />
           ) : (

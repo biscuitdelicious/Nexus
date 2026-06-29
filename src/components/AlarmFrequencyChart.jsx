@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Box, Typography, Skeleton, Select, MenuItem, FormControl } from '@mui/material';
 import { fetchAlarmFrequency } from '../services/api';
 import { COLORS } from '../theme/colors';
+import {refreshTime} from '../pages/Dashboard';
 
 const RANGE_OPTIONS = [
   { value: '30m',  label: '30 MIN' },
@@ -47,7 +48,7 @@ const AlarmFrequencyChart = () => {
       }
     };
     loadData();
-    const id = setInterval(loadData, 60000);
+    const id = setInterval(loadData, refreshTime);
     return () => {
       cancelled = true;
       clearInterval(id);
@@ -106,7 +107,7 @@ const AlarmFrequencyChart = () => {
             tickLine={false}
           />
           <Tooltip content={<CustomTooltip />} cursor={{ fill: 'rgba(248, 81, 73, 0.08)' }} />
-          <Bar dataKey="count" radius={[0, 2, 2, 0]} barSize={18}>
+          <Bar dataKey="count" radius={[0, 2, 2, 0]} barSize={18} isAnimationActive={false}>
             {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={index === 0 ? COLORS.critical : COLORS.warn} />
             ))}

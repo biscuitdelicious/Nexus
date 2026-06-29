@@ -12,10 +12,15 @@ import { COLORS } from '../theme/colors';
 
 const VALID_RANGES = new Set(['15m', '1h', '6h', '24h', '7d', '30d', '365d']);
 
+// Refresh time for all the components for the
+export const refreshTime = 5000;
+
 const Dashboard = ({ setActivePage }) => {
   const [params, patchParams] = useUrlState();
   const [metrics, setMetrics] = useState([]);
   const [loading, setLoading] = useState(true);
+  
+  const [activeSensor, setActiveSensor] = useState(null);
   const chartRange = VALID_RANGES.has(params.chart_range) ? params.chart_range : '1h';
   const setChartRange = (range) => patchParams({ chart_range: range });
 
@@ -32,7 +37,7 @@ const Dashboard = ({ setActivePage }) => {
       }
     };
     loadData();
-    const id = setInterval(loadData, 30000);
+    const id = setInterval(loadData, refreshTime);
     return () => {
       cancelled = true;
       clearInterval(id);
@@ -51,7 +56,7 @@ const Dashboard = ({ setActivePage }) => {
   };
 
   return (
-    <Fade in={true} timeout={800}>
+    <Fade in={true} timeout={200}>
       <Box sx={{ height: 'calc(100vh - 100px)', display: 'flex', flexDirection: 'column', gap: 1, overflow: 'hidden' }}>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, flexShrink: 0 }}>
           <Box
@@ -72,7 +77,7 @@ const Dashboard = ({ setActivePage }) => {
             sx={{
               color: COLORS.text,
               fontFamily: '"Georgia", serif',
-              fontStyle: 'italic',
+              // fontStyle: 'italic',
               fontWeight: 'normal',
             }}
           >
@@ -96,6 +101,11 @@ const Dashboard = ({ setActivePage }) => {
                 };
                 const target = CARD_TARGET[metric.title];
                 const clickable = !!target && typeof setActivePage === 'function';
+                // SENSOR ID card mirrors the sensor selected in the chart.
+                const displayValue =
+                  metric.title === 'SENSOR ID' && activeSensor
+                    ? (activeSensor.ip || `SN-${String(activeSensor.id).padStart(3, '0')}`)
+                    : metric.value;
                 return (
                 <Grid size={{ xs: 12, sm: 6, md: 3 }} key={metric.id}>
                   <Card
@@ -138,7 +148,7 @@ const Dashboard = ({ setActivePage }) => {
                           lineHeight: 1.1,
                         }}
                       >
-                        {metric.value}
+                        {displayValue}
                       </Typography>
                     </CardContent>
                   </Card>
@@ -150,13 +160,19 @@ const Dashboard = ({ setActivePage }) => {
         <Grid container spacing={1} alignItems="stretch" sx={{ flex: '1 1 0', minHeight: 0 }}>
           <Grid size={{ xs: 12, md: 8 }} sx={{ minWidth: 0, height: '100%' }}>
             <Box sx={{ height: '100%', width: '100%', minWidth: 0 }}>
-              <ChartWidget range={chartRange} onRangeChange={setChartRange} />
+              <ChartWidget range={chartRange} onRangeChange={setChartRange} onSensorChange={setActiveSensor} />
             </Box>
           </Grid>
 
           <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%' }}>
             <Paper variant="outlined" sx={paperStyle}>
-              <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '0.95rem', mb: 0.5, flexShrink: 0 }}>
+              <Typography sx={{ 
+                color: COLORS.text, 
+                fontFamily: '"Georgia", serif', 
+                // fontStyle: 'italic', 
+                fontSize: '0.95rem', 
+                mb: 0.5, 
+                flexShrink: 0 }}>
                 Active Incidents
               </Typography>
               <Box
@@ -184,7 +200,13 @@ const Dashboard = ({ setActivePage }) => {
         <Grid container spacing={1} alignItems="stretch" sx={{ flex: '1 1 0', minHeight: 0 }}>
           <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%' }}>
             <Paper variant="outlined" sx={paperStyle}>
-              <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '0.95rem', mb: 0.5, flexShrink: 1 }}>
+              <Typography sx={{ 
+                color: COLORS.text, 
+                fontFamily: '"Georgia", serif', 
+                // fontStyle: 'italic', 
+                fontSize: '0.95rem', 
+                mb: 0.5, 
+                flexShrink: 1 }}>
                 Total Tickets
               </Typography>
               <Box sx={{ flexGrow: 1, minHeight: 0 }}>
@@ -195,7 +217,13 @@ const Dashboard = ({ setActivePage }) => {
 
           <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%' }}>
             <Paper variant="outlined" sx={paperStyle}>
-              <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '0.95rem', mb: 0.5, flexShrink: 1 }}>
+              <Typography sx={{ 
+                color: COLORS.text, 
+                fontFamily: '"Georgia", serif', 
+                // fontStyle: 'italic', 
+                fontSize: '0.95rem', 
+                mb: 0.5, 
+                flexShrink: 1 }}>
                 Alarms Frequency
               </Typography>
               <Box sx={{ flexGrow: 1, minHeight: 0 }}>
@@ -206,7 +234,13 @@ const Dashboard = ({ setActivePage }) => {
 
           <Grid size={{ xs: 12, md: 4 }} sx={{ height: '100%' }}>
             <Paper variant="outlined" sx={paperStyle}>
-              <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '0.95rem', mb: 0.5, flexShrink: 1 }}>
+              <Typography sx={{ 
+                color: COLORS.text, 
+                fontFamily: '"Georgia", serif', 
+                // fontStyle: 'italic', 
+                fontSize: '0.95rem', 
+                mb: 0.5, 
+                flexShrink: 1 }}>
                 Avg Resolution
               </Typography>
               <Box sx={{ flexGrow: 1, minHeight: 0 }}>

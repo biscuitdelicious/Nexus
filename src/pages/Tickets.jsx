@@ -58,7 +58,7 @@ const Tickets = () => {
     }
   };
 
-  // Per-ticket snooze menu state. Keyed by ticket id.
+
   const [snoozeAnchor, setSnoozeAnchor] = useState({ id: null, el: null });
 
   const openSnoozeMenu = (id, el) => setSnoozeAnchor({ id, el });
@@ -76,7 +76,7 @@ const Tickets = () => {
   };
 
   return (
-    <Fade in={true} timeout={800}>
+    <Fade in={true} timeout={200}>
       <Box>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 1, gap: 2 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 1.5, background: COLORS.surface, border: `1px solid ${COLORS.border}` }}>
@@ -88,7 +88,7 @@ const Tickets = () => {
         </Box>
 
         <Typography sx={{ mb: 4, ml: 8.5, color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-          Open alarms waiting to be acknowledged.
+          Open alarms waiting to be acknowledged
         </Typography>
 
         {loading ? (
