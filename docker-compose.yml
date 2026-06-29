@@ -61,6 +61,26 @@ services:
     networks:
       - nexus_net
 
+  # Python API: auth, discussions + WebSocket, metrics, chatbot.
+  chat_api:
+    build:
+      context: .
+      dockerfile: Dockerfile.chatapi
+    container_name: ${COMPOSE_PROJECT_NAME:-nexus}-chatapi
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      DB_HOST: postgres      # connect to the postgres container over the network
+      DB_PORT: "5432"        # internal port (not the host-published 5434)
+    ports:
+      - "8002:8002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - nexus_net
+
   # TLS reverse proxy (production). Only starts with: docker compose --profile prod up
   # Terminates HTTPS and proxies to api (+ chat_api on the host). Dev `up` skips it.
   caddy:

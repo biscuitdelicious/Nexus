@@ -138,7 +138,7 @@ const Login = ({ onLogin }) => {
               sx={{
                 color: '#FFFFFF',
                 fontFamily: '"Georgia", serif',
-                fontStyle: 'italic',
+                // fontStyle: 'italic',
                 fontWeight: 'normal'
               }}
             >

@@ -62,7 +62,7 @@ const CustomTooltip = ({ active, payload, label, unit = '' }) => {
 };
 
 
-const ChartWidget = ({ range = '1h', onRangeChange, onSensorChange, refreshMs = 8000 } = {}) => {
+const ChartWidget = ({ range = '1h', onRangeChange, onSensorChange, refreshMs = 5000 } = {}) => {
   const [data, setData] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -153,7 +153,11 @@ const ChartWidget = ({ range = '1h', onRangeChange, onSensorChange, refreshMs = 
       <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 1, flexShrink: 0 }}>
 
         
-        <Typography sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem' }}>
+        <Typography sx={{ 
+          color: COLORS.text, 
+          fontFamily: '"Georgia", serif', 
+          // fontStyle: 'italic', 
+          fontSize: '1.25rem' }}>
           Thermal Metrics
         </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.25 }}>

@@ -3,15 +3,16 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import { Box, Typography, Skeleton } from '@mui/material';
 import { fetchSeverityData } from '../services/api';
 import { COLORS } from '../theme/colors';
+import {refreshTime} from '../pages/Dashboard';
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
     return (
-      <Box sx={{ bgcolor: COLORS.surface, border: `1px solid ${COLORS.border}`, p: 1.5, borderRadius: 0 }}>
-        <Typography sx={{ color: payload[0].payload.fill, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem', fontWeight: 700, mb: 0.5, letterSpacing: '1px' }}>
+      <Box sx={{ bgcolor: COLORS.surface, border: `1px solid ${COLORS.border}`, p: 1, borderRadius: 0 }}>
+        <Typography sx={{ color: payload[0].payload.fill, fontFamily: '"Roboto Mono", monospace', fontSize: '1rem', fontWeight: 700, mb: 0.2, letterSpacing: '1px' }}>
           {payload[0].name}
         </Typography>
-        <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '1.25rem', fontWeight: 700 }}>
+        <Typography sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '1.15rem', fontWeight: 700 }}>
           {payload[0].value}
         </Typography>
       </Box>
@@ -37,7 +38,7 @@ const SeverityPieChart = ({ onSelect }) => {
       }
     };
     loadData();
-    const id = setInterval(loadData, 30000);
+    const id = setInterval(loadData, refreshTime);
     return () => {
       cancelled = true;
       clearInterval(id);
@@ -51,8 +52,6 @@ const SeverityPieChart = ({ onSelect }) => {
   const total = data.reduce((sum, d) => sum + (d.value || 0), 0);
   const empty = total === 0;
   const clickable = typeof onSelect === 'function';
-
-  // When empty, draw one full muted ring so it's a real donut, not dead pixels.
   const chartData = empty ? [{ name: 'NONE', value: 1, color: COLORS.border }] : data;
 
   return (
@@ -67,9 +66,9 @@ const SeverityPieChart = ({ onSelect }) => {
             data={chartData}
             cx="50%"
             cy="50%"
-            innerRadius={60}
-            outerRadius={85}
-            paddingAngle={empty ? 0 : 3}
+            innerRadius={80}
+            outerRadius={105}
+            paddingAngle={data.filter(d => d.value > 0).length > 1 ? 1 : 0}
             dataKey="value"
             stroke="none"
             isAnimationActive={false}
@@ -84,8 +83,8 @@ const SeverityPieChart = ({ onSelect }) => {
 
       {/* Center label: "NO TICKETS" only on the empty placeholder ring. */}
       {empty && (
-        <Box sx={{ position: 'absolute', inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
-          <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.7rem', letterSpacing: '1px' }}>
+        <Box sx={{ position: 'absolute' , inset: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', pointerEvents: 'none' }}>
+          <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.9rem', fontWeight: 700, letterSpacing: '1px' }}>
             NO TICKETS
           </Typography>
         </Box>

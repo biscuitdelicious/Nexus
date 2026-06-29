@@ -10,12 +10,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from datetime import datetime, timezone
-
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    pass
+from pathlib import Path
+from dotenv import load_dotenv
+load_dotenv(Path(__file__).parent / ".env")
 
 email_expeditor  = "victor05florea@gmail.com"
 parola_aplicatie = os.getenv("GMAIL_PASSWORD")

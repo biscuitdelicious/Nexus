@@ -285,10 +285,6 @@ def signup(request: SignupRequest):
     )
 
 
-# =========================================================================
-# Discussions: REST + WebSocket for real-time comments
-# =========================================================================
-
 class DiscussionSummary(BaseModel):
     discussion_id: int
     title: str
@@ -498,8 +494,6 @@ async def change_status(discussion_id: int, req: StatusChangeRequest):
     return {"discussion_id": discussion_id, "status": new_status}
 
 
-# ---- WebSocket connection manager ----------------------------------------
-
 class _WSManager:
     def __init__(self):
         self.subs: dict[int, set[WebSocket]] = defaultdict(set)
@@ -532,10 +526,6 @@ class _WSManager:
 
 manager = _WSManager()
 
-
-# =========================================================================
-# Metrics: computed from events table (replaces frontend mocks)
-# =========================================================================
 
 class ObservabilityMetric(BaseModel):
     id: int

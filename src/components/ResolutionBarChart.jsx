@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Skeleton } from '@mui/material';
 import { fetchResolutionData } from '../services/api';
 import { COLORS } from '../theme/colors';
+import {refreshTime} from '../pages/Dashboard';
 
 const ResolutionBarChart = () => {
   const [data, setData] = useState([]);
@@ -20,6 +21,10 @@ const ResolutionBarChart = () => {
       }
     };
     loadData();
+    const id = setInterval(loadData, refreshTime);
+    return () => {
+      clearInterval(id);
+    }
   }, []);
 
   if (loading) {

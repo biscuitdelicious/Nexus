@@ -3,6 +3,7 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import { Box, Typography, Skeleton, Select, MenuItem, FormControl } from '@mui/material';
 import { fetchAlarmFrequency } from '../services/api';
 import { COLORS } from '../theme/colors';
+import {refreshTime} from '../pages/Dashboard';
 
 const RANGE_OPTIONS = [
   { value: '30m',  label: '30 MIN' },
@@ -47,7 +48,7 @@ const AlarmFrequencyChart = () => {
       }
     };
     loadData();
-    const id = setInterval(loadData, 60000);
+    const id = setInterval(loadData, refreshTime);
     return () => {
       cancelled = true;
       clearInterval(id);

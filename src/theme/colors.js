@@ -14,7 +14,7 @@ export const COLORS = {
   incident:  '#A371F7',   // another color for incident
   info:      '#58A6FF',   // info
 
-  // Only for selected stuff()
+  // Only for selected stuff
   accentNeon: '#D4FF00',
 };
 

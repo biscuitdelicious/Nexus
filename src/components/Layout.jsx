@@ -51,6 +51,7 @@ import {
 import { fetchDashboardMetrics, fetchLiveFeed } from '../services/api';
 import { useUrlState } from '../hooks/useUrlState';
 import { COLORS } from '../theme/colors';
+import {refreshTime} from '../pages/Dashboard'
 
 const VALID_NOTIF_FILTERS = new Set(['ALL', 'INCIDENT', 'ALARM', 'EVENT']);
 
@@ -148,7 +149,7 @@ const Layout = ({ children, activePage, setActivePage, onLogout, user, sharedDat
     };
 
     loadNotifications();
-    timer = setInterval(loadNotifications, 60000);
+    timer = setInterval(loadNotifications, refreshTime);
     return () => {
       mounted = false;
       if (timer) clearInterval(timer);
@@ -236,7 +237,7 @@ const Layout = ({ children, activePage, setActivePage, onLogout, user, sharedDat
               variant="h5"
               noWrap
               sx={{
-                color: COLORS.accentNeon,
+                color: COLORS.text,
                 fontFamily: '"Roboto Mono", monospace',
                 fontWeight: 700,
                 letterSpacing: '-1px'
@@ -432,18 +433,27 @@ const Layout = ({ children, activePage, setActivePage, onLogout, user, sharedDat
           </ListItem>
         </List>
 
-        {!isCollapsed && (
-          <Box sx={{ p: 2, whiteSpace: 'nowrap' }}>
-            <Box sx={{ p: 1.5, borderRadius: 0, backgroundColor: COLORS.surface, border: `1px solid ${COLORS.border}` }}>
-              <Typography sx={{ color: COLORS.textMuted, fontFamily: '"Roboto Mono", monospace', fontSize: '0.65rem', textTransform: 'uppercase', letterSpacing: '1px', mb: 0.5 }}>
-                Buffer State
-              </Typography>
-              <Typography sx={{ color: COLORS.accentNeon, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}>
-                OPTIMAL
-              </Typography>
-            </Box>
-          </Box>
-        )}
+        {!isCollapsed ? (
+  <Box sx={{ p: 2 }}>
+    <Box sx={{ display: 'flex', alignItems: 'center', gap: 1.5, p: 1.5, border: `1px solid ${COLORS.border}` }}>
+      <Avatar sx={{ width: 28, height: 28, bgcolor: COLORS.info, color: COLORS.bg, borderRadius: 0, fontSize: '0.7rem' }}>
+        {user.email.substring(0, 2).toUpperCase()}
+      </Avatar>
+      <Box sx={{ flex: 1, minWidth: 0 }}>
+        <Typography noWrap sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', fontSize: '0.75rem' }}>
+          {user.email}
+        </Typography>
+      </Box>
+      <IconButton size="small" onClick={onLogout}><LogoutIcon sx={{ fontSize: 16, color: COLORS.textMuted }} /></IconButton>
+    </Box>
+  </Box>
+) : (
+  <Box sx={{ p: 2, display: 'flex', justifyContent: 'center' }}>
+    <Avatar sx={{ width: 32, height: 32, bgcolor: COLORS.info, color: COLORS.bg, borderRadius: 0, fontSize: '0.75rem' }}>
+      {user.email.substring(0, 2).toUpperCase()}
+    </Avatar>
+  </Box>
+)}
       </Box>
 
       {showExtendedPanel && (
@@ -574,7 +584,11 @@ const Layout = ({ children, activePage, setActivePage, onLogout, user, sharedDat
           </Box>
 
           <Box sx={{ display: { xs: 'none', sm: 'flex' }, alignItems: 'center' }}>
-             <Typography sx={{ fontFamily: '"Georgia", serif', fontStyle: 'italic', fontSize: '1.25rem', color: COLORS.text }}>
+             <Typography sx={{ 
+              fontFamily: '"Georgia", serif', 
+              // fontStyle: 'italic', 
+              fontSize: '1.25rem', 
+              color: COLORS.text }}>
                 {activePage}
              </Typography>
           </Box>

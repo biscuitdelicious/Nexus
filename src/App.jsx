@@ -36,7 +36,7 @@ function App() {
   const [params, patchParams] = useUrlState();
   const [user, setUser] = useState(() => {
     try {
-      const raw = sessionStorage.getItem('nexus_user');
+      const raw = localStorage.getItem('nexus_user');
       return raw ? JSON.parse(raw) : null;
     } catch { return null; }
   });
@@ -49,7 +49,7 @@ function App() {
   };
 
   const handleLogin = (userData) => {
-    try { sessionStorage.setItem('nexus_user', JSON.stringify(userData)); } catch {}
+    try { localStorage.setItem('nexus_user', JSON.stringify(userData)); } catch {}
     if (userData?.token) setToken(userData.token);
     setUser(userData);
   };

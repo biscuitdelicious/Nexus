@@ -84,7 +84,7 @@ const Devices = () => {
               sx={{
                 color: COLORS.text,
                 fontFamily: '"Georgia", serif',
-                fontStyle: 'italic',
+                // fontStyle: 'italic',
                 fontWeight: 'normal',
               }}
             >
@@ -105,7 +105,7 @@ const Devices = () => {
             letterSpacing: '1px'
           }}
         >
-          Sensors, locations, and physical units in the network.
+          Sensors, locations, and physical units in the network
         </Typography>
 
         <Grid container spacing={3} sx={{ mb: 4 }}>

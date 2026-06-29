@@ -57,7 +57,10 @@ const NocWall = ({ setActivePage }) => {
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', p: 1.5, background: COLORS.surface, border: `1px solid ${COLORS.border}` }}>
             <GridViewIcon sx={{ color: COLORS.info, fontSize: 28 }} />
           </Box>
-          <Typography variant="h4" sx={{ color: COLORS.text, fontFamily: '"Georgia", serif', fontStyle: 'italic', fontWeight: 'normal' }}>
+          <Typography variant="h4" sx={{ color: COLORS.text, 
+            fontFamily: '"Georgia", serif', 
+            // fontStyle: 'italic', 
+            fontWeight: 'normal' }}>
             NOC Wall
           </Typography>
         </Box>

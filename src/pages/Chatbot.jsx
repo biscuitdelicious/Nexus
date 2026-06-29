@@ -49,7 +49,7 @@ const PROMPT_LIBRARY = [
   { label: 'LATEST READING', prompt: 'Show me the latest sensor reading for sensor 1.' },
   { label: 'AVG TEMP 24H', prompt: 'What is the average temperature in the last 24 hours?' },
   { label: 'AVG TEMP 1H', prompt: 'What is the average temperature in the last hour?' },
-  { label: 'RECENT ALARMS', prompt: 'List the 5 most recent alarms.' },
+  { label: 'RECENT ALARMS', prompt: 'List the 5 most recent events.' },
   { label: 'TOP DEVICES', prompt: 'Top 5 devices with the most incidents.' },
   { label: 'OPEN INCIDENTS', prompt: 'How many active incidents are there right now?' },
   { label: 'CRITICAL 24H', prompt: 'How many critical incidents occurred in the last 24 hours?' },
@@ -274,7 +274,7 @@ const Chatbot = () => {
                 sx={{
                   color: COLORS.text,
                   fontFamily: '"Georgia", serif',
-                  fontStyle: 'italic',
+                  // fontStyle: 'italic',
                   fontWeight: 'normal'
                 }}
               >
@@ -289,7 +289,7 @@ const Chatbot = () => {
                   letterSpacing: '1px'
                 }}
               >
-                Ask about sensors, incidents, or the database.
+                Ask about sensors, incidents, or the database
               </Typography>
             </Box>
           </Box>

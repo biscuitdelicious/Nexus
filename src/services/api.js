@@ -2,7 +2,8 @@ import { COLORS } from '../theme/colors';
 import { getChatApiBaseUrl } from './chatApi';
 import { apiFetch } from './auth';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080";
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
 
 /**
  * Read the currently logged-in user from sessionStorage.
@@ -10,7 +11,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "http://localhost:8080
  */
 export const getCurrentUser = () => {
   try {
-    const raw = sessionStorage.getItem('nexus_user');
+    const raw = localStorage.getItem('nexus_user');
     return raw ? JSON.parse(raw) : null;
   } catch {
     return null;
@@ -406,12 +407,8 @@ export const fetchSeverityData = async () => {
       { name: 'INCIDENT', value: counts.INCIDENT || 0, color: COLORS.warn },
       { name: 'EVENT',    value: counts.EVENT || 0,    color: COLORS.textMuted },
     ];
-  } catch {
-    return [
-      { name: 'ALARM',    value: 0, color: COLORS.critical },
-      { name: 'INCIDENT', value: 0, color: COLORS.warn },
-      { name: 'EVENT',    value: 0, color: COLORS.textMuted },
-    ];
+  } catch (err) {
+    console.log(err);
   }
 };
 

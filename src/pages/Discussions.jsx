@@ -2,7 +2,8 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import {
   Box, Typography, Paper, Avatar, TextField, Button,
   Chip, Divider, Fade, Grid, List, ListItem, ListItemButton,
-  Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress
+  Dialog, DialogTitle, DialogContent, DialogActions, CircularProgress,
+  MenuItem
 } from '@mui/material';
 import ErrorIcon from '@mui/icons-material/Error';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
@@ -23,6 +24,8 @@ import {
   subscribeToDiscussion,
 } from '../services/discussionsApi';
 
+import {fetchDevices} from '../services/api';
+
 const formatTime = (iso) => {
   if (!iso) return '';
   const d = new Date(iso);
@@ -34,9 +37,10 @@ const formatTime = (iso) => {
   return d.toLocaleString();
 };
 
+
 const getCurrentUserDisplay = () => {
   try {
-    const raw = sessionStorage.getItem('nexus_user');
+    const raw = localStorage.getItem('nexus_user');
     if (!raw) return 'guest';
     const u = JSON.parse(raw);
     return u?.email || u?.first_name || 'user';
@@ -60,6 +64,7 @@ const Discussions = () => {
   const [newTopicOpen, setNewTopicOpen] = useState(false);
   const [newTopicData, setNewTopicData] = useState({ title: '', body: '', device_label: '' });
   const [creatingTopic, setCreatingTopic] = useState(false);
+  const [devices, setDevices] = useState([]);
 
   const commentsEndRef = useRef(null);
   const incidentId = params.incident ? Number(params.incident) : null;
@@ -182,7 +187,10 @@ const Discussions = () => {
     }
   };
 
-  // ===================== LIST VIEW =====================
+  useEffect(() => {
+    fetchDevices().then((d) => setDevices(Array.isArray(d) ? d : [])).catch(() => setDevices([]));
+  }, []);
+
   if (!incidentId) {
     return (
       <Fade in={true} timeout={200}>
@@ -199,8 +207,10 @@ const Discussions = () => {
               </Box>
               <Box>
                 <Typography variant="h4" sx={{
-                  color: COLORS.text, fontFamily: '"Georgia", serif',
-                  fontStyle: 'italic', fontWeight: 'normal',
+                  color: COLORS.text, 
+                  fontFamily: '"Georgia", serif',
+                  // fontStyle: 'italic', 
+                  fontWeight: 'normal',
                   fontSize: { xs: '1.5rem', sm: '2.125rem' }
                 }}>
                   Discussions
@@ -228,7 +238,7 @@ const Discussions = () => {
             textTransform: 'uppercase', letterSpacing: '1px',
             wordWrap: 'break-word'
           }}>
-            Threads about incidents. Add comments, change status.
+            Threads about incidents. Add comments, change status
           </Typography>
 
           {listLoading && (
@@ -297,7 +307,7 @@ const Discussions = () => {
             onClose={() => setNewTopicOpen(false)}
             PaperProps={{ sx: { bgcolor: COLORS.surface, border: `1px solid ${COLORS.border}`, borderRadius: 0, minWidth: 480 } }}
           >
-            <DialogTitle sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', borderBottom: `1px solid ${COLORS.border}` }}>
+            <DialogTitle sx={{ color: COLORS.text, fontFamily: '"Roboto Mono", monospace', borderBottom: `1px solid ${COLORS.border}`, width: 450 }}>
               New Discussion
             </DialogTitle>
             <DialogContent sx={{ pt: 3, display: 'flex', flexDirection: 'column', gap: 2 }}>
@@ -309,12 +319,17 @@ const Discussions = () => {
                 sx={{ mt: 2, '& .MuiInputBase-root': { color: COLORS.text, fontFamily: '"Roboto Mono", monospace' }, '& .MuiFormLabel-root': { color: COLORS.textMuted } }}
               />
               <TextField
+                select
                 label="Affected device (optional)" variant="outlined" fullWidth
                 value={newTopicData.device_label}
                 onChange={(e) => setNewTopicData((d) => ({ ...d, device_label: e.target.value }))}
                 InputLabelProps={{ shrink: true }}
                 sx={{ '& .MuiInputBase-root': { color: COLORS.text, fontFamily: '"Roboto Mono", monospace' }, '& .MuiFormLabel-root': { color: COLORS.textMuted } }}
-              />
+              >
+                {devices.map((d) => (
+                  <MenuItem key={d.id} value={d.name}>{d.name}</MenuItem>
+                ))}
+              </TextField>
               <TextField
                 label="Body" variant="outlined" fullWidth multiline minRows={4}
                 value={newTopicData.body}

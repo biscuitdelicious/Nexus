@@ -79,7 +79,7 @@ const Observability = () => {
             wordWrap: 'break-word'
           }}
         >
-          Live metrics and the latest log entries.
+          Live metrics and the latest log entries
         </Typography>
 
         <Box sx={{ mb: 4, width: '100%' }}>

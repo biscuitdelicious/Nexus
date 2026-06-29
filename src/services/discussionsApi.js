@@ -39,10 +39,11 @@ export const fetchDiscussionDetail = (id) =>
 
 const getCurrentUserId = () => {
   try {
-    const raw = sessionStorage.getItem('nexus_user');
+    const raw = localStorage.getItem('nexus_user');
     return raw ? (JSON.parse(raw)?.user_id ?? null) : null;
   } catch { return null; }
 };
+
 
 export const createDiscussion = (payload) =>
   apiFetch(`${getChatApiBaseUrl()}/discussions`, {
