@@ -20,27 +20,27 @@ _For the purpose of demo, the sensors are not real and the data is just syntheti
 ### Dashboard
 
 <div align="center">
-  <img src="media/mainDashboard.png" alt="Main Dashboard" width="450"/>
+  <img src="media/mainDashboard.png" alt="Main Dashboard" width="650"/>
 </div>
 
 ### Add device
 
 <div align="center">
-  <img src="media/createNewDevice.png" alt="Create New Device" width="450"/>
+  <img src="media/createNewDevice.png" alt="Create New Device" width="650"/>
 </div>
 
 
 ### Discussion page
 
 <div align="center">
-  <img src="media/discussionPage.png" alt="Discussion Page" width="450"/>
+  <img src="media/discussionPage.png" alt="Discussion Page" width="650"/>
 </div>
 
 
 ### Chatbot assistant
 
 <div align="center">
-  <img src="media/chatbotAssistant.png" alt="Chatbot Assistant" width="450"/>
+  <img src="media/chatbotAssistant.png" alt="Chatbot Assistant" width="650"/>
 </div>
 
 
