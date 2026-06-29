@@ -20,7 +20,7 @@ _For the purpose of demo, the sensors are not real and the data is just syntheti
 ### Dashboard
 
 <div align="center">
-  <img src="media/mainDashboard.png" alt="Main Dashboard" width="650"/>
+  <img src="media/mainDashboard.png" alt="Main Dashboard" width="950"/>
 </div>
 
 ### Add device
