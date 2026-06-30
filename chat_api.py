@@ -93,7 +93,7 @@ app.add_middleware(
 # Machine clients may instead send the shared SERVICE_TOKEN.
 # =========================================================================
 
-JWT_SECRET = os.getenv("JWT_SECRET", "dev-insecure-change-me")
+JWT_SECRET = os.getenv("JWT_SECRET")
 JWT_ALG = "HS256"
 JWT_TTL_SECONDS = int(os.getenv("JWT_TTL_SECONDS", str(12 * 3600)))
 SERVICE_TOKEN = os.getenv("SERVICE_TOKEN", "")

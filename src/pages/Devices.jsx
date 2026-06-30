@@ -11,9 +11,16 @@ const Devices = () => {
   const [loading, setLoading] = useState(true);
   const [addOpen, setAddOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
-  const [lastScan, setLastScan] = useState(null);
   const [scanning, setScanning] = useState(false);
   const [clearing, setClearing] = useState(false);
+  const [lastScan, setLastScan] = useState(() => {
+    try { 
+      const savedLastScanTime = localStorage.getItem('lastScanDate');
+      return savedLastScanTime;
+    } catch (e) {
+      console.log(e);
+    }
+  });
 
   useEffect(() => {
     const loadStats = async () => {
@@ -25,7 +32,6 @@ const Devices = () => {
         const healthPercentage = total > 0 ? Math.round((healthy / total) * 100) : 0;
 
         setStats({ total, healthy, issues, healthPercentage });
-        setLastScan(new Date());
       } catch (error) {
         console.error(error);
       } finally {
@@ -41,8 +47,12 @@ const Devices = () => {
     setRefreshKey((k) => k + 1);
   };
 
-  // Re-scan = re-fetch sensors + derived status from backend.
+  // Re-scan = re-fetch sensors + derived status from backend
   const handleScan = () => {
+    const lastScanTime = new Date().toLocaleString([], {weekday: "short", month: "long", day: "2-digit", hour: "2-digit", minute: "2-digit"});
+    localStorage.setItem('lastScanDate', lastScanTime);
+
+    setLastScan(lastScanTime);
     setScanning(true);
     setRefreshKey((k) => k + 1);
   };
@@ -227,7 +237,7 @@ const Devices = () => {
                   Last Scan:
                 </Typography>
                 <Typography sx={{ color: COLORS.info, fontFamily: '"Roboto Mono", monospace', fontSize: '0.85rem', letterSpacing: '1px' }}>
-                  {lastScan ? `TODAY ${lastScan.toLocaleTimeString('ro-RO', { hour: '2-digit', minute: '2-digit' })}` : '—'}
+                  {lastScan}
                 </Typography>
               </Box>
             </Paper>
